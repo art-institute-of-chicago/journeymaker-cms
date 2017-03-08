@@ -1,4 +1,5 @@
 ![Art Institute of Chicago](https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif)
+<img src=journeymaker-logo.png alt="JourneyMaker: Your Journey Begins Here" width=75% style="float: right"/>
 
 # JourneyMaker CMS
 > A Drupal 7 site to administer content
