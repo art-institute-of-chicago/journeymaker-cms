@@ -157,6 +157,3 @@ Design and Development by [Belle & Wissel Co](http://www.bwco.info/).
 The code in this project is licensed under the [GNU Affero General Public 
 License Version 3](LICENSE).
 
-## Contact
-
-For questions or concerns, please contact 
