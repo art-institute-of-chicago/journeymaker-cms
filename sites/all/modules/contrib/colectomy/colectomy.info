@@ -1,0 +1,12 @@
+name = Colectomy
+description = Adds an option to field settings to hide the colon on field labels in field forms.
+core = 7.x
+package = Fields
+files[] = tests/colectomy.test
+
+; Information added by Drupal.org packaging script on 2014-01-22
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "colectomy"
+datestamp = "1390388627"
+

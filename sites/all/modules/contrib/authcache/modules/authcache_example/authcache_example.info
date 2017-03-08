@@ -1,0 +1,12 @@
+name = Authcache Example
+description = Example module that displays a cachable Drupal block of customizable user content.
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache
+files[] =
+; Information added by drupal.org packaging script on 2013-08-05
+version = "7.x-1.5"
+core = "7.x"
+project = "authcache"
+datestamp = "1375727168"
+

@@ -1,0 +1,98 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the authcache module.
+ *
+ */
+
+
+/**
+ * Implements hook_enable().
+ */
+function authcache_enable() {
+  global $user;
+
+  // Did admin follow install instructions?
+  if (!_authcache_backendstatus()) {
+    drupal_set_message(st('Your settings.php file must be modified to enable Authcache. See <a href="@url">README.txt</a>.', array('@url' => base_path() . drupal_get_path('module', 'authcache') . '/README.txt')), 'error');
+  }
+
+  drupal_set_message(st('Authcache has been enabled. Please configure your caching settings under <a href="@url">Site Configuration -> Performance -> Authcache</a>.', array('@url' => base_path() . 'admin/config/development/performance/authcache')), 'warning');
+
+  // Set authcache cookie for user so they don't receive cached anon pages.
+  if (!drupal_is_cli()) {
+    authcache_user_login($user, $user);
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+function authcache_disable() {
+
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function authcache_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  // Retrieve the name of the cache class used for the cache_page bin.
+  $page_cache_class = get_class(_cache_get_object('cache_page'));
+
+  $requirements['authcache'] = array(
+    'title' => $t('Authcache'),
+  );
+  if (_authcache_backendstatus()) {
+    $requirements['authcache']['value'] = $t('Using %class as cache backend', array('%class' => $page_cache_class));
+  }
+  else {
+    $requirements['authcache']['value'] = $t('authcache.inc is not the last entry in cache_backends variable.');
+    $requirements['authcache']['description'] = $t('Your settings.php file must be modified to enable Authcache. See <a href="@url">README.txt</a>.', array('@url' => base_path() . drupal_get_path('module', 'authcache') . '/README.txt'));
+    $requirements['authcache']['severity'] = ($phase == 'runtime') ? REQUIREMENT_ERROR : REQUIREMENT_WARNING;
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_install().
+ */
+function authcache_install() {
+  // Ensure that the module is loaded early in the bootstrap:
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("UPDATE {system} SET weight = -90 WHERE name = '%s'", 'authcache') */
+  db_update('system')
+  ->fields(array(
+    'weight' => -90,
+  ))
+  ->condition('name', 'authcache')
+  ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function authcache_uninstall() {
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {variable} WHERE name LIKE '%s_%%'", 'authcache') */
+  db_delete('variable')
+  ->condition('name', 'authcache', 'LIKE')
+  ->execute();
+  cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Return true if settings.php is properly configured and authcache.inc is the
+ * last entry in the cache_backends array.
+ */
+function _authcache_backendstatus() {
+  // Check whether authcache.inc is last in cache_backends.
+  $backends = variable_get('cache_backends', array());
+  $last_in_backends = end($backends);
+  $authcache_inc = drupal_get_path('module', 'authcache') . '/authcache.inc';
+  return $authcache_inc == $last_in_backends;
+}

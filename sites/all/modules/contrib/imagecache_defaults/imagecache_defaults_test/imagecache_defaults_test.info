@@ -1,0 +1,27 @@
+name = ImageCache Defaults Tests
+description = Test module for ImageCache Defaults testing.
+core = 7.x
+package = Testing
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = field_sql_storage
+dependencies[] = image
+dependencies[] = node
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:1
+features[field][] = node-imagecache_defaults_test-field_imagecache_defaults_test_i
+features[node][] = imagecache_defaults_test
+features[variable][] = menu_options_imagecache_defaults_test
+features[variable][] = menu_parent_imagecache_defaults_test
+features[variable][] = node_options_imagecache_defaults_test
+features[variable][] = node_preview_imagecache_defaults_test
+features[variable][] = node_submitted_imagecache_defaults_test
+files[] = imagecache_defaults_test.test
+
+; Information added by drupal.org packaging script on 2013-01-10
+version = "7.x-1.0-beta4"
+core = "7.x"
+project = "imagecache_defaults"
+datestamp = "1357831332"
+

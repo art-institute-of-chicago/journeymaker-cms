@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * Tests the visibility of the Colectomy managed labels.
+ */
+class ColectomyTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  /**
+   * Information function.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Colectomy',
+      'description' => 'Ensures the labels of form fields appear without colons.',
+      'group' => 'Colectomy',
+    );
+  }
+
+  /**
+   * Set up function creates a user and assigns associated privileges.
+   */
+  public function setUp() {
+    parent::setUp(array('colectomy'));
+    $this->admin_user = $this->drupalCreateUser(array(
+      'use text format full_html',
+      'access administration pages',
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+    ));
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Sets the label to 'abovec' on the body field and asserts the lack of a colon.
+   */
+  public function testColectomyBodyNoColon() {
+    // Change the label display mode on the body field.
+    $edit = array(
+      'fields[body][label]' => 'abovec',
+    );
+    $this->drupalPost('admin/structure/types/manage/article/display', $edit, t('Save'));
+    // Create a basic article node.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+    // Assert the body label does not have a colon.
+    $this->assertText('Body&nbsp;', 'Body label found');
+  }
+
+  /**
+   * Sets the label to 'above' on the body field and asserts the existence of a colon.
+   */
+  public function testColectomyBodyWithColon() {
+    // Change the label display mode on the body field.
+    $edit = array(
+      'fields[body][label]' => 'above',
+    );
+    $this->drupalPost('admin/structure/types/manage/article/display', $edit, t('Save'));
+    // Create a basic article node.
+    $edit = array();
+    $edit['title'] = $this->randomName(8);
+    $edit["body[und][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+    // Assert the body label has a colon.
+    $this->assertText('Body:', 'Body label found');
+  }
+}

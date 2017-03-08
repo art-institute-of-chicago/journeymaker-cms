@@ -1,0 +1,946 @@
+<?php
+/**
+ * @file
+ * View Mode Page module allows users to add a page for a specific view mode.
+ */
+
+define('VIEW_MODE_PAGE_ADMINISTER', 'administer view mode page');
+
+/**
+ * Implements hook_features_api().
+ */
+function view_mode_page_features_api() {
+  return array(
+    'view_mode_page_pattern' => array(
+      'name' => t('View mode page'),
+      'file' => drupal_get_path('module', 'view_mode_page') . '/view_mode_page.features.inc',
+      'default_hook' => 'view_mode_page_pattern_default',
+      'features_source' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * Add the tab to additional settings.
+ */
+function view_mode_page_form_alter(&$form, $form_state, $form_id) {
+  $is_view_mode_page = isset($form['#entity_type']) && in_array($form['#entity_type'], view_mode_page_get_entity_types());
+  $is_display_overview = isset($form['#id']) && preg_match('/^field-ui-display-overview-form/', $form['#id']);;
+  if (!$is_view_mode_page || ($is_view_mode_page && !$is_display_overview)) {
+    return;
+  }
+
+  if (!view_mode_page_has_manage_access($form)) {
+    return;
+  }
+
+  // Add additional settings vertical tab, if it does not currently exist.
+  // This code was borrowed from display suite
+  if (!isset($form['additional_settings'])) {
+    $form['additional_settings'] = array(
+      '#type' => 'vertical_tabs',
+      '#theme_wrappers' => array('vertical_tabs'),
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
+    );
+    $form['#attached']['js'][] = 'misc/form.js';
+    $form['#attached']['js'][] = 'misc/collapse.js';
+  }
+
+  // Add tab to the additional_settings.
+  $form['additional_settings']['view_mode_page_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('View mode pages'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => 10,
+  );
+
+  $form['additional_settings']['view_mode_page_settings']['view_mode_page_url_pattern'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL Pattern'),
+    '#description' => t('Provide a URL pattern for the page that will display view mode'),
+  );
+  $form['additional_settings']['view_mode_page_settings']['view_mode_page_show_title'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show title on the view mode page'),
+    '#description' => t('This option will show the title on the view mode page. By default, this will be the node title or the title provided below'),
+  );
+  $form['additional_settings']['view_mode_page_settings']['view_mode_page_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#maxlength' => 200,
+    '#description' => 'Specify an alternate title for the view mode page. You may include tokens as they relate to the node (e.g., <code>[node:title]</code>). <strong>The show title option must be on for this to show up!</strong>',
+  );
+
+  // Get the value from the database and set it here.
+  $definitions = view_mode_page_get_entity_patterns($form['#entity_type'], $form['#bundle'], $form['#view_mode']);
+  if (isset($definitions[0])) {
+    $form['additional_settings']['view_mode_page_settings']['view_mode_page_url_pattern']['#default_value'] = $definitions[0]->url_pattern;
+    $form['additional_settings']['view_mode_page_settings']['view_mode_page_show_title']['#default_value'] = $definitions[0]->show_title;
+    $form['additional_settings']['view_mode_page_settings']['view_mode_page_title']['#default_value'] = $definitions[0]->title;
+  }
+
+  $form['#submit'][] = 'view_mode_page_form_submit';
+  $form['#validate'][] = 'view_mode_page_form_validate';
+}
+
+/**
+ * Implements hook_form_submit().
+ *
+ * Form submit handler for saving view mode page patterns.
+ */
+function view_mode_page_form_submit($form, &$form_state) {
+  // check permissions
+  if (!view_mode_page_has_manage_access($form)) {
+    return;
+  }
+
+  $content_type = $form['#bundle'];
+  $view_mode = $form['#view_mode'];
+  if (isset($form_state['values']['additional_settings']['view_mode_page_settings']['view_mode_page_url_pattern'])) {
+    view_mode_page_delete_entity_patterns($form['#entity_type'], $content_type, $view_mode);
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => $form['#entity_type'],
+      'content_type' => $content_type,
+      'view_mode' => $view_mode,
+      'url_pattern' => $form_state['values']['additional_settings']['view_mode_page_settings']['view_mode_page_url_pattern'],
+      'show_title' => $form_state['values']['additional_settings']['view_mode_page_settings']['view_mode_page_show_title'],
+      'title' => $form_state['values']['additional_settings']['view_mode_page_settings']['view_mode_page_title'],
+    ));
+    menu_rebuild();
+  }
+}
+
+/**
+ * Validation handler for the pattern submit
+ */
+function view_mode_page_form_validate($form, &$form_state) {
+  $pattern = $form_state['values']['additional_settings']['view_mode_page_settings']['view_mode_page_url_pattern'];
+
+  // the pattern cannot start with '%'
+  if (preg_match('/^%/', $pattern)) {
+    form_set_error('view_mode_page_url_pattern', t('Patterns should not start with a wildcard (%)'));
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function view_mode_page_menu() {
+  $items = array();
+  $items['admin/structure/view_mode_page/missing'] = array(
+    'title' => 'Missing view modes',
+    'page callback' => 'view_mode_page_missing_view_modes',
+    'access arguments' => array('administer view mode page'),
+  );
+  $items['admin/structure/view_mode_page/remove/%'] = array(
+    'title' => 'Remove view mode page pattern',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('view_mode_page_remove_pattern', 1),
+    'access arguments' => array('administer view mode page'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function view_mode_page_menu_alter(&$items) {
+  // get the VMP patterns
+  $page_definitions = view_mode_page_get_entity_patterns();
+
+  // get the view modes in use
+  $view_modes = view_mode_page_get_entity_view_modes();
+
+  // hold mising view modes
+  $missing_view_modes = array();
+
+  // now add/alter menu items for each VMP page definition
+  foreach ($page_definitions as $page) {
+    $pattern = $page->url_pattern;
+    $entity_type = $page->entity_type;
+    $content_type = $page->content_type;
+    $view_mode = $page->view_mode;
+    $show_title = $page->show_title;
+    $title = $page->title;
+
+    // if there are no view modes for the entity type and something besides
+    // default is requested, we should just skip
+    if (!isset($view_modes[$entity_type]) && $view_mode != 'default') {
+      $missing_view_modes[] = $page;
+      continue;
+    }
+
+    // if this view mode is not in use, we shouldn't use it
+    if (isset($view_modes[$entity_type]) && !in_array($view_mode, $view_modes[$entity_type]) && $view_mode != 'default') {
+      $missing_view_modes[] = $page;
+      continue;
+    }
+
+    // Define or redefine our page.
+    $page = array();
+    if (isset($items[$pattern])) {
+      $page = $items[$pattern];
+    }
+
+    $page['page callback'] = 'view_mode_page_change_entity_view_mode';
+    $page['page arguments'] = array(
+      $entity_type,
+      $content_type,
+      $view_mode,
+      $pattern,
+      $show_title,
+      $title,
+    );
+
+    if (!isset($page['access arguments'])) {
+      $page['access arguments'] = array('access content');
+    }
+
+    $items[$pattern] = $page;
+  }
+
+  // set a variable for missing view modes
+  if (count($missing_view_modes)) {
+    variable_set('view_mode_page_missing_view_modes', $missing_view_modes);
+  }
+  // remove the variable if there are no missing view modes
+  else {
+    variable_del('view_mode_page_missing_view_modes');
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ *
+ * Check that there are no missing view modes.
+ */
+function view_mode_page_requirements($phase) {
+  if ($phase == 'runtime') {
+    $missing = variable_get('view_mode_page_missing_view_modes', NULL);
+    if ($missing) {
+      $t = get_t();
+      $modes = array();
+      foreach ($missing as $missing_view_mode) {
+        if (in_array($missing_view_mode->view_mode, $modes)) {
+          continue;
+        }
+        $modes[] = $missing_view_mode->view_mode;
+      }
+      return array(
+        array(
+          'title' => $t('View Mode Page'),
+          'description' => $t('View mode page has found patterns for view modes that are no longer in use. ') . l($t('Review missing view modes'), 'admin/structure/view_mode_page/missing'),
+          'value' => implode(', ', $modes),
+          'severity' => REQUIREMENT_WARNING,
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Render the entity with the given view mode
+ *
+ * This function renders the entity with the given view mode. This is matched
+ * from the hook_menu item that is added for the pattern specified via the VMP
+ * in the admin.
+ *
+ * There are two hooks called from this function to allow developers to change
+ * or influence the output.
+ *
+ * @see hook_view_mode_page_pre_entity_view()
+ * @see hook_view_mode_page_post_entity_view()
+ */
+function view_mode_page_change_entity_view_mode() {
+  // figure out the arguments
+  $args = func_get_args();
+  if (count($args) == 1) {
+    $settings = $args;
+  }
+  else {
+    $settings = array();
+    $setting_keys = array(
+      'entity_type',
+      'content_type',
+      'view_mode',
+      'url_pattern',
+      'show_title',
+      'title',
+    );
+
+    if (count($args) > count($setting_keys)) {
+      watchdog('view_mode_page', 'There are more arguments to view_mode_page_change_entity_view_mode than there should be: ' . var_export($args, TRUE), WATCHDOG_ERROR);
+    }
+
+    for ($i = 0; $i < count($args); $i++) {
+      if (!isset($setting_keys[$i])) {
+        continue;
+      }
+      $settings[$setting_keys[$i]] = $args[$i];
+    }
+  }
+
+  $settings = view_mode_page_assert_settings(
+    $settings,
+    array('content_type', 'url_pattern', 'view_mode'),
+    array('entity_type' => 'node', 'show_title' => FALSE, 'title' => '')
+  );
+
+  // If the args are simply node/N we can get the node ID that way.
+  if (arg(0) == $settings['entity_type'] && is_numeric(arg(1))) {
+    $nid = arg(1);
+  }
+  else {
+    // This is an alias, so we need to lookup the path of the node based on
+    // the pattern
+    //
+    // To do this, we look at the url_pattern for our view_mode_page and find
+    // what position the wildcard is in. based on this we can figure out what
+    // section of the path is likely the url/alias for the node.
+    $pattern_array = explode('/', $settings['url_pattern']);
+    $url_array = arg();
+
+    // Find the wildcard position in the pattern.
+    $wildcard_positions = array_keys($pattern_array, '%');
+    $wildcard_position = array_pop($wildcard_positions) + 1;
+
+    // Create the node url/alias based on the wildcard position.
+    $node_url = implode('/', array_slice($url_array, 0, $wildcard_position));
+
+    // Look that up...
+    $source_path = drupal_lookup_path('source', $node_url);
+    if (!$source_path) {
+      return drupal_not_found();
+    }
+
+    // Parse out the nid.
+    $source_path_array = explode('/', $source_path);
+    $nid = array_pop($source_path_array);
+  }
+
+  // get the local tasks for the entity path by temporarily setting the
+  // $_GET['q'] to the entity path, running menu_local_tasks(), and then
+  // restoring
+  $q = $_GET['q'];
+  $_GET['q'] = $settings['entity_type'] . '/' . $nid;
+  menu_local_tasks();
+  $_GET['q'] = $q;
+
+  // get the entity
+  $entity = entity_load($settings['entity_type'], array($nid));
+  if ($entity) {
+    // entity_load returns an array
+    $entity = array_pop($entity);
+  }
+
+  // Check that we only use this on the specified content types.
+  if ($entity) {
+    if (isset($entity->type) && $entity->type != $settings['content_type']) {
+      return drupal_not_found();
+    }
+    elseif (isset($entity->vocabulary_machine_name) && $entity->vocabulary_machine_name != $settings['content_type']) {
+      return drupal_not_found();
+    }
+  }
+
+  // Check that the user can access this entity
+  if (!entity_access('view', $settings['entity_type'], $entity)) {
+    return drupal_access_denied();
+  }
+
+  // call our pre_view hooks
+  $entity = module_invoke_all('view_mode_page_pre_view', $entity, $settings['content_type'], $settings['view_mode'], $settings['url_pattern']);
+  $entity = module_invoke_all('view_mode_page_pre_entity_view', $entity, $settings['entity_type'], $settings['content_type'], $settings['view_mode'], $settings['url_pattern']);
+
+  // create/render the entity
+  $entity = $entity[0];
+  $view = entity_view($settings['entity_type'], array($entity), $settings['view_mode']);
+  if ($settings['show_title']) {
+    if (!$settings['title'] && isset($entity->title)) {
+      $settings['title'] = $entity->title;
+    }
+    $token_data = array($settings['entity_type'] => $entity);
+    $title = token_replace($settings['title'], $token_data, array('sanitize' => FALSE));
+    drupal_set_title($title);
+  }
+
+  // call the post_view hooks
+  $view = module_invoke_all('view_mode_page_post_view', $entity, $view, $settings['content_type'], $settings['view_mode'], $settings['url_pattern']);
+  $view = module_invoke_all('view_mode_page_post_entity_view', $entity, $view, $settings['entity_type'], $settings['content_type'], $settings['view_mode'], $settings['url_pattern']);
+
+  return $view;
+}
+
+/**
+ * DEPRECATED: Render the node with the given view mode.
+ *
+ * Deprecated in favor of view_mode_page_change_entity_view_mode().
+ *
+ * @param string $content_type
+ *   The name of the content type that the pattern is used for.
+ * @param string $view_mode
+ *   The name of the view mode.
+ * @param string $pattern
+ *   The URL pattern that is used in the hook_menu() call.
+ *
+ * @deprecated
+ * @see view_mode_page_change_entity_view_mode
+ */
+function view_mode_page_change_view_mode($content_type, $view_mode, $pattern, $show_title = FALSE, $title = '') {
+  return view_mode_page_change_entity_view_mode(array(
+    'entity_type' => 'node',
+    'content_type' => $content_type,
+    'view_mode' => $view_mode,
+    'url_pattern' => $pattern,
+    'show_title' => $show_title,
+    'title' => $title,
+  ));
+}
+
+/**
+ * Check the arguments for new array-based parameters
+ *
+ * @param array $settings
+ *   Parameters from the function call
+ * @param array $required_fields
+ *   Array of required 'fields' in the array
+ * @param array $defaults
+ *   Array of default values
+ */
+function view_mode_page_assert_settings($settings, $required_fields, $defaults) {
+  if (!is_array($settings)) {
+    debug_print_backtrace();
+  }
+  $params = view_mode_page_array_replace($defaults, $settings);
+  $errors = array();
+  foreach ($required_fields as $key_name) {
+    if (!isset($params[$key_name])) {
+      $errors[] = $key_name;
+    }
+  }
+  if (count($errors) > 0) {
+    $message = 'Missing settings in function call: ' . implode(',', $errors);
+    throw new Exception($message);
+  }
+  return $params;
+}
+
+/**
+ * A wrapper around PHP's array_replace function
+ *
+ * This also fills in a custom function in case this is used with PHP 5.2.
+ */
+function view_mode_page_array_replace($defaults, $settings) {
+  if (function_exists('array_replace')) {
+    return array_replace($defaults, $settings);
+  }
+
+  // php 5.2 behavior
+  $array = $defaults;
+  foreach ($settings as $key => $value) {
+    $array[$key] = $value;
+  }
+  return $array;
+}
+
+/**
+ * DEPRECATED: Add a URL pattern to the database.
+ *
+ * This does not add the pattern to the menu_router table, but only
+ * adds it to the View Mode Page table.
+ *
+ * This method is deprecated and could disappear in future versions. With
+ * entity support, you should use view_mode_page_add_entity_pattern.
+ *
+ * @see view_mode_page_add_entity_pattern
+ *
+ * @param string $content_type
+ *   The name of the content type that the pattern is used for.
+ * @param string $view_mode
+ *   The name of the view mode.
+ * @param string $pattern
+ *   The URL pattern that is used in the hook_menu() call.
+ *
+ * @deprecated
+ * @see view_mode_page_add_entity_pattern
+ */
+function view_mode_page_add_pattern($content_type, $view_mode, $pattern, $show_title = FALSE, $title = '') {
+  return view_mode_page_add_entity_pattern(array(
+    'content_type' => $content_type,
+    'view_mode' => $view_mode,
+    'url_pattern' => $pattern,
+    'show_title' => $show_title,
+    'title' => $title,
+  ));
+}
+
+/**
+ * Add a URL pattern to the database.
+ *
+ * This does not add the pattern to the menu_router table, but only
+ * adds it to the View Mode Page table.
+ *
+ * With entity support, we needed new arguments so this pattern was going to
+ * change. The function takes a single argument: an array of possible
+ * settings which include:
+ *
+ * - content_type
+ * - entity_type
+ * - url_pattern
+ * - show_title
+ * - title
+ * - view_mode
+ *
+ * Triggers two hooks: view_mode_page_entity_pattern_added and
+ * view_mode_page_pattern_added. The first hook is preferred and the second may
+ * disappear in future versions.
+ *
+ * @param array $settings
+ *   An array of settings
+ */
+function view_mode_page_add_entity_pattern($settings) {
+  $settings = view_mode_page_assert_settings(
+    $settings,
+    array('content_type', 'url_pattern', 'view_mode'),
+    array('entity_type' => 'node', 'show_title' => FALSE, 'title' => '')
+  );
+
+  $query = db_insert('view_mode_page');
+  $result = $query->fields(array(
+      'content_type' => $settings['content_type'],
+      'view_mode' => $settings['view_mode'],
+      'url_pattern' => $settings['url_pattern'],
+      'show_title' => intval($settings['show_title']),
+      'title' => $settings['title'],
+      'entity_type' => $settings['entity_type'],
+    ))->execute();
+
+  // invoke our hooks
+  module_invoke_all('view_mode_page_pattern_added', $settings['content_type'], $settings['view_mode'], $settings['url_pattern'], $result);
+  module_invoke_all('view_mode_page_entity_pattern_added', $settings['entity_type'], $settings['content_type'], $settings['view_mode'], $settings['url_pattern'], $result);
+  return $result;
+}
+
+/**
+ * Delete URL patterns from the database.
+ *
+ * The query may be used with no arguments or with one or more arguments.
+ * Each argument increases the specificity of the delete process.
+ *
+ * This does not necessarily effect the patterns saved in the menu_router
+ * table. It only removes the patterns from the View Mode Page table.
+ *
+ * @param string $entity_type
+ *   The name of the entity type that the pattern is used for.
+ * @param string $content_type
+ *   The name of the content type that the pattern is used for.
+ * @param string $view_mode
+ *   The name of the view mode.
+ * @param string $pattern
+ *   The URL pattern that is used in the hook_menu() call.
+ */
+function view_mode_page_delete_entity_patterns($entity_type = NULL, $content_type = NULL, $view_mode = NULL, $pattern = NULL) {
+  $query = db_delete('view_mode_page');
+
+  if ($entity_type) {
+    $query->condition('entity_type', $entity_type, '=');
+  }
+
+  if ($content_type) {
+    $query->condition('content_type', $content_type, '=');
+  }
+
+  if ($view_mode) {
+    $query->condition('view_mode', $view_mode, '=');
+  }
+
+  if ($pattern) {
+    $query->condition('url_pattern', $pattern, '=');
+  }
+
+  $result = $query->execute();
+  module_invoke_all('view_mode_page_entity_patterns_deleted', $entity_type, $content_type, $view_mode, $pattern);
+  module_invoke_all('view_mode_page_patterns_deleted', $content_type, $view_mode, $pattern);
+  return $result;
+}
+
+/**
+ * DEPRECATED: Delete URL patterns from the database.
+ *
+ * The query may be used with no arguments or with one or more arguments.
+ * Each argument increases the specificity of the delete process.
+ *
+ * This does not necessarily effect the patterns saved in the menu_router
+ * table. It only removes the patterns from the View Mode Page table.
+ *
+ * @param string $content_type
+ *   The name of the content type that the pattern is used for.
+ * @param string $view_mode
+ *   The name of the view mode.
+ * @param string $pattern
+ *   The URL pattern that is used in the hook_menu() call.
+ *
+ * @deprecated
+ * @see view_mode_page_delete_entity_patterns
+ */
+function view_mode_page_delete_patterns($content_type = NULL, $view_mode = NULL, $pattern = NULL) {
+  return view_mode_page_delete_entity_patterns('node', $content_type, $view_mode, $pattern);
+}
+
+/**
+ * Get URL patterns.
+ *
+ * @param string $content_type
+ *   Optional limit to a specific content type.
+ * @param string $view_mode
+ *   Optionally limit to a specific view_mode.
+ */
+function view_mode_page_get_entity_patterns($entity_type = NULL, $content_type = NULL, $view_mode = NULL) {
+  $query = db_select('view_mode_page');
+  $query->fields('view_mode_page');
+
+  if ($entity_type) {
+    $query->condition('entity_type', $entity_type, '=');
+  }
+
+  if ($content_type) {
+    $query->condition('content_type', $content_type, '=');
+  }
+
+  if ($view_mode) {
+    $query->condition('view_mode', $view_mode, '=');
+  }
+
+  $results = $query->execute()->fetchAll();
+  $results = module_invoke_all('view_mode_page_get_entity_patterns', $results, $entity_type, $content_type, $view_mode);
+  $results = module_invoke_all('view_mode_page_get_patterns', $results, $content_type, $view_mode);
+  return $results;
+}
+
+/**
+ * DEPRECATED: Get URL patterns.
+ *
+ * @param string $content_type
+ *   Optional limit to a specific content type.
+ * @param string $view_mode
+ *   Optionally limit to a specific view_mode.
+ *
+ * @deprecated
+ * @see view_mode_page_get_entity_patterns
+ */
+function view_mode_page_get_patterns($content_type = NULL, $view_mode = NULL) {
+  return view_mode_page_get_entity_patterns(NULL, $content_type, $view_mode);
+}
+
+/**
+ * Returns all the entity types that exist for VMP
+ *
+ * @return array
+ *   Array of entity types used by VMPs
+ */
+function view_mode_page_get_entity_types() {
+  $entity_types = &drupal_static(__FUNCTION__);
+  if (!isset($entity_types)) {
+    $all_entity_types = entity_get_info();
+    $entity_types = array_keys($all_entity_types);
+    $entity_types = module_invoke_all('view_mode_page_get_entity_types', $entity_types);
+  }
+  return $entity_types;
+}
+
+/**
+ * Return the view modes used by each entity
+ */
+function view_mode_page_get_entity_view_modes() {
+  $view_modes = &drupal_static(__FUNCTION__);
+  if (!isset($view_modes)) {
+    $entity_info = entity_get_info();
+    $view_modes = array();
+    foreach ($entity_info as $entity_name => $entity) {
+      if (isset($entity['view modes'])) {
+        $view_modes[$entity_name] = array();
+        foreach ($entity['view modes'] as $view_mode => $mode_details) {
+          if (!in_array($view_mode, $view_modes[$entity_name])) {
+            $view_modes[$entity_name][] = $view_mode;
+          }
+        }
+      }
+    }
+  }
+  return $view_modes;
+}
+
+/**
+ * Return the view modes in use by all entities
+ * @return array
+ *   List of view modes used by all the entities
+ * @deprecated
+ */
+function view_mode_page_get_view_modes() {
+  return view_mode_page_get_entity_view_modes();
+}
+
+/**
+ * Check if this user has permission to manage this entity
+ */
+function view_mode_page_has_manage_access($form) {
+  // check permissions
+  $has_full_access = user_access(VIEW_MODE_PAGE_ADMINISTER);
+  $has_entity_access = user_access('manage VMP patterns for entity ' . $form['#entity_type']);
+  $has_view_mode_access = user_access('manage VMP patterns for view mode ' . $form['#entity_type'] . ':' . $form['#view_mode']);
+
+  $access_allowed = FALSE;
+  if ($has_full_access || $has_entity_access || $has_view_mode_access) {
+    $access_allowed = TRUE;
+  }
+
+  return $access_allowed;
+}
+
+/**
+ * Show missing view modes
+ */
+function view_mode_page_missing_view_modes() {
+  $missing = variable_get('view_mode_page_missing_view_modes', NULL);
+
+  // if nothing is missing, let's exit with a nice message
+  if (!$missing) {
+    return array('#markup' => '<p>' . t('There are currently no view mode page patterns with missing view modes.') . '</p>');
+  }
+
+  $patterns_text = 'patterns are';
+  if (count($missing) == 1) {
+    $patterns_text = 'pattern is';
+  }
+
+  $page = array();
+  $page['directions'] = array(
+    '#markup' => '<p>' . t('The following view mode page @patterns missing a view mode. The view mode may have been removed.', array('@patterns' => $patterns_text)) . '</p>',
+  );
+
+  $page['view_modes'] = array('#markup' => view_mode_page_list_patterns($missing));
+  return $page;
+}
+
+/**
+ * Return a list of patterns
+ *
+ * @param array $patterns
+ *   Array of the patterns to show
+ */
+function view_mode_page_list_patterns($patterns) {
+  $headers = array('Entity', 'Bundle', 'View mode', 'Pattern', '');
+  $rows = array();
+
+  foreach ($patterns as $pattern) {
+    $pattern_hash = view_mode_page_pattern_hash($pattern);
+    $rows[] = array(
+      $pattern->entity_type,
+      $pattern->content_type,
+      $pattern->view_mode,
+      $pattern->url_pattern,
+      l(t('Remove pattern'), 'admin/structure/view_mode_page/remove/' . $pattern_hash),
+    );
+  }
+
+  return theme('table', array(
+    'header' => $headers,
+    'rows' => $rows,
+    'attributes' => array(),
+    'caption' => '',
+    'colgroups' => array(),
+    'sticky' => FALSE,
+    'empty' => '',
+  ));
+}
+
+/**
+ * Form for removing the pattern
+ */
+function view_mode_page_remove_pattern($form, &$form_state) {
+  $hash = arg(4);
+
+  // find the pattern matching the hash
+  $patterns = view_mode_page_get_entity_patterns();
+  $found = FALSE;
+  foreach ($patterns as $pattern) {
+    if (view_mode_page_pattern_hash($pattern) == $hash) {
+      $found = TRUE;
+      break;
+    }
+  }
+
+  if (!$found) {
+    drupal_not_found();
+    exit;
+  }
+
+  return array(
+    'confirm' => array('#markup' => '<p>' . t('Do you really want to remove this pattern?') . '</p>'),
+    'confirm_button' => array(
+      '#type' => 'submit',
+      '#value' => 'Remove',
+    ),
+    'pattern' => array(
+      '#type' => 'hidden',
+      '#value' => drupal_json_encode($pattern),
+    ),
+  );
+}
+
+/**
+ * Submit handler for the remove pattern form
+ */
+function view_mode_page_remove_pattern_submit($form, &$form_state) {
+  $hash = arg(4);
+  $pattern = (object) drupal_json_decode($form_state['values']['pattern']);
+  if (view_mode_page_pattern_hash($pattern) == $hash) {
+    view_mode_page_delete_entity_patterns(
+      $pattern->entity_type,
+      $pattern->content_type,
+      $pattern->view_mode,
+      $pattern->url_pattern
+    );
+    global $user;
+    drupal_set_message(t('View Mode Page pattern removed'));
+    watchdog('view_mode_page', 'Pattern removed: ' . drupal_json_encode($pattern) . ' by uid ' . $user->uid);
+    drupal_goto('admin/structure');
+  }
+}
+
+/**
+ * Calculate the hash of this pattern
+ *
+ * @param object $pattern
+ *   Object of the pattern information
+ *
+ * @return string
+ *   The pattern hash
+ */
+function view_mode_page_pattern_hash($pattern) {
+  return sha1(
+    $pattern->entity_type .
+    $pattern->content_type .
+    $pattern->view_mode .
+    $pattern->url_pattern
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function view_mode_page_permission() {
+  $permissions = array(
+    VIEW_MODE_PAGE_ADMINISTER => array(
+      'title' => t('Administer View Mode Page'),
+      'description' => t('Allow user to update view mode page patterns on content types'),
+    ),
+  );
+
+  $entities = view_mode_page_get_entity_types();
+  foreach ($entities as $entity_type) {
+    $permissions["manage VMP patterns for entity $entity_type"] = array(
+      'title' => t('Manage patterns for %type', array('%type' => $entity_type)),
+      'description' => t('Allow user to update view mode page patterns for the entity %type', array('%type' => $entity_type)),
+    );
+  }
+
+  $view_modes = view_mode_page_get_entity_view_modes();
+  foreach ($view_modes as $entity_type => $entity_view_modes) {
+    foreach ($entity_view_modes as $view_mode) {
+      $info = array(
+        '%entity_type' => $entity_type,
+        '%type' => $view_mode,
+      );
+      $permissions["manage VMP patterns for view mode {$entity_type}:{$view_mode}"] = array(
+        'title' => t('Manage patterns for the view mode %entity_type:%type', $info),
+        'description' => t('Allow user to update view mode page patterns for the view mode %type', $info),
+      );
+    }
+  }
+
+  return $permissions;
+}
+
+/*=====================================================================
+  IMPLEMENT OUR OWN HOOKS
+ ======================================================================*/
+
+/**
+ * Implements hook_get_entity_types().
+ */
+function view_mode_page_view_mode_page_get_entity_types($types) {
+  return $types;
+}
+
+/**
+ * Implements hook_view_mode_page_get_entity_patterns().
+ */
+function view_mode_page_view_mode_page_get_entity_patterns($results, $entity_type, $content_type, $view_mode) {
+  return $results;
+}
+
+/**
+ * Implements hook_view_mode_page_get_patterns().
+ */
+function view_mode_page_view_mode_page_get_patterns($results, $content_type, $view_mode) {
+  return $results;
+}
+
+/**
+ * Implements hook_view_mode_page_pre_entity_view().
+ */
+function view_mode_page_view_mode_page_pre_entity_view($entity, $entity_type, $content_type, $view_mode, $pattern) {
+  return $entity;
+}
+
+/**
+ * Implements hook_view_mode_page_pre_view().
+ */
+function view_mode_page_view_mode_page_pre_view($node, $content_type, $view_mode, $pattern) {
+  return $node;
+}
+
+/**
+ * Implements hook_view_mode_page_post_entity_view().
+ */
+function view_mode_page_view_mode_page_post_entity_view($entity, $view, $entity_type, $content_type, $view_mode, $pattern) {
+  return $view;
+}
+
+/**
+ * Implements hook_view_mode_page_post_view().
+ */
+function view_mode_page_view_mode_page_post_view($node, $view, $content_type, $view_mode, $pattern) {
+  return $view;
+}
+
+/**
+ * Implements hook_view_mode_page_pattern_added().
+ */
+function view_mode_page_view_mode_page_pattern_added($content_type, $view_mode, $pattern, $result) {
+}
+
+/**
+ * Implements hook_view_mode_page_entity_pattern_added().
+ */
+function view_mode_page_view_mode_page_entity_pattern_added($entity_type, $content_type, $view_mode, $pattern, $result) {
+}
+
+/**
+ * Implements hook_view_mode_page_patterns_deleted().
+ */
+function view_mode_page_view_mode_page_entity_patterns_deleted($entity_type = NULL, $content_type = NULL, $view_mode = NULL, $pattern = NULL) {
+}
+
+/**
+ * Implements hook_view_mode_page_patterns_deleted().
+ */
+function view_mode_page_view_mode_page_patterns_deleted($content_type = NULL, $view_mode = NULL, $pattern = NULL) {
+}

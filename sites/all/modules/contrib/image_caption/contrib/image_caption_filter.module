@@ -1,0 +1,171 @@
+<?php
+/*
+  This module looks for <img> tags of the class 'image-left', 'image-right' or 'standalone-image'
+  with a title attibute set.  It then places the <img> tag in a <div> with the width and class
+  attributes set. A <div> tag of class "caption" is also added with the caption text obtained
+  from the title.  It removes the class attribute from the <img> tag.
+  @info
+  http://drupal.org/node/264932
+  @author
+  John Fletcher
+  http://drupal.org/user/236219/contact
+  Florian Weber
+  http://drupal.org/user/254778/contact
+*/
+
+/**
+ * Implements hook_filter_info().
+ */
+function image_caption_filter_filter_info() {
+  $filters['filter_image_caption'] = array(
+    'title' => t('Image caption filter'),
+    'settings callback' => 'image_caption_filter_filter_filter_image_caption_settings',
+    'process callback' => 'image_caption_filter_filter_filter_image_caption_process',
+    'tips callback' => 'image_caption_filter_filter_filter_image_caption_tips',
+    'default settings' => array(
+      'classes' => variable_get('image_caption_filter_classes', 'image-left image-right standalone-image'),
+    ),
+  );
+ 
+  return $filters;
+}
+
+/**
+ * Implements hook_filter_FILTER_settings().
+ */
+function image_caption_filter_filter_filter_image_caption_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
+  $filter->settings += $defaults;
+  $elements = array();
+  
+  $elements['classes'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Classes to be searched for image captions'),
+    '#default_value' => $filter->settings['classes'],
+    '#size' => 80,
+    '#description' => t('Enter a space-separated list of classes. The filter will only operate on images which have one of these CSS classes and have a title attribute.'),
+    '#required' => TRUE,
+  );
+  
+  return $elements;
+}
+
+/**
+ * Implements hook_filter_FILTER_process().
+ */
+function image_caption_filter_filter_filter_image_caption_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  image_caption_filter_active_classes(array_filter(explode(' ', $filter->settings['classes'])));
+  return preg_replace_callback('|(<img.*?>)|s', '_image_caption_filter_do_img_titles', $text);
+}
+
+/**
+ * Implements hook_filter_FILTER_tips().
+ *
+ * Display help and module information
+ * @param path which path of the site we're displaying help
+ * @param arg array that holds the current path as would be returned from arg() function
+ * @return help text for the path
+ */
+function image_caption_filter_filter_filter_image_caption_tips($filter, $format, $long = FALSE) {
+  return t('Adds captions, from the title attribute, to images with one of the following classes: %classes', array('%classes' => variable_get('image_caption_filter_classes', 'image-left image-right standalone-image')));
+}
+
+/**
+ * Storage for active class names
+ * 
+ * _image_caption_filter_do_img_titles() is called by preg_replace_callback() and this function allows only one argument.
+ */
+function image_caption_filter_active_classes($classes = NULL) {
+  static $_classes = array();
+  if ($classes != NULL) { 
+    $_classes = $classes; 
+  }
+  
+  return $_classes;
+}
+
+/**
+ * Helper function to do the actual manipulation.
+ */
+function _image_caption_filter_do_img_titles($img_tag_matches, $active_classes = NULL) {
+  $img_tag = $img_tag_matches[0];
+  $return_text = $img_tag;
+
+  // only execute this filter on img tags with (at least) one of the classes we are interested in
+  $has_class = preg_match('/class=\"(.+?)\"/i', $img_tag, $matches) > 0;
+  if ($has_class) {
+    $class = $matches[1];
+    // formally, class is a space separated list of classes, but we allow all horizontal whitespace in any quantity
+    // that's why we use preg_split instead of explode
+    $classes = preg_split('/\s+/', $class, null, PREG_SPLIT_NO_EMPTY);
+
+    // get active classes via image_caption_filter_active_classes() because preg_replace_callback() does not support addional arguments.
+    if ($active_classes == NULL) {
+      $active_classes = image_caption_filter_active_classes();
+    }
+
+    if (count(array_intersect($classes, $active_classes)) > 0) {
+      // only execute this filter on img tags that have a title attribute
+      $has_title = preg_match('/title=\"(.+?)\"/i', $img_tag, $matches) > 0;
+      if ($has_title) {
+        $title = $matches[1];
+
+        // search for width specified as an inline style or width attribute,
+        // if no width specified, don't output it on the outer span, assume width will be handled with css external to this module/filter
+        $width = '';
+        if (preg_match('/width:\s*(\d+)px/i', $img_tag, $matches) == 1 || preg_match ('/width=\"(\d+?)\"/i', $img_tag, $matches) == 1) {
+          $width = $matches[1];
+        }
+
+        // search for float specified as an inline style on the image
+        $float = '';
+        if (preg_match('/float:\s*(\w+)/i', $img_tag, $matches) == 1) {
+          $float = $matches[1];
+        }
+
+        // remove the class from the image tag
+        $img_tag = preg_replace('/class=\"(.+?)\"/i', '', $img_tag);
+
+        // build the image and caption
+        $caption = array(
+          'img' => array(
+            '#type' => 'markup',
+            '#markup' => $img_tag,
+          ),
+          'caption' => array(
+            '#type' => 'html_tag',
+            '#tag' => 'span',
+            '#attributes' => array(
+              'class' => 'caption',
+              'style' => 'display:block',
+            ),
+            '#value' => $title,
+          ),
+        );
+
+        // build the wrapping elemement.
+        $element = array(
+          'image_caption' => array(
+            '#type' => 'html_tag',
+            '#tag' => 'span',
+            '#attributes' => array(
+              'class' => $class
+            ),
+            '#value' => render($caption),
+          ),
+        );
+
+        if (!empty($width)) {
+          $element['image_caption']['#attributes']['style'][] = 'width:' . $width . 'px;';
+        }
+        
+        if (!empty($float)) {
+          $element['image_caption']['#attributes']['style'][] = 'float:' . $float;
+        }
+        
+        $return_text = render($element);
+      }
+    }
+  }
+  
+  return $return_text;
+}

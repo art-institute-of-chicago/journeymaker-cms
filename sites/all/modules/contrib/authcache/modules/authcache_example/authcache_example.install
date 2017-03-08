@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function authcache_example_schema() {
+  $schema['authcache_example'] = array(
+      'fields' => array(
+       'uid' => array(
+              'type' => 'int',
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => "Creator user's {users}.uid",
+            ),
+            'block_text' => array(
+              'type' => 'text',
+              'not null' => TRUE,
+              'description' => 'block_text',
+            ),
+          ),
+      'primary key' => array('uid'),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function authcache_example_enable() {
+
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function authcache_example_disable() {
+
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function authcache_example_install() {
+  // Create table to hold our user block text
+  drupal_install_schema('authcache_example');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function authcache_example_uninstall() {
+  drupal_uninstall_schema('authcache_example');
+}
+

@@ -1,0 +1,10 @@
+name = "Image caption filter"
+description = "Create captions on images using the title attribute."
+core = 7.x
+
+; Information added by drupal.org packaging script on 2011-04-27
+version = "7.x-1.0-beta3"
+core = "7.x"
+project = "image_caption"
+datestamp = "1303893715"
+

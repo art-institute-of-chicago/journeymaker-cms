@@ -1,0 +1,131 @@
+<?php
+
+function aic_artwork_list_menu() {
+
+  $items['artwork-list-theme'] = array(
+    'title' => 'Theme / Artwork listing',
+    'page callback' => 'aic_artwork_list_page',
+    'access callback' => TRUE,
+  );
+  
+  $items['artwork-list'] = array(
+    'title' => 'Artwork / Theme listing',
+    'page callback' => 'aic_artwork_artwork_list_page',
+    'access callback' => TRUE,
+  );
+  
+  return $items;
+}
+
+function aic_artwork_list_page() {
+ 
+  $result = db_query("SELECT * FROM {node} WHERE type = 'artwork' AND status = 1 ORDER BY title");
+ 
+  $artwork = array();
+
+  foreach ($result as $r) {
+    $artwork[$r->nid]['artwork'] = l($r->title, 'node/' . $r->nid);
+  }
+
+  $result = db_query("SELECT nid FROM {node} WHERE type = 'aic_theme' ORDER BY title");
+  
+  foreach ($result as $x => $r) {
+    $node = node_load($r->nid);
+
+    foreach ($node->field_prompt['und'] as $i => $fcid) {
+
+      $output .= "<table style='width: 45%; margin-right: 2%; float: left; background-color: #FFF;'>";
+
+      $entity = entity_load('field_collection_item', array($fcid['value']));
+      $e = array_pop($entity);
+
+      foreach ($e->field_artwork['und'] as $aw) {
+        $artwork[$aw['nid']]['themes'] .= l($node->title, 'node/' . $node->nid) . ', '; 
+      }      
+    }
+  }
+
+  $output = '<style>th { padding: 0px 10px; } td { padding: 0px 10px; } </style>';
+
+  $output .= "<table>";
+  $output .= "<tr><th>Artwork</th><th>Themes</th><th>View</th><th>Edit</th></tr>";
+
+  $count = 0;
+  foreach ($artwork as $nid => $a) {
+    $count += 1;
+    
+    $row = 'even';
+    
+    if ($count % 2 == 1) {
+      $row = 'odd';
+    } 
+
+    $output .= "<tr class='$row'>
+                  <td>{$a['artwork']}</td>
+                  <td>" . preg_replace('/, $/','',$a['themes']) . "</td>
+                  <td>" . l('View', 'node/' . $nid) . "</td>
+                  <td>" . l('Edit', 'node/' . $nid . '/edit') . "</td>
+                </tr>";
+  }
+
+  $output .= "</table>";
+
+  return $output;
+}
+
+
+function aic_artwork_artwork_list_page() {
+  
+  $result = db_query("SELECT nid FROM {node} WHERE type = 'aic_theme' ORDER BY title");
+
+  $output = '<style>th { padding: 0px 10px; } td { padding: 0px 10px; } </style>';
+
+  foreach ($result as $x => $r) {
+    
+    $bg = "#FFF";
+
+    if ($x % 2 == 1) {
+      $bg = '#F9F9F9';
+    }
+    
+
+    $node = node_load($r->nid);
+
+    $output .= "<div style='background-color: $bg; clear: both; padding: 25px 100px; overflow:auto; margin-left: -60px; margin-right: -40px; '>";    
+
+    $output .= "<h2 style='margin-top: 50px;'>{$node->title}</h2>";
+
+    foreach ($node->field_prompt['und'] as $i => $fcid) {
+
+      $output .= "<table style='width: 45%; margin-right: 2%; float: left; background-color: #FFF;'>";
+
+      $entity = entity_load('field_collection_item', array($fcid['value']));
+      $e = array_pop($entity);
+
+      $output .= "<tr><th colspan='3'><h4>{$e->field_title['und'][0]['value']}</h4></th></tr>";
+
+      foreach ($e->field_artwork['und'] as $count => $aw) {
+        $node = node_load($aw['nid']);
+    
+        $row = 'even';
+    
+        if ($count % 2 == 1) {
+          $row = 'odd';
+        } 
+  
+        $output .= "<tr class='$row'><td>{$node->title}</td><td>" . l('View', 'node/' . $node->nid). "</td><td>" . l('Edit', 'node/' . $node->nid . '/edit') . "</td></tr>";
+      }
+      
+      $output .= "</table>";
+
+      if ($i % 2 == 1) {
+        $output .= '<br clear="both" />';
+      }
+    }
+
+    $output .= '</div>';
+  }
+
+  return $output;
+}
+      

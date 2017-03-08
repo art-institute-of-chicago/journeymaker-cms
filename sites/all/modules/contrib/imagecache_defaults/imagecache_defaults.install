@@ -1,0 +1,69 @@
+<?php
+/**
+ * @file
+ * Installation file for Image (Cache) Defaults module.
+ */
+
+/**
+ * Implements of hook_schema().
+ */
+function imagecache_defaults_schema() {
+  // All constants are set in imagecache_defaults.module which is available
+  // automatically during installation but not during uninstallation as the
+  // module is currently disabled at that point.
+  drupal_load('module', 'imagecache_defaults');
+
+  $schema[IMAGECACHE_DEFAULTS_CACHE_BIN] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema[IMAGECACHE_DEFAULTS_CACHE_BIN]['description'] = 'Cache table for ImageCache Defaults module.';
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function imagecache_defaults_uninstall() {
+  variable_del('imagecache_defaults_broken_path_handling');
+  variable_del('imagecache_defaults_default_image_style');
+  variable_del('imagecache_defaults_watchdog_enabled');
+  variable_del('imagecache_defaults_bypass_cache');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function imagecache_defaults_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  // We have no real requirements outside status reporting.
+  if ($phase == 'runtime') {
+    if ($path = _imagecache_defaults_get_default_image_uri(array('cache' => FALSE))) {
+      $description = $t('Default image found at %path', array('%path' => $path));
+      $severity = REQUIREMENT_OK;
+      $value = $t('Default image found');
+    }
+    else {
+      $description = $t('Image(Cache) Defaults cannot find a default image to use when repairing broken image paths. Please read README.txt for more information.');
+      $severity = REQUIREMENT_ERROR;
+      $value = $t('Default image not found');
+    }
+
+    $requirements['imagecache_defaults'] = array(
+      'title' => $t('Image(Cache) Defaults'),
+      'description' => $description,
+      'severity' => $severity,
+      'value' => $value,
+    );
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function imagecache_defaults_update_7101(&$sandbox) {
+  // New caching schema added in beta3.
+  drupal_install_schema('imagecache_defaults');
+  return t("Installed cache schema.");
+}

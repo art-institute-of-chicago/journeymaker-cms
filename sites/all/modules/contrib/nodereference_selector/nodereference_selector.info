@@ -1,0 +1,13 @@
+name = Node Reference Selector Widget
+description = Adds an additional widget to the Node Reference.
+dependencies[] = node_reference
+dependencies[] = image
+package = Fields
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-07-18
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "nodereference_selector"
+datestamp = "1342615279"
+

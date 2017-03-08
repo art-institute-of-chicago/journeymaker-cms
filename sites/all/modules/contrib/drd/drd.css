@@ -1,0 +1,336 @@
+#drd-status {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
+  text-align: center;
+}
+#drd-status.active {
+  height: 50%;
+}
+#drd-status .content {
+  position: relative;
+  width: 750px;
+  height: 100%;
+  margin: 0 auto;
+  background-color: #3060a0;
+}
+#drd-status .content #drd-toolbar {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: 740px;
+  height: 20px;
+  background-color: #ffffff;
+}
+#drd-status .content #drd-toolbar.messages-available {
+  background-color: #f09619;
+}
+#drd-status .content .info-box {
+  display: none;
+  height: 45%;
+  width: 740px;
+  margin: 5px;
+  overflow: scroll;
+}
+#drd-status.active .content .info-box {
+  display: block;
+}
+
+table .drd-data td {
+  vertical-align: top;
+  white-space: nowrap;
+}
+table .drd-data td.name {
+  max-width: 150px;
+}
+table .drd-data td .drd-info {
+  min-height: 100px;
+  width: 600px;
+  background-color: #3060a0;
+  padding: 15px;
+  cursor: default;
+}
+table .drd-data td .drd-info,
+table .drd-data td .drd-info td {
+  white-space: normal;
+}
+table .drd-data td .drd-info .messages {
+  cursor: auto;
+}
+table .drd-data td .drd-info .charts {
+  margin-bottom: 10px;
+}
+table .drd-data td .drd-info .charts .button {
+  display: inline-block;
+  border: 1px solid #333333;
+  background-color: #cccccc;
+  padding: 3px 6px;
+  margin-right: 5px;
+}
+table .drd-data td .drd-info .charts .button.active {
+  background-color: #ffffff;
+}
+
+.drd-box-messages h3 span {
+  font-size: 0.5em;
+  cursor: pointer;
+}
+.drd-box-messages h3 span:before {
+  content: ' (';
+}
+.drd-box-messages h3 span:after {
+  content: ')';
+}
+.drd-box-small {
+  padding: 0;
+  width: 49%;
+  float: left;
+  clear: left;
+}
+.drd-box-small.secure,
+.drd-box-small.tuning,
+.drd-box-small.seo {
+  float: right;
+  clear: right;
+}
+.drd-box-small h3 {
+  margin: 0 5px;
+  height: 20px;
+}
+.drd-box-small table {
+  margin-bottom: 0;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+}
+.drd-box-small table td:last-child {
+  border-right: none;
+}
+.drd-box-small table tr:last-child {
+  border-bottom: none;
+}
+.drd-box-small table.system-status-report td.status-title,
+.drd-box-small table.system-status-report td.status-value {
+  width: 50%;
+}
+.drd-box-small table.system-status-report td.status-info,
+.drd-box-small table.system-status-report td.status-fix,
+.drd-box-small table.system-status-report td.status-ignore {
+  width: 20px;
+}
+.drd-box-small table.system-status-report span.drd-display .detail {
+  width: 300px;
+  white-space: normal;
+}
+.drd-box span.timestamp {
+  font-size: 0.5em;
+}
+.drd-box span.timestamp:before {
+  content: '(';
+}
+.drd-box span.timestamp:after {
+  content: ') ';
+}
+
+#drd-messages span {
+  cursor: pointer;
+  background-color: #CCCCCC;
+  padding: 2px;
+  font-size: x-small;
+}
+
+span.drd {
+  display: inline-block;
+  padding: 0 5px;
+}
+span.ui-icon {
+  display: inline-block;
+  margin-left: 5px;
+}
+.drd-status-ok {
+  background-color: #00FF00 !important;
+}
+.drd-status-warning,
+.drd-warning {
+  background-color: #EEDD55 !important;
+}
+.drd-status-error,
+.drd-error {
+  background-color: #DD5522 !important;
+}
+.pointer {
+  cursor: pointer;
+}
+#update-manager-update-form .update.checked {
+  display: none;
+}
+#edit-filter-wrapper .form-item {
+  display: inline-block;
+}
+
+#drd-queue-info-count {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.7em;
+}
+
+.drd-heartbeat-toggle .ui-icon {
+  background-color: #007700;
+  background-position: -64px -144px;
+}
+.drd-heartbeat-toggle.off .ui-icon {
+  background-color: #DD5522;
+  background-position: -96px -128px;
+}
+.drd-heartbeat {
+  display: inline-block;
+}
+
+span.drd-display {
+  position: relative;
+}
+span.drd-display .detail {
+  display: none;
+  position: absolute;
+  top: 0;
+  right: 15px;
+  background-color: #CCCCCC;
+  border: 1px solid #000000;
+  white-space: nowrap;
+  overflow: auto;
+  z-index: 99;
+  padding: 3px;
+}
+span.drd-display .detail p {
+  margin: 2px 0 0 0;
+}
+span.drd-display:hover .detail {
+  display: block;
+}
+.update span.drd-display .detail {
+  left: 15px;
+  right: auto;
+}
+
+.drd-refreshed {
+  background-color: #007700;
+}
+
+#drd-domainstatus span.title,
+#drd-domaininfo span,
+#drd-serverinfo span {
+  display: inline-block;
+  width: 120px;
+}
+#drd-domainstatus span.title:after,
+#drd-domaininfo span:after,
+#drd-serverinfo span:after {
+  content: ":";
+}
+
+.tabs-secondary {
+  float: right;
+}
+ul.action-links {
+  margin: 0 0 1em;
+}
+fieldset#drd-serverinfo,
+fieldset#drd-domaininfo,
+fieldset#drd-domainstatus,
+fieldset#edit-options {
+  margin: 0 0 1em;
+  padding: 3px;
+}
+fieldset#drd-serverinfo,
+fieldset#drd-domaininfo,
+fieldset#drd-domainstatus {
+  display: inline-block;
+  float: left;
+  margin-right: 1em;
+}
+fieldset#edit-filter-wrapper,
+fieldset#edit-options {
+  clear: both;
+}
+fieldset#edit-options .fieldset-legend {
+  position: relative;
+  display: inline;
+}
+fieldset#edit-options .fieldset-wrapper,
+fieldset#edit-options .fieldset-wrapper .form-wrapper,
+fieldset#edit-options .fieldset-wrapper .form-item {
+  padding-bottom: 0;
+}
+
+#edit-domain {
+  clear: both;
+}
+
+table#drd-modules tr.drd-type,
+table#drd-modules tr.drd-project,
+table#drd-modules tr.drd-version td.empty {
+  background-color: #dddddd;
+}
+table#drd-modules tr.drd-version {
+  background-color: #ffffff;
+}
+table#drd-modules tr.drd-version.security td.version,
+table#drd-modules tr.drd-version.security td.update {
+  background-color: #ff4400;
+}
+table#drd-modules tr.drd-version.unsupported td.version,
+table#drd-modules tr.drd-version.unsupported td.update {
+  background-color: #aaaa44;
+}
+table#drd-modules tr.drd-version.recommended td.version,
+table#drd-modules tr.drd-version.recommended td.update {
+  background-color: #ffff00;
+}
+table#drd-modules {
+  width: auto;
+  clear: both;
+}
+table#drd-modules th.server span {
+  display: inline-block;
+}
+table#drd-modules th.server,
+table#drd-modules tr.drd-version td {
+  width: 30px;
+}
+table#drd-modules tr.drd-version td.empty {
+  width: 10px;
+}
+table#drd-modules tr.drd-version td.version {
+  width: 130px;
+}
+table#drd-modules tr.drd-version td.update {
+  width: 130px;
+}
+#edit-drd-server-blocks:after {
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+}
+#edit-drd-server-blocks .form-item.form-type-checkbox {
+  float: left;
+  width: 200px;
+  height: 2em;
+  line-height: 1em;
+  margin-right: 5px;
+  text-indent: -1.3em;
+  margin-left: 1.3em;
+}
+.drd-function {
+  font-size: 0.5em;
+  cursor: pointer;
+}
+table.system-status-report tr.ignored {
+  background-color: #eeeeee !important;
+  color: #cccccc !important;
+}
+table.system-status-report tr.ignored td {
+  color: #999999 !important;
+}

@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Allows resetting the cron key via the admin interface.
+ */
+
+function cron_key_form_alter(&$form, &$form_state, $form_id) {
+  // Add a reset button to the system Cron settings page.
+  if ($form_id == 'system_cron_settings') {
+    $form['cron_key_reset']['cron_key'] = array(
+      '#type' => 'submit',
+      '#value' => t('Reset cron key'),
+      '#submit' => array('cron_key_reset'),
+    );
+  }
+}
+
+function cron_key_reset() {
+  // Reset the system cron key variable.
+  $cron_key = drupal_random_key();
+  variable_set('cron_key', $cron_key);
+}

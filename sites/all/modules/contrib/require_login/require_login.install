@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * require_login.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function require_login_install() {
+  variable_set('require_login_excluded_paths', '');
+  variable_set('require_login_deny_message', REQUIRE_LOGIN_DEFAULT_MESSAGE);
+  db_update('system')
+    ->fields(array('weight' => -1000))
+    ->condition('name', 'require_login', '=')
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function require_login_uninstall() {
+  variable_del('require_login_excluded_paths');
+  variable_del('require_login_deny_message');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function require_login_update_7100() {
+  variable_set('require_login_deny_message', REQUIRE_LOGIN_DEFAULT_MESSAGE);
+  db_update('system')
+    ->fields(array('weight' => -1000))
+    ->condition('name', 'require_login', '=')
+    ->execute();
+}

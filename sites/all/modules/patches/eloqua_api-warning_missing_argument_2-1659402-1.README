@@ -1,0 +1,2 @@
+Patch eliminates PHP warning message after submitting form to Eloqua API
+See https://drupal.org/node/1659402#comment-6160646

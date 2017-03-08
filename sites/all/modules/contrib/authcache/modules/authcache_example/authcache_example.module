@@ -1,0 +1,196 @@
+<?php
+
+/**
+ * @file authcache_example.module
+ *
+ * Example module that displays a Drupal block of customized user content.
+ */
+ 
+
+/**
+ * Implents hook_menu()
+ */
+function authcache_example_menu() {
+  $items['user/%user/authcache-example'] = array(
+    'title' => 'Authcache Example',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_example_block_form', 1),
+    'access callback' => 'authcache_example_custom_access',
+    'access arguments' => array(1, 'edit'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  return $items;
+}
+
+/*
+ * Access callback for the menu item.
+ *
+ * Note Implementation of hook_access has been removed in Drupal 7 in favor of
+ * hook_node_access. Thus this is just an access callback.
+ */
+function authcache_example_custom_access($account, $op) {
+  global $user;
+  if ($op == 'edit') {
+    // Allow user with sufficient permission to edit their or any authcache example block.
+    return (($user->uid && $user->uid == $account->uid && user_access('edit own authcache example block')) ||  user_access('administer authcache example') );
+  }
+}
+
+/*
+ * Implements hook_permisssion()
+ */
+function authcache_example_permission() {
+  return array(
+    'administer authcache example' => array(
+      'title' => t('Administer Authcache Example Block'),
+      'description' => t('Allow user to edit any authcache example block'),
+    ),
+    'edit own authcache example block' => array(
+      'title' => t('edit own authcache example block'),
+      'description' => t('Allow users to edit authcache example block.'),
+    ),
+  );
+}
+
+/**
+ * Form to modify user's block
+ */
+function authcache_example_block_form($form, &$form_state, $account) {
+
+  // Retrieve the block if there is any
+  $block = db_query("SELECT block_text, uid FROM {authcache_example} WHERE uid = :uid", array(':uid' => $account->uid))->fetchObject();
+
+  // Hold on to the block
+  $form_state['storage']['authcache_block'] = (empty($block)) ? FALSE : $block;
+  
+  $form['block_text'] = array(
+    '#title' => 'Your Custom Block Text',
+    '#type' => 'textarea',
+    '#default_value' => ($block && $block->block_text) ? $block->block_text : '',
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' =>  ($block) ? 'Update': 'Save',
+  );
+
+  return $form;
+}
+
+/*
+ * @TODO Provide basic validation
+ */
+function authcache_example_block_form_validate($form, &$form_state) {
+
+}
+
+
+/**
+ * User updated their block
+ */
+function authcache_example_block_form_submit($form, &$form_state) {
+  $account = $form_state['build_info']['args'][0];
+  
+  $record = array(
+    'uid' => $account->uid,
+    'block_text' => $form_state['values']['block_text'],
+  );
+
+  if ($form_state['storage']['authcache_block']) {
+    // Update
+    $res = drupal_write_record('authcache_example', $record, array('uid'));
+  }
+  else {
+    // Save new block
+    $res = drupal_write_record('authcache_example', $record);
+  }
+
+  if (!$res) {
+    form_set_error('authcache_example', 'An error occurred. Please consult the logs.');
+  }
+
+  // Invalidate browser cache by modify our cache cookie time
+  setcookie('authcache_example', REQUEST_TIME, 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  
+  drupal_set_message(t("Your block has been updated."));
+}
+
+/**
+ * Implements hook_block()
+ */
+function authcache_example_block_info() {
+  $blocks['example'] = array(
+    'info' => t('Authcache Example Block'),
+    'weight' => 10,
+    'status' => 1,
+    'region' => 'sidebar_first',
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  return $blocks;
+}
+
+function authcache_example_block_view($delta = '') {
+  switch ($delta) {
+    case 'example':
+      $block['subject'] = '';
+      $block['content'] = authcache_example_display_block_example();
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Display user-customized block
+ */
+function authcache_example_display_block_example() {
+  global $user, $_authcache_is_cacheable;
+
+  if(!$user->uid) {
+    return 'Please login to test this block.';
+  }
+  // Do not cache block if page is to be cached
+  
+
+  // $_authcache_is_cacheable is the variable for D77 because there is no other
+  // mention of $is_page_authcache except in the example module.
+  // @TODO Remove references to $is_page_authcache and update documentation.
+   
+  else if($_authcache_is_cacheable) {
+    // Use JS to retrieve block content
+    drupal_add_js(drupal_get_path('module', 'authcache_example') .'/js/authcache_example.js', 'module', 'header');
+    return '&nbsp;';
+  }
+  
+  $block_text = check_plain(db_query("SELECT block_text FROM {authcache_example} WHERE uid = :uid", array(':uid' => $user->uid))->fetchField());
+  $output = t("Hello, !user, this is a customized block of content that can be cached by the browser.  Update it <a href=\"!url\">here</a>!", array('!user' => $user->name, '!url' => url("user/$user->uid/authcache_example")));
+
+  $output .= "<p><strong class=\"error\">$block_text</strong></p>";
+  
+  return $output;
+}
+
+/**
+ * Implementation of hook_user_login()
+ *
+ * Cookies need to be reset in case user logs in under a different account
+ */
+function authcache_example_user_login(&$edit, &$account) {
+
+  // cookie expiration
+  $expires = ini_get('session.cookie_lifetime');
+  $expires = (!empty($expires) && is_numeric($expires) ? REQUEST_TIME + (int)$expires : 0);
+
+  setcookie('authcache_example', REQUEST_TIME, $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  
+}
+
+/**
+ * Implements of hook_user_logout()
+ *
+ * Cookies need to be reset in case user logs in under a different account
+ */
+function authcache_example_user_logout($account) {
+  setcookie('authcache_example', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+}

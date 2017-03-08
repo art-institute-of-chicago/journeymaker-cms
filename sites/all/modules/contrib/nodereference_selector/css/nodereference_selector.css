@@ -1,0 +1,27 @@
+.nodereference-selector-filter {
+  border: 1px solid #000000;
+}
+.field-widget-nodereference-selector .form-type-checkbox,
+.field-widget-nodereference-selector .form-type-radio {
+  float: left;
+}
+.field-widget-nodereference-selector label img {
+  display: block;
+}
+.field-widget-nodereference-selector label {
+  cursor: pointer;
+  display: block;
+  position: relative;
+}
+.field-widget-nodereference-selector label .checkmark {
+  background-image: url("../images/checkbox.png");
+  bottom: 0px;
+  height: 30px;
+  opacity: 0.5;
+  position: absolute;
+  right: 0px;
+  width: 30px;
+}
+.field-widget-nodereference-selector label .checkmark.selected {
+  opacity: 1;
+}

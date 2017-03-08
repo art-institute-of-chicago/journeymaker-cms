@@ -1,0 +1,425 @@
+<?php
+
+function aic_api_menu() {
+  $items['api-query/%/%'] = array(
+    'page callback' => 'api_query',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+  );
+
+  $items['api-query-theme/%/%'] = array(
+    'page callback' => 'api_query_theme',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+  );
+
+  $items['api-update-galleries'] = array(
+    'page callback' => 'api_gallery_update',
+    'access callback' => TRUE,
+  );
+
+  $items['admin/settings/aic-api'] = array(
+    'title' => 'AIC API module settings',
+    'description' => 'Specify the URLs of your API',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('aic_api_admin'),
+    'access arguments' => array('administer aic api settings'),
+    'type' => MENU_CALLBACK,
+   );
+
+  return $items;
+}
+
+function aic_api_cron() {
+	api_gallery_update();
+	aic_json_page('json');
+	aic_json_page('json-on-display');
+	aic_json_page('json-off-display');
+}
+
+function api_gallery_update() {
+  $result = db_query("SELECT nid FROM {node} WHERE type = 'artwork' ORDER BY title");
+
+  $output = '';
+
+  foreach ($result as $r) {
+    $node = node_load($r->nid);
+
+    $artwork_query = variable_get('aicapi_artwork_query');
+    $gallery_query = variable_get('aicapi_gallery_query');
+
+    if (isset($node->field_object_id['und']) && isset($artwork_query) && isset($gallery_query)) {
+      $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($node->title, 'node/' . $node->nid) . "<br><br>";
+
+      $url = str_replace('{{pk}}', $node->field_object_id['und'][0]['value'], $artwork_query);
+
+      $curl = curl_init();
+
+      curl_setopt($curl, CURLOPT_URL,"$url");
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+
+      $request_method = 'GET';
+      $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+
+      $headers = array(
+        'Content-Type: application/vnd.hi360.gateway.v1+json',
+        "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
+        "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+      );
+
+      curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+      $json = json_decode(curl_exec($curl));
+
+      $gllery_name = null;
+
+      if (isset($json->response->docs[0]->gallery_location)) {
+        $gallery_name = $json->response->docs[0]->gallery_location;
+      }
+
+      $url = str_replace('{{name}}', urlencode($gallery_name), $gallery_query);
+
+      $curl = curl_init();
+
+      curl_setopt($curl, CURLOPT_URL,"$url");
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+      curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+
+      $request_method = 'GET';
+      $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+
+      $headers = array(
+        'Content-Type: application/vnd.hi360.gateway.v1+json',
+        "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
+        "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+      );
+
+      curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+      $json2 = json_decode(curl_exec($curl));
+
+      $gallery_id = null;
+      $map_x = null;
+      $map_y = null;
+      $floor = null;
+      $isclosed = 'False';   							 // Ed Added
+
+
+      if (isset($json2->response->docs[0]->closed)) {    // Ed Added
+        $isclosed = $json2->response->docs[0]->closed;   // Ed Added
+      }													 // Ed Added
+
+
+      if (isset($json2->response->docs[0]->gallery_id)) {
+        $gallery_id = $json2->response->docs[0]->gallery_id;
+      }
+
+      if (isset($json2->response->docs[0]->latitude)) {
+       if ($isclosed == 'False') {							 // Ed Added
+       	  $map_x = $json2->response->docs[0]->latitude;;										 // Ed Added
+	   }
+      }
+
+      if (isset($json2->response->docs[0]->longitude)) {
+      if ($isclosed == 'False') {						 // Ed Added
+       	   $map_y = $json2->response->docs[0]->longitude;							 // Ed Added
+	   }
+      }
+
+      if (isset($json2->response->docs[0]->floor)) {
+        $floor = $json2->response->docs[0]->floor;
+      }
+
+
+      $node->field_gallery_id['und'][0]['value'] = $gallery_id;
+      $node->field_gallery_name['und'][0]['value'] = $gallery_name;
+      $node->field_map_x['und'][0]['value'] = $map_x;
+      $node->field_map_y['und'][0]['value'] = $map_y;
+      $node->field_floor['und'][0]['value'] = $floor;
+
+      node_save($node);
+    }
+  }
+
+  cache_clear_all();
+
+  return $output;
+}
+
+function api_query_theme($search_type, $search_term) {
+
+  $general_query = variable_get('aicapi_general_query');
+
+  if (isset($general_query)) {
+    $url = str_replace('{{type}}', $search_type, $general_query);
+    $url = str_replace('{{term}}', urlencode($search_term), $url);
+
+    $curl = curl_init();
+
+    curl_setopt($curl, CURLOPT_URL,"$url");
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+
+    $request_method = 'GET';
+    $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+
+    $headers = array(
+      'Content-Type: application/vnd.hi360.gateway.v1+json',
+      "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
+      "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+    );
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $json = json_decode(curl_exec($curl));
+
+    $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
+
+      foreach ($json->response->docs as $k => $doc) {
+
+        if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
+          $table = "<br /><br /><table>";
+
+          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+          $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
+
+          $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
+
+          $table .= "<br />{$doc->large_image_full_path}</td></tr>";
+
+          $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_theme_form($k);'>Populate Form</a></td></tr>";
+
+          $table .= "</table>";
+        }
+
+        $output .= $table;
+      }
+
+    print $output;
+  }
+}
+
+function api_query($search_type, $search_term) {
+
+  $general_query = variable_get('aicapi_general_query');
+  $gallery_query = variable_get('aicapi_gallery_query');
+
+  if (isset($general_query)) {
+    $url = str_replace('{{type}}', $search_type, $general_query);
+    $url = str_replace('{{term}}', urlencode($search_term), $url);
+    $curl = curl_init();
+
+    curl_setopt($curl, CURLOPT_URL,"$url");
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+
+    $request_method = 'GET';
+    $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+
+    $headers = array(
+      'Content-Type: application/vnd.hi360.gateway.v1+json',
+      "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
+      "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+    );
+
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+    $json = json_decode(curl_exec($curl));
+
+    $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
+
+      foreach ($json->response->docs as $k => $doc) {
+
+        $table = "<br /><br /><table>";
+
+        $table .= "<tr><th width='25%'>ObjectID</th>  <td id='object_id_$k' data-value='{$doc->object_id}'>{$doc->object_id}</td></tr>";
+        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+        $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
+
+        if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
+          $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
+        }
+
+        $table .= "<br />{$doc->large_image_full_path}</td></tr>";
+        $table .= "<tr><th>Artist</th>            <td id='artist_name_$k'       data-value='{$doc->artist_name}'>{$doc->artist_name}</td></tr>";
+        $table .= "<tr><th>Year</th>              <td id='date_$k'              data-value='{$doc->date_display}'>{$doc->date_display}</td></tr>";
+        $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_location}'>{$doc->gallery_location}</td></tr>";
+        $table .= "<tr><th>Copyright</th>         <td id='copy_$k'              data-value='{$doc->copyright_notice}'>{$doc->copyright_notice}</td></tr>";
+
+        if ($doc->gallery_location != 'Currently not on display' && isset($gallery_query)) {
+
+          $url = str_replace('{{name}}', urlencode($doc->gallery_location), $gallery_query);
+
+          $curl = curl_init();
+
+          curl_setopt($curl, CURLOPT_URL,"$url");
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+          curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+
+          $request_method = 'GET';
+          $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+
+          $headers = array(
+            'Content-Type: application/vnd.hi360.gateway.v1+json',
+            "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
+            "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+          );
+
+          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+          $json2 = json_decode(curl_exec($curl));
+
+          $table .= "<tr><th>Gallery ID</th>  <td id='gallery_id_$k'   data-value='{$json2->response->docs[0]->gallery_id}'> {$json2->response->docs[0]->gallery_id}</td></tr>";
+          $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->response->docs[0]->latitude}'> {$json2->response->docs[0]->latitude}</td></tr>";
+          $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->response->docs[0]->longitude}'>{$json2->response->docs[0]->longitude}</td></tr>";
+          $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->response->docs[0]->floor}'>    {$json2->response->docs[0]->floor}</td></tr>";
+        }
+
+        $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_artwork_form($k);'>Populate Form</a></td></tr>";
+
+
+        $table .= "</table>";
+
+        $output .= $table;
+      }
+
+    print $output;
+  }
+}
+
+function aic_api_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form_id == 'aic_theme_node_form') {
+    $general_query = variable_get('aicapi_general_query');
+    if (isset($general_query)) {
+
+      drupal_add_js(drupal_get_path('module', 'aic_api') .'/aic_api.js', 'file');
+
+      $form['field_background_image_url']['#prefix'] = '
+        <strong>Query API:</strong><br /><br />
+        <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
+        <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
+        <a class="button" href="#" id="query-api-button-theme">Query API</a>
+
+        <div id="api-query-results"></div>
+        <br /><br />
+      ';
+    }
+  }
+
+  if ($form_id == 'artwork_node_form') {
+    $general_query = variable_get('aicapi_general_query');
+    if (isset($general_query)) {
+
+      drupal_add_js(drupal_get_path('module', 'aic_api') .'/aic_api.js', 'file');
+
+      $form['api-integration'] = array(
+        '#type' => 'item',
+        '#markup' => '
+
+        <strong>Query API:</strong><br /><br />
+        <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
+        <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
+        <a class="button" href="#" id="query-api-button">Query API</a>
+
+        <div id="api-query-results"></div>
+      '
+      );
+
+      $form['field_viewing_description']['#description'] = 'foo foo foo';
+    }
+  }
+}
+
+function aic_api_node_presave($node) {
+  if (  $node->type == 'artwork') {
+
+    if (isset($node->field_image_url['und']) && isset($node->field_image_url['und'][0]) && ($node->field_image_url['und'][0]['value'] <> '')) {
+        $image = file_get_contents($node->field_image_url['und'][0]['value']);
+        $filename = preg_replace('/.*\//','',$node->field_image_url['und'][0]['value']);
+        $file = file_save_data($image, 'public://' . $filename, FILE_EXISTS_REPLACE);
+
+        $node->field_artwork_image['und'][0] = (array) $file;
+        unset($node->field_image_url['und']);
+    }
+  }
+
+  if (  $node->type == 'aic_theme') {
+
+    if (isset($node->field_background_image_url['und']) && (isset($node->field_background_image_url['und'][0])) && ($node->field_background_image_url['und'][0]['value'] <> '')) {
+        $image = file_get_contents($node->field_image_url['und'][0]['value']);
+        $filename = preg_replace('/.*\//','',$node->field_image_url['und'][0]['value']);
+        $file = file_save_data($image, 'public://' . $filename, FILE_EXISTS_REPLACE);
+
+        $node->field_background['und'][0] = (array) $file;
+        unset($node->field_background_image_url['und']);
+    }
+  }
+}
+
+function aic_api_admin() {
+  $form = array();
+
+  $form['aicapi_artwork_query'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Artwork query by ID URL'),
+    '#default_value' => variable_get('aicapi_artwork_query', ''),
+    '#size' => 60,
+    '#maxlength' => 256,
+    '#description' => t("Use {{pk}} to note where the ID should be used."),
+  );
+
+  $form['aicapi_gallery_query'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Gallery query by name URL'),
+    '#default_value' => variable_get('aicapi_gallery_query', ''),
+    '#size' => 60,
+    '#maxlength' => 256,
+    '#description' => t("Use {{name}} to note where the name of the gallery should be used."),
+  );
+
+  $form['aicapi_general_query'] = array(
+    '#type' => 'textfield',
+    '#title' => t('General artwork query URL'),
+    '#default_value' => variable_get('aicapi_general_query', ''),
+    '#size' => 60,
+    '#maxlength' => 256,
+    '#description' => t("Use {{type}} to note the field to be searched, and {{term}} to note the query."),
+  );
+
+  return system_settings_form($form);
+}
+
+function aic_api_admin_validate($form, &$form_state) {
+  $artwork_query = $form_state['values']['aicapi_artwork_query'];
+  if (substr($artwork_query, 0, 7) !== "http://" && substr($artwork_query, 0, 8) !== "https://") {
+    form_set_error('aic_artwork_query', t('You must enter a URL.'));
+  }
+  if (strpos($artwork_query, '{{pk}}') === false) {
+    form_set_error('aic_artwork_query', t('You must include {{pk}} somewhere in your URL.'));
+  }
+
+  $gallery_query = $form_state['values']['aicapi_gallery_query'];
+  if (substr($gallery_query, 0, 7) !== "http://" && substr($gallery_query, 0, 8) !== "https://") {
+    form_set_error('aic_gallery_query', t('You must enter a URL.'));
+  }
+  if (strpos($gallery_query, '{{name}}') === false) {
+    form_set_error('aic_gallery_query', t('You must include {{name}} somewhere in your URL.'));
+  }
+
+  $general_query = $form_state['values']['aicapi_general_query'];
+  if (substr($general_query, 0, 7) !== "http://" && substr($general_query, 0, 8) !== "https://") {
+    form_set_error('aic_general_query', t('You must enter a URL.'));
+  }
+  if (strpos($general_query, '{{type}}') === false) {
+    form_set_error('aic_general_query', t('You must include {{type}} somewhere in your URL.'));
+  }
+  if (strpos($general_query, '{{term}}') === false) {
+    form_set_error('aic_general_query', t('You must include {{term}} somewhere in your URL.'));
+  }
+}

@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall hooks for the Eloqua API module.
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function eloqua_api_uninstall() {
+  $field_keys =  array(
+    'post_url',
+    'site_id',
+    'default_form',
+    'log',
+    'explicit_values',
+    'enabled_forms',
+    'timeout',
+    'tracking_enabled',
+    'send_customer_guid',
+    'customer_guid_field',
+    'cookie_write_field',
+  );
+  
+  foreach ($field_keys as $field) {
+    variable_del('eloqua_api_' . $field);
+  }
+}

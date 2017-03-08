@@ -1,0 +1,16 @@
+name = Drupal Remote Dashboard
+description = Dashboard to administer any number of Drupal cores via XMLRPC.
+package = Administration
+core = 7.x
+
+dependencies[] = aes
+dependencies[] = update
+
+configure = admin/drd/settings
+
+; Information added by Drupal.org packaging script on 2014-07-10
+version = "7.x-2.5"
+core = "7.x"
+project = "drd"
+datestamp = "1404982430"
+

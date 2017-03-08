@@ -1,0 +1,17 @@
+diff --git a/eloqua_api.module b/eloqua_api.module
+index c39980b..061b351 100644
+--- a/eloqua_api.module
++++ b/eloqua_api.module
+@@ -79,10 +79,10 @@ function eloqua_api_submit($form, &$form_state) {
+   $settings = _eloqua_api_get_settings();
+ 
+   if ($settings['explicit_values']) {
+-    eloqua_api_post($form_state['eloqua_values']);
++    eloqua_api_post($form_state['eloqua_values'], $settings['post_url']);
+   }
+   else {
+-    eloqua_api_post($form_state['values']);
++    eloqua_api_post($form_state['values'], $settings['post_url']);
+   }
+ }
+ 

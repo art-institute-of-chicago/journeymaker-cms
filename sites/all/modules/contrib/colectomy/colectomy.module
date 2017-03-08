@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * @file
+ * Allows the option to hide the colon on field labels in field forms.
+ */
+
+/**
+ * Implements hook_form_FORMID_alter().
+ *
+ * Adds two new options to the field label options.
+ *
+ * @see field_ui_display_overview_form()
+ */
+function colectomy_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  foreach (element_children($form['fields']) as $key) {
+    // Not all fields have labels, so check first.
+    if (isset($form['fields'][$key]['label'])) {
+      // Add the new options.
+      $form['fields'][$key]['label']['#options'] += array(
+        'abovec' => 'Above no colon',
+        'inlinec' => 'Inline no colon',
+      );
+    }
+  }
+}
+
+/**
+ * Theme preprocess function for theme_field() and field.tpl.php.
+ *
+ * A modified version of the field_preprocess_field() function which allows us
+ * to add some custom variables used later on the rendering of the array.
+ *
+ * @see theme_field()
+ * @see field.tpl.php
+ */
+function colectomy_preprocess_field(&$variables, $hook) {
+  $element = $variables['element'];
+
+  $variables['label_hidden'] = ($element['#label_display'] == 'hidden');
+  $variables['label'] = $variables['label_hidden'] ? NULL : check_plain($element['#title']);
+
+  $variables['label_colon'] = ($element['#label_display'] == 'inlinec' || $element['#label_display'] == 'abovec');
+
+  if ($element['#label_display'] == 'inline' || $element['#label_display'] == 'inlinec') {
+    $variables['classes_array'][] = 'clearfix';
+  }
+
+  if ($element['#label_display'] == 'inlinec') {
+    $variables['classes_array']['field-label-inline'] = 'field-label-inline';
+  }
+
+  if ($variables['label_colon']) {
+    $variables['theme_hook_suggestions'][] = 'colectomy_field';
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ *
+ * Used to add the #post_render function to field render arrays.
+ */
+function colectomy_field_attach_view_alter(&$output, $context) {
+  foreach (element_children($output) as $key) {
+    if (isset($output[$key]['#field_name'])) {
+      $output[$key]['#post_render']['colectomy'] = 'colectomy_post_render';
+    }
+  }
+}
+
+/**
+ * Allows the final field output to be altered.
+ *
+ * Checks for the existence of one of the custom #label_display options and
+ * does a basic string replacement on the rendered output.
+ */
+function colectomy_post_render($output, $element) {
+  if (isset($element['#label_display'])) {
+    if ($element['#label_display'] == 'abovec' || $element['#label_display'] == 'inlinec') {
+      // Matches string 'label' (usually part of the field-label class name) and
+      // then the next following colon gets removed. This matches the core
+      // field.tpl.php version but if this is overridden in the theme it may not
+      // match. The assumption is that if the field.tpl.php is overridden then
+      // the user probably won't need this module.
+      $output = preg_replace('|(label.+?)(\:)|', '$1', $output, 1);
+    }
+  }
+  return $output;
+}

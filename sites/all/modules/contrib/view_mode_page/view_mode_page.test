@@ -1,0 +1,218 @@
+<?php
+/**
+ * Tests
+ */
+class ViewModePageTestCase extends DrupalWebTestCase {
+  public $user;
+
+  /**
+   * Simple test info
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Code API Tests',
+      'description' => 'Unittests for the VMP module',
+      'group' => 'View Mode Page',
+    );
+  }
+
+  /**
+   * Set up the test
+   */
+  public function setUp() {
+    parent::setUp('view_mode_page');
+  }
+
+  /**
+   * Make sure the number of patterns in the database are what we expect
+   *
+   * @param int $number
+   *   Number of patterns
+   */
+  public function assertNumberOfPatterns($number) {
+    $patterns = view_mode_page_get_entity_patterns();
+    $term = 'patterns';
+    if ($number == 1) {
+      $term = 'pattern';
+    }
+    $this->assertEqual(count($patterns), $number, 'There should be ' . $number . ' ' . $term . ', found: ' . count($patterns));
+  }
+
+  /**
+   * Assert that an entity pattern exists as we intended
+   */
+  public function assertEntityPattern($entity_type, $content_type, $view_mode, $url_pattern, $show_title = FALSE, $title = '') {
+    $patterns = view_mode_page_get_entity_patterns($entity_type, $content_type, $view_mode);
+    $this->assertEqual(count($patterns), 1, 'There should be 1 pattern, found: ' . count($patterns));
+    if (count($patterns) > 0) {
+      $this->assertEqual($patterns[0]->url_pattern, $url_pattern, 'The patterns do not match');
+    }
+  }
+
+  /**
+   * Assert that a pattern exists as we intended
+   */
+  public function assertPattern($content_type, $view_mode, $url_pattern, $show_title = FALSE, $title = '') {
+    $this->assertEntityPattern('node', $content_type, $view_mode, $url_pattern, $show_title, $title);
+  }
+
+  // TESTS
+
+  /**
+   * Test adding a pattern with the entity based function
+   */
+  public function testAddEntityPattern() {
+    // make sure we have no patterns
+    $this->assertNumberOfPatterns(0);
+
+    // add a pattern
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => 'node',
+      'content_type' => 'blog_post',
+      'view_mode' => 'teaser',
+      'url_pattern' => 'blog/%/teaser',
+    ));
+
+    // make sure we have 1 pattern
+    $this->assertNumberOfPatterns(1);
+
+    // check out pattern
+    $this->assertEntityPattern('node', 'blog_post', 'teaser', 'blog/%/teaser');
+  }
+
+  /**
+   * Test adding a pattern with the non-entity based function
+   */
+  public function testAddPattern() {
+    // make sure we have no patterns
+    $this->assertNumberOfPatterns(0);
+
+    // add a pattern
+    view_mode_page_add_pattern('blog_post', 'teaser', 'blog/%/teaser');
+
+    // // make sure we have 1 pattern
+    $this->assertNumberOfPatterns(1);
+
+    // check out pattern
+    $this->assertPattern('blog_post', 'teaser', 'blog/%/teaser');
+  }
+
+  /**
+   * Test deleting a pattern with the non-entity based function
+   */
+  public function testDeletePattern() {
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => 'node',
+      'content_type' => 'blog_post',
+      'view_mode' => 'teaser',
+      'url_pattern' => 'blog/%/teaser',
+    ));
+
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => 'node',
+      'content_type' => 'person',
+      'view_mode' => 'teaser',
+      'url_pattern' => 'person/%/teaser',
+    ));
+
+    // check out pattern
+    $this->assertEntityPattern('node', 'blog_post', 'teaser', 'blog/%/teaser');
+
+    // delete the pattern
+    view_mode_page_delete_patterns('blog_post');
+    $this->assertNumberOfPatterns(1);
+  }
+
+  /**
+   * Test deleting a pattern with the entity based function
+   */
+  public function testDeleteEntityPattern() {
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => 'node',
+      'content_type' => 'blog_post',
+      'view_mode' => 'teaser',
+      'url_pattern' => 'blog/%/teaser',
+    ));
+
+    view_mode_page_add_entity_pattern(array(
+      'entity_type' => 'node',
+      'content_type' => 'person',
+      'view_mode' => 'teaser',
+      'url_pattern' => 'person/%/teaser',
+    ));
+
+    // check out pattern
+    $this->assertEntityPattern('node', 'blog_post', 'teaser', 'blog/%/teaser');
+
+    // delete the pattern
+    view_mode_page_delete_entity_patterns('node', 'blog_post');
+    $this->assertNumberOfPatterns(1);
+  }
+
+  /**
+   * Test VMP perms
+   */
+  public function testNoAccessWithoutPermissions() {
+    $user = $this->drupalCreateUser(array(
+      'administer nodes',
+      'administer content types',
+    ));
+
+    $this->drupalLogin($user);
+
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertResponse(200, 'User is allowed to access the manage display page');
+    $this->assertNoFieldByName('additional_settings[view_mode_page_settings][view_mode_page_url_pattern]');
+  }
+
+  /**
+   * Test VMP perms
+   */
+  public function testAccessWithPermissions() {
+    $user = $this->drupalCreateUser(array(
+      'administer nodes',
+      'administer content types',
+      'administer view mode page',
+    ));
+
+    $this->drupalLogin($user);
+
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertResponse(200, 'User is allowed to access the manage display page');
+    $this->assertFieldByName('additional_settings[view_mode_page_settings][view_mode_page_url_pattern]');
+  }
+
+  /**
+   * Test array_replace wrapper
+   */
+  public function testArrayReplaceWithNoValues() {
+    $defaults = array(
+      'setting' => 123,
+      'setting2' => 'test',
+    );
+    $array = array();
+
+    $merged = view_mode_page_array_replace($defaults, $array);
+    $this->assertTrue(isset($merged['setting'], $merged['setting2']));
+    $this->assertEqual($merged['setting'], 123);
+    $this->assertEqual($merged['setting2'], 'test');
+  }
+
+  /**
+   * Test array_replace wrapper
+   */
+  public function testArrayReplaceWithOverrides() {
+    $defaults = array(
+      'setting' => 123,
+      'setting2' => 'test',
+    );
+    $array = array(
+      'setting' => 456,
+    );
+
+    $merged = view_mode_page_array_replace($defaults, $array);
+    $this->assertTrue(isset($merged['setting'], $merged['setting2']));
+    $this->assertEqual($merged['setting'], 456);
+    $this->assertEqual($merged['setting2'], 'test');
+  }
+}

@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install Cron key module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function cron_key_install() {
+  drupal_set_message(t('Cron Key has been enabled. To reset the system cron key, visit the system <a href="@url">Cron</a> page.', array('@url' => url('admin/config/system/cron'))));
+}

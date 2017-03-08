@@ -1,0 +1,375 @@
+<?php
+
+/**
+ * @file
+ * An API module that allows easy integration with the Eloqua automated
+ * marketing platform.
+ *
+ * NOTE: Out of the box, this will almost certainly not do what you want it to.
+ * Please see README.txt for custom integration details.
+ */
+
+define('ELOQUA_API_DEFAULT_POST_URL', 'http://now.eloqua.com/e/f2.aspx');
+define('ELOQUA_API_DEFAULT_SITE_ID', -1);
+define('ELOQUA_API_DEFAULT_DEFAULT_FORM', '');
+define('ELOQUA_API_DEFAULT_LOG', TRUE);
+define('ELOQUA_API_DEFAULT_EXPLICIT_VALUES', TRUE);
+define('ELOQUA_API_DEFAULT_TIMEOUT', 10);
+define('ELOQUA_API_DEFAULT_TRACKING_ENABLED', 0);
+define('ELOQUA_API_DEFAULT_TRACKING_PATH', 'sites/all/libraries/elqNow');
+define('ELOQUA_API_DEFAULT_SEND_CUSTOMER_GUID', 0);
+define('ELOQUA_API_DEFAULT_CUSTOMER_GUID_FIELD', 'elqCustomerGUID');
+define('ELOQUA_API_DEFAULT_COOKIE_WRITE_FIELD', 'elqCookieWrite');
+
+/**
+ * Implements hook_permission().
+ */
+function eloqua_api_permission() {
+  return array(
+    'administer eloqua api' => array(
+      'title' => t('Administer Eloqua API Configurations'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function eloqua_api_menu() {
+  $items = array();
+
+  // Administration page.
+  $items['admin/config/services/eloqua-api/settings'] = array(
+    'title' => 'Eloqua API',
+    'description' => 'Configure Eloqua integration options.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('eloqua_api_admin_settings'),
+    'access arguments' => array('administer eloqua api'),
+    'file' => 'eloqua_api.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function eloqua_api_preprocess_html(&$variables) {
+  $settings = _eloqua_api_get_settings();
+  if ($settings['tracking_enabled']) {
+    $path = _eloqua_api_tracking_path() . '/';
+    $options = array(
+      'type' => 'file',
+      'group' => JS_DEFAULT,
+      'weight' => 100,
+    );
+    drupal_add_js($path . 'tracking.js', $options);
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function eloqua_api_form_alter(&$form, &$form_state, $form_id) {
+  $settings = _eloqua_api_get_settings();
+
+  // If this form is enabled, add our submit handler.
+  if (isset($settings['enabled_forms'][$form_id]) && $settings['enabled_forms'][$form_id]) {
+    $form['#validate'][] = 'eloqua_api_validate';
+    $form['#submit'][] = 'eloqua_api_submit';
+
+    // If we're using explicit values, be sure to set the array.
+    if ($settings['explicit_values'] && !isset($form_state['eloqua_values'])) {
+      $form_state['eloqua_values'] = array();
+    }
+
+    // If configured to do so, add JS and hidden field for GUID.
+    if ($settings['send_customer_guid']) {
+      // Attach the JavaScript.
+      $modpath = drupal_get_path('module', 'eloqua_api');
+      $form['#attached']['js'][] = $modpath . '/js/form_attachment.js';
+
+      // Create a hidden field with ID to attach to.
+      $form['eloqua_api_cid'] = array(
+        '#type' => 'hidden',
+        '#attributes' => array('id' => 'eloqua-api-cid'),
+      );
+    }
+  }
+}
+
+/**
+ * Generic validation handler for Eloqua enabled forms.
+ *
+ * Custom fields provided by this module are mapped here.
+ */
+function eloqua_api_validate($form, &$form_state) {
+  // Determine whether we're writing to "eloqua_values" or "values."
+  $settings = _eloqua_api_get_settings();
+  $append = &$form_state[($settings['explicit_values'] ? 'eloqua_values' : 'values')];
+
+  // If configured, get and append the customer GUID.
+  if ($settings['send_customer_guid'] && isset($form_state['values']['eloqua_api_cid'])) {
+    $append[$settings['customer_guid_field']] = $form_state['values']['eloqua_api_cid'];
+    $append[$settings['cookie_write_field']] = '0';
+    unset($form_state['values']['eloqua_api_cid']);
+  }
+}
+
+/**
+ * Generic submit handler for Eloqua enabled forms.
+ *
+ * All this does is submit all values attached to the form to Eloqua. It's your
+ * responsibility to make sure that all fields are present and map to the right
+ * values within Eloqua by form altering and adding them via your own validation
+ * function(s).
+ */
+function eloqua_api_submit($form, &$form_state) {
+  $settings = _eloqua_api_get_settings();
+
+  if ($settings['explicit_values']) {
+    eloqua_api_post($form_state['eloqua_values'], $settings['post_url']);
+  }
+  else {
+    eloqua_api_post($form_state['values'], $settings['post_url']);
+  }
+}
+
+/**
+ * Posts a series of parameters to Eloqua asynchronously.
+ *
+ * @param array $params
+ *   An array of parameters (keyed by name) to pass to Eloqua.
+ *
+ * @param string $url
+ *   The URL to which params will be POST'ed, defaults to the specified script.
+ */
+function eloqua_api_post($params = array(), $url = NULL) {
+  $settings = _eloqua_api_get_settings();
+
+  // Only POST the form if a site ID is set.
+  if ($settings['site_id'] > 0) {
+    // Don't post an empty form.
+    if (!empty($params)) {
+      // Append default information.
+      if (empty($params['elqSiteId'])) {
+        $params['elqSiteId'] = $settings['site_id'];
+      }
+      if (empty($params['elqFormName'])) {
+        $params['elqFormName'] = $settings['default_form'];
+      }
+
+      // Assign the default URL if none is provided.
+      if (empty($url)) {
+        $url = $settings['post_url'];
+      }
+
+      // Allow alteration of the data sent to Eloqua.
+      drupal_alter('eloqua_api_post', $params);
+
+      // Create a query string from the parameters.
+      $post_string = drupal_http_build_query($params);
+      $url_parts = parse_url($url);
+
+      // Pull out the useful path parts.
+      $host = $url_parts['host'];
+      $path = $url_parts['path'];
+      $port = isset($url_parts['port']) ? $url_parts['port'] : 80;
+
+      // Set up our POST request.
+      $out = "POST " . $path . " HTTP/1.1\r\n";
+      $out .= "Host: " . $host . "\r\n";
+      $out .= "Content-Type: application/x-www-form-urlencoded\r\n";
+      $out .= "Content-Length: " . strlen($post_string) . "\r\n";
+      $out .= "Connection: Close\r\n\r\n";
+
+      // Append POST data.
+      $out .= $post_string;
+
+      // Open the socket, POST, then close the socket.
+      if (!variable_get('eloqua_api_skip_post', FALSE)) {
+        $fp = fsockopen($host, $port, $errno, $errstr, $settings['timeout']);
+
+        // Log any errors that occurred.
+        if (!$fp) {
+          watchdog('eloqua api', 'Eloqua post failed: error opening the socket. <br /><br /> @message', array('@message' => $errstr), WATCHDOG_ERROR);
+        }
+        else {
+          fwrite($fp, $out);
+          fclose($fp);
+        }
+      }
+
+      // Log the POST.
+      if ($settings['log']) {
+        $sanitized_out = filter_xss(nl2br($out), array('br'));
+        watchdog('eloqua api', 'Eloqua post successful: <br /><br /> !post', array('!post' => $sanitized_out), WATCHDOG_NOTICE);
+      }
+    }
+    else {
+      watchdog('eloqua api', 'Eloqua post aborted: no parameters passed.', array(), WATCHDOG_WARNING);
+    }
+  }
+  else {
+    watchdog('eloqua api', 'Eloqua post failed: no Site ID provided.', array(), WATCHDOG_ERROR);
+  }
+}
+
+/**
+ * Implements hook_action_info().
+ */
+function eloqua_api_action_info() {
+  return array(
+    'eloqua_api_post_form_data' => array(
+      'type' => 'entity',
+      'label' => t('Post entity data to Eloqua'),
+      'configurable' => FALSE,
+      'vbo_configurable' => TRUE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+/**
+ * Per-bulk operation configuration form.
+ */
+function eloqua_api_post_form_data_form($settings) {
+  $form['overrides'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Eloqua form properties'),
+    '#description' => t('Optionally provide or override default or given Eloqua form properties for each selected entity.'),
+  );
+  $form['overrides']['elqFormName'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Eloqua form name'),
+    '#description' => t('Leave blank to use the given or default value.'),
+    '#required' => FALSE,
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the per-bulk operation configuration form.
+ */
+function eloqua_api_post_form_data_submit($form, $form_state) {
+  return array(
+    'overrides' => array(
+      'elqFormName' => $form_state['values']['elqFormName'],
+    ),
+  );
+}
+
+/**
+ * Performs Eloqua form post action.
+ *
+ * @see eloqua_api_action_info()
+ */
+function eloqua_api_post_form_data(&$entity, $context) {
+  $data = array();
+
+  // Attempt to read and populate all field values for this entity.
+  $entity_type = $context['entity_type'];
+  $ids = entity_extract_ids($entity_type, $entity);
+  $bundle = isset($ids[2]) && !empty($ids[2]) ? $ids[2] : $entity_type;
+  $fields = array_keys(field_info_instances($entity_type, $bundle));
+  foreach ($fields as $field) {
+    $value = field_get_items($entity_type, $entity, $field);
+    if (isset($value[0]['value']) && is_scalar($value[0]['value'])) {
+      $data[$field] = $value[0]['value'];
+    }
+  }
+
+  // Attempt to read and populate all property values for this entity.
+  $properties = array();
+  if (function_exists('entity_get_property_info')) {
+    $entity_properties = entity_get_property_info($entity_type);
+    $properties = array_keys($entity_properties['properties']);
+  }
+  // Otherwise, assume the base table columns are the properties.
+  else {
+    $info = entity_get_info($entity_type);
+    if (isset($info['schema_fields_sql']['base table'])) {
+      $properties = $info['schema_fields_sql']['base table'];
+    }
+  }
+  foreach ($properties as $property) {
+    if (isset($entity->$property) && is_scalar($entity->$property)) {
+      $data[$property] = $entity->$property;
+    }
+  }
+
+  // Override values from the configuration form.
+  foreach ($context['overrides'] as $field => $value) {
+    if (!empty($value)) {
+      $data[$field] = $value;
+    }
+  }
+
+  // Post the data collected off of the entity.
+  eloqua_api_post($data);
+}
+
+/**
+ * Returns Eloqua API settings.
+ *
+ * @param boolean $refresh
+ *   Whether or not to pull settings freshly. Defaults to FALSE.
+ *
+ * @return array
+ *   An array of Eloqua API settings, keyed by name.
+ */
+function _eloqua_api_get_settings($refresh = FALSE) {
+  static $settings;
+
+  // All variables defined by the module.
+  $field_keys = array(
+    'post_url',
+    'site_id',
+    'default_form',
+    'log',
+    'explicit_values',
+    'timeout',
+    'tracking_enabled',
+    'send_customer_guid',
+    'customer_guid_field',
+    'cookie_write_field',
+  );
+
+  // Loop through each field and return its default.
+  if ($refresh || empty($settings)) {
+    foreach ($field_keys as $field) {
+      $settings[$field] = variable_get(
+        'eloqua_api_' . $field,
+        constant('ELOQUA_API_DEFAULT_' . strtoupper($field))
+      );
+    }
+  }
+
+  $settings['enabled_forms'] = variable_get('eloqua_api_enabled_forms', array());
+
+  return $settings;
+}
+
+/**
+ * Return the path to Eloqua tracking scripts.
+ */
+function _eloqua_api_tracking_path() {
+  static $library_path = NULL;
+
+  // Try to locate the library path in any possible setup.
+  if ($library_path == NULL) {
+    // Ask the libraries module.
+    if ($library_path == NULL && module_exists('libraries')) {
+      if ($path = libraries_get_path('elqNow')) {
+        $library_path = $path;
+      }
+    }
+    // If no path is found suggest the default one.
+    elseif ($library_path == NULL) {
+      $library_path = ELOQUA_API_DEFAULT_TRACKING_PATH;
+    }
+  }
+
+  return $library_path;
+}

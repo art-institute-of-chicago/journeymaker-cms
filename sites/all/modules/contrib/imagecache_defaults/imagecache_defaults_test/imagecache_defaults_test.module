@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the ImageCache Defaults Tests feature.
+ */
+
+include_once 'imagecache_defaults_test.features.inc';

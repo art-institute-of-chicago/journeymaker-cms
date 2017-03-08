@@ -1,0 +1,442 @@
+<?php
+/**
+ * @file
+ * SimpleTest web tests for ImageCache Defaults
+ */
+
+/**
+ * Tests the ImageCache Defaults module.
+ */
+class ImagecacheDefaultsTestWebTestCase extends DrupalWebTestCase {
+  /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'ImageCache Defaults',
+      'description' => 'Web tests for ImageCache Defaults.',
+      'group' => 'Image',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    // Enable required modules.
+    parent::setUp(
+      'ctools',
+      'features',
+      'field_sql_storage',
+      'image',
+      'node',
+      'strongarm',
+      'imagecache_defaults',
+      'imagecache_defaults_test'
+    );
+
+    // Revert everything in imagecache_defaults_test just to ensure that
+    // everything we rely on later is really in the "default" state.
+    $info = drupal_parse_info_file(drupal_get_path('module', 'imagecache_defaults_test') . '/imagecache_defaults_test.info');
+    $revert = array('imagecache_defaults_test' => array_keys($info['features']));
+    features_revert($revert);
+
+    // Create users.
+    $this->admin = $this->drupalCreateUser(array('administer image styles', 'administer nodes'));
+    $this->pleb = $this->drupalCreateUser();
+  }
+
+  /**
+   * Returns the path to the imagecache_defaults_test directory.
+   */
+  protected function getModuleDir() {
+    return drupal_get_path('module', 'imagecache_defaults_test');
+  }
+
+  /**
+   * Returns the path to a test non-image file.
+   */
+  protected function getValidFilePath() {
+    $valid_file_path = $this->getModuleDir() . 'imagecache_defaults_test.info';
+    return $valid_file_path;
+  }
+
+  /**
+   * Returns the path to a test image file.
+   */
+  protected function getValidImagePath() {
+    $valid_image_path = $this->getModuleDir() . '/images/upload.png';
+    return $valid_image_path;
+  }
+
+  /**
+   * Returns the path to the default image bundled with imagecache_defaults.
+   */
+  protected function getDefaultImagePath() {
+    $default_image_uri = drupal_get_path('module', 'imagecache_defaults') . '/images/imagecache_defaults.png';
+    return $default_image_uri;
+  }
+
+  /**
+   * Returns a path that will validate but is not an image/file.
+   */
+  protected function getValidPathMissingImage() {
+    $valid_path_missing_image = $this->getModuleDir() . '/images/not_an_image.png';
+    return $valid_path_missing_image;
+  }
+
+  /**
+   * Returns a path to a valid non-image file with an image file extension.
+   */
+  protected function getFakeImage() {
+    $fake_image = $this->getModuleDir() . '/images/empty.png';
+    return $fake_image;
+  }
+
+  /**
+   * Test user permissions.
+   */
+  public function testPermissions() {
+    // Admin can see settings page.
+    $this->drupalLogin($this->admin);
+    $this->drupalGet(IMAGECACHE_DEFAULTS_ADMIN_PATH);
+    $this->assertResponse(200, 'Admin can access settings page');
+
+    // Admin can see settings page.
+    $this->drupalLogin($this->pleb);
+    $this->drupalGet(IMAGECACHE_DEFAULTS_ADMIN_PATH);
+    $this->assertResponse(403, 'Regular users cannot access settings page');
+  }
+
+  /**
+   * Test our ability to correctly detect broken and invalid paths.
+   *
+   * In this test "invalid path" refers to any PHP data that could never be
+   * interpreted as a valid file system path. "Broken path" is a PHP string
+   * that looks like something that could have once been a file path but the
+   * file has since been (re)moved. A "valid path" is a valid path to an image.
+   */
+  public function testBrokenPathDetection() {
+    $message_group = 'Path validation';
+
+    // Test validation of image files.
+    $result = imagecache_defaults_valid_image($this->getValidImagePath());
+    $message = 'We believe ' . $this->getValidImagePath() . ' is an image.';
+    $this->assertTrue($result, $message, $message_group);
+
+    $result = imagecache_defaults_valid_image($this->getFakeImage());
+    $message = 'We don\'t believe ' . $this->getFakeImage() . ' is an image.';
+    $this->assertFalse($result, $message, $message_group);
+
+    $result = imagecache_defaults_valid_image($this->getValidFilePath());
+    $message = 'We don\'t believe ' . $this->getValidFilePath() . ' is an image.';
+    $this->assertFalse($result, $message, $message_group);
+
+    $result = imagecache_defaults_valid_image($this->getModuleDir());
+    $message = 'We don\'t believe ' . $this->getModuleDir() . ' is an image.';
+    $this->assertFalse($result, $message, $message_group);
+
+    // Test invalid paths.
+    $invalid_paths = array(
+      'null' => NULL,
+      'true' => TRUE,
+      'false' => FALSE,
+      '0 (number)' => 0,
+      '0 (string)' => '0',
+      '1 (number)' => 1,
+      '1 (string)' => '1',
+      '-1 (number)' => -1,
+      '-1 (string)' => '-1',
+      '2 (number)' => 2,
+      '2 (string)' => 2,
+      '1.2 (number)' => 1.2,
+      '1.2 (string)' => '1.2',
+      '.2 (number)' => .2,
+      '.2 (string)' => '.2',
+      'empty string' => '',
+      'dot (.)' => '.',
+      'double dot (..)' => '..',
+      'forwardslash (/)' => '/',
+      'space ( )' => ' ',
+      'percent (%)' => '%',
+      'colon (:)' => ':',
+      'double space (  )' => '  ',
+      'double percent (%)' => '%%',
+      'double colon (::)' => '::',
+      'empty array' => array(),
+      'empty object' => new stdClass(),
+      'array containing valid path' => array($this->getValidImagePath()),
+      'directory' => $this->getModuleDir(),
+      'path with trailing slash' => 'path/to/file/',
+      'line feed (\n)' => "\n",
+      'carriage return (\r)' => "\r",
+      'path containing a line feed (\n)' => "path/to/fi\nle",
+      'patch containing a carriage return (\r)' => "path/to/fi\rle",
+    );
+
+    foreach ($invalid_paths as $type => $invalid_path) {
+      $result = imagecache_defaults_valid_image_uri($invalid_path);
+      $message = 'Data of type "' . $type . '" is identified as an invalid file path.';
+      $this->assertFalse($result, $message, $message_group);
+    }
+
+    // Test odd but valid paths in some file systems.
+    $valid_paths = array(
+      'path containing a percent (%)' => 'path/to/fi%le',
+      'path containing a colon (:)' => 'path/to/fi:le',
+      'path containing a space ( )' => 'path/to/fi le',
+      'path beginning with a space ( )' => ' path/to/file',
+      'path beginning with a colon (:)' => ':path/to/file',
+      'path beginning with a percent (%)' => '%path/to/file',
+    );
+
+    foreach ($valid_paths as $type => $valid_path) {
+      $result = imagecache_defaults_valid_image_uri($valid_path);
+      $message = 'Data of type "' . $type . '" is identified as a valid file path.';
+      $this->assertTrue($result, $message, $message_group);
+    }
+
+    // Tests for imagecache_defaults_get_op().
+    // We need a known valid image file, a valid path with a missing image
+    // and an invalid path. We can use $valid_image_path,
+    // $valid_path_missing_image and $module_dir respectively for this.
+    $op_tests = array();
+
+    // Default behaviour.
+    $op_tests['default'] = array(
+      $this->getValidImagePath() => 'ignore',
+      $this->getValidPathMissingImage() => 'replace',
+      $this->getModuleDir() => 'remove',
+    );
+
+    // Disabled.
+    $op_tests[IMAGECACHE_DEFAULTS_DISABLED] = array(
+      $this->getValidImagePath() => 'ignore',
+      $this->getValidPathMissingImage() => 'ignore',
+      $this->getModuleDir() => 'ignore',
+    );
+
+    // Remove all.
+    $op_tests[IMAGECACHE_DEFAULTS_REMOVE_ALL] = array(
+      $this->getValidImagePath() => 'ignore',
+      $this->getValidPathMissingImage() => 'remove',
+      $this->getModuleDir() => 'remove',
+    );
+
+    // Replace all.
+    $op_tests[IMAGECACHE_DEFAULTS_REPLACE_ALL] = array(
+      $this->getValidImagePath() => 'ignore',
+      $this->getValidPathMissingImage() => 'replace',
+      $this->getModuleDir() => 'replace',
+    );
+
+    // Replace valid.
+    $op_tests[IMAGECACHE_DEFAULTS_REPLACE_VALID] = array(
+      $this->getValidImagePath() => 'ignore',
+      $this->getValidPathMissingImage() => 'replace',
+      $this->getModuleDir() => 'remove',
+    );
+
+    foreach ($op_tests as $setting => $test) {
+      if ($setting == 'default') {
+        variable_del('imagecache_defaults_broken_path_handling');
+      }
+      else {
+        variable_set('imagecache_defaults_broken_path_handling', $setting);
+      }
+
+      foreach ($test as $uri => $expected) {
+        $result = imagecache_defaults_get_op($uri);
+        $message = $setting . ' $op is ' . $result . ' for ' . $uri . ', expected: ' . $expected;
+        $this->assertEqual($result, $expected, $message);
+      }
+    }
+  }
+
+  /**
+   * Test our ability to cache data that may be called many times each request.
+   *
+   * Testing a cached + build function combination happens in 4 steps.
+   * - First we test that the cached function returns what the build function
+   *   returns. Really, this should always work but it gives us some confidence
+   *   that we're using the right functions in our test. We have the cache
+   *   bypass set to TRUE for this.
+   * - Second we modify the state of the system in some way that changes our
+   *   expected output from the first step. The build and cached function should
+   *   still return the same value.
+   * - Third we set the cache bypass to FALSE after resetting the state of the
+   *   system to how it was in the first step and run the tests again. We should
+   *   see the same results as the first step.
+   * - Lastly we modify the state of the system in the same way that we did in
+   *   step 2 but this time we should see the cached function has the same value
+   *   that it did in step 3 while the build function should return the same
+   *   value as it did in step 2.
+   */
+  public function testCache() {
+    $thing = call_user_func_array('imagecache_defaults_valid_image', array('this is a uri'));
+    /**
+     * Test cache on imagecache_defaults_get_default_image_uri().
+     */
+    $params = array(
+      'cache_function' => 'imagecache_defaults_get_default_image_uri',
+    );
+    $this->fourStepCacheTest($params);
+
+    // Copy a valid image into somewhere we can use for tests.
+    $uri = file_default_scheme() . '://is_a_valid_image.png';
+    file_unmanaged_copy($this->getValidImagePath(), $uri, FILE_EXISTS_REPLACE);
+    $params = array(
+      'cache_function' => 'imagecache_defaults_valid_image',
+      'cache_function_args' => array($uri),
+      'build_function_args' => array(array('uri' => $uri)),
+    );
+    $this->fourStepCacheTest($params);
+  }
+
+  /**
+   * Change imagecache_defaults_valid_image().
+   */
+  protected function change_imagecache_defaults_valid_image() {
+    $uri = file_default_scheme() . '://is_a_valid_image.png';
+    file_unmanaged_copy($this->getFakeImage(), $uri, FILE_EXISTS_REPLACE);
+  }
+
+  /**
+   * Restore imagecache_defaults_valid_image().
+   */
+  protected function restore_imagecache_defaults_valid_image() {
+    $uri = file_default_scheme() . '://is_a_valid_image.png';
+    file_unmanaged_copy($this->getValidImagePath(), $uri, FILE_EXISTS_REPLACE);
+  }
+
+  /**
+   * Setup imagecache_defaults_get_op().
+   */
+  protected function setup_imagecache_defaults_get_op() {
+    variable_set('imagecache_defaults_broken_path_handling', IMAGECACHE_DEFAULTS_REMOVE_ALL);
+  }
+
+  /**
+   * Change imagecache_defaults_get_op().
+   */
+  protected function change_imagecache_defaults_get_op() {
+    $uri = file_default_scheme() . '://imagecache_defaults_doesnt_exist_yet.png';
+    file_unmanaged_copy($this->getValidImagePath(), $uri, FILE_EXISTS_REPLACE);
+  }
+
+  /**
+   * Restore imagecache_defaults_get_op().
+   */
+  protected function restore_imagecache_defaults_get_op() {
+    $uri = file_default_scheme() . '://imagecache_defaults_doesnt_exist_yet.png';
+    file_unmanaged_delete($uri);
+  }
+
+  /**
+   * Cleanup imagecache_defaults_get_op().
+   */
+  protected function cleanup_imagecache_defaults_get_op() {
+    variable_del('imagecache_defaults_broken_path_handling');
+  }
+
+  /**
+   * Change function for imagecache_defaults_get_default_image_uri().
+   */
+  protected function change_imagecache_defaults_get_default_image_uri() {
+    $more_specific_default_image_uri = file_default_scheme() . '://imagecache_defaults.png';
+    file_unmanaged_copy($this->getValidImagePath(), $more_specific_default_image_uri, FILE_EXISTS_REPLACE);
+  }
+
+  /**
+   * Restore function for imagecache_defaults_get_default_image_uri().
+   */
+  protected function restore_imagecache_defaults_get_default_image_uri() {
+    $more_specific_default_image_uri = file_default_scheme() . '://imagecache_defaults.png';
+    file_unmanaged_delete($more_specific_default_image_uri);
+  }
+
+  /**
+   * Generate a message for assertions in the fourStepCacheTest.
+   */
+  protected function getFourStepCacheTestMessage($step, $cache_function, $cache_result, $build_result) {
+    return 'Step ' . $step . ' of cache test for ' . $cache_function . ' generates expected results. Cached: ' . $cache_result . '. No cache: ' . $build_result;
+  }
+
+  /**
+   * Provides an interface for the 4 steps outlined in the testCache() docs.
+   */
+  protected function fourStepCacheTest($params) {
+    // Merge in default params.
+    $params += array(
+      'cache_function_args' => array(),
+      'build_function' => '_' . $params['cache_function'],
+      'build_function_args' => array(),
+    );
+
+    // Bail if we don't have the four required functions.
+    if (empty($params['cache_function'])
+      || empty($params['build_function'])) {
+      return FALSE;
+    }
+
+    $change_function = 'change_' . $params['cache_function'];
+    $restore_function = 'restore_' . $params['cache_function'];
+    $setup_function = 'setup_' . $params['cache_function'];
+    $cleanup_function = 'cleanup_' . $params['cache_function'];
+
+    if (method_exists($this, $setup_function)) {
+      $this->$setup_function;
+    }
+
+    // Step 1: Enable the cache bypass and test that the cache and build
+    // functions have the same result.
+    variable_set('imagecache_defaults_bypass_cache', TRUE);
+    $cache_result_step_one = call_user_func_array($params['cache_function'], $params['cache_function_args']);
+    $build_result_step_one = call_user_func_array($params['build_function'], $params['build_function_args']);
+    $message = $this->getFourStepCacheTestMessage('1', $params['cache_function'], $cache_result_step_one, $build_result_step_one);
+
+    $this->assertEqual($cache_result_step_one, $build_result_step_one, $message);
+
+    // Step 2: Make a change and run test again. Assert that there is a change
+    // between step 1 and step 2.
+    $this->$change_function();
+
+    $cache_result_step_two = call_user_func_array($params['cache_function'], $params['cache_function_args']);
+    $build_result_step_two = call_user_func_array($params['build_function'], $params['build_function_args']);
+    $message = $this->getFourStepCacheTestMessage('2', $params['cache_function'], $cache_result_step_two, $build_result_step_two);
+
+    $this->assertNotEqual($build_result_step_two, $build_result_step_one, 'There is a measurable difference between cache test step 1 and step 2.');
+    $this->assertEqual($cache_result_step_two, $build_result_step_two, $message);
+
+    // Step 3: Disable cache bypass, restore the system state and test again.
+    $this->$restore_function();
+    variable_set('imagecache_defaults_bypass_cache', FALSE);
+
+    $cache_result_step_three = call_user_func_array($params['cache_function'], $params['cache_function_args']);
+    $build_result_step_three = call_user_func_array($params['build_function'], $params['build_function_args']);
+    $message = $this->getFourStepCacheTestMessage('3', $params['cache_function'], $cache_result_step_three, $build_result_step_three);
+
+    $this->assertEqual($cache_result_step_three, $build_result_step_three, $message);
+
+    // Step 4: Modify the system and test again.
+    $this->$change_function();
+
+    $cache_result_step_four = call_user_func_array($params['cache_function'], $params['cache_function_args']);
+    $build_result_step_four = call_user_func_array($params['build_function'], $params['build_function_args']);
+
+    $message = $this->getFourStepCacheTestMessage('4-A', $params['cache_function'], $cache_result_step_four,  $build_result_step_three);
+    $this->assertEqual($cache_result_step_four, $build_result_step_three, $message);
+
+    $message = $this->getFourStepCacheTestMessage('4-B', $params['cache_function'], $build_result_step_four, $build_result_step_two);
+    $this->assertEqual($build_result_step_four, $build_result_step_two, $message);
+
+    $message = $this->getFourStepCacheTestMessage('4-C', $params['cache_function'], $cache_result_step_four, $build_result_step_four);
+    $this->assertNotEqual($cache_result_step_four, $build_result_step_four, $message);
+
+    // Return things to the way they were.
+    $this->$restore_function();
+    if (method_exists($this, $cleanup_function)) {
+      $this->$cleanup_function;
+    }
+  }
+}

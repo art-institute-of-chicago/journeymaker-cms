@@ -1,0 +1,12 @@
+; $Id$
+name = BlazeMeter
+description = Integration with BlazeMeter
+package = Other
+core = 7.x
+configure = admin/config/blazemeter/blazemeter-config
+; Information added by Drupal.org packaging script on 2016-02-09
+version = "7.x-1.2"
+core = "7.x"
+project = "blazemeter"
+datestamp = "1455014040"
+

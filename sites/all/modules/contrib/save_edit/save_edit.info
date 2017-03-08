@@ -1,0 +1,13 @@
+name = Save & Edit
+description = Gives a "<a href="http://drupal.org/project/save_edit">Save & Edit</a>" button on node pages. No Kittens were harmed during the creation of this module.
+package = Administration
+core = 7.x
+configure = admin/config/content/save-edit
+
+
+; Information added by drupal.org packaging script on 2012-06-27
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "save_edit"
+datestamp = "1340830936"
+

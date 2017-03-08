@@ -1,0 +1,440 @@
+#basic-modal-content {
+  display: none;
+}
+
+/* Overlay */
+#simplemodal-overlay {
+  background-color: #000;
+  cursor: wait;
+}
+
+/* Container */
+#simplemodal-register-container,
+#simplemodal-login-container {
+  max-height: 750px;
+  position: fixed;
+  z-index: 1002;
+  top: 230px;
+  left: 50% !important;
+  top: 70px !important;
+  width: 480px;
+  background: #4a4a62;
+  margin-left: -240px;
+  z-index: 1111;
+  color: #FFFFFF;
+}
+
+.title {
+  display: block;
+  font-size: 32px;
+  line-height: 36px;
+  font-weight: 400;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+#simplemodal-login-container #edit-password,
+#simplemodal-login-container #edit-email{
+  width: 100%;
+  height: 35px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #161616;
+  border-radius: 3px;
+  border-style: none;
+  background: #f9f6ee;
+  outline: 0;
+  padding-left: 24px;
+}
+
+.creating-account  p{
+  color: #ff4343;
+  text-decoration: none;
+  text-align: center;
+}
+
+#simplemodal-register-container #edit-reg-password,
+#simplemodal-register-container #edit-reg-first-name,
+#simplemodal-register-container #edit-reg-last-name,
+#simplemodal-register-container #edit-reg-company,
+#simplemodal-register-container #edit-reg-email{
+  width: 100%;
+  height: 35px;
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 400;
+  color: #161616;
+  border-radius: 3px;
+  background: #f9f6ee;
+  border-style: none;
+  outline: 0;
+  padding-left: 26px;
+}
+
+#simplemodal-login-container #edit-submit-login,
+#simplemodal-register-container #edit-submit-sign-up {
+  display: block;
+  border-style: none;
+  padding: 0;
+  border-radius: 5px;
+  font-size: 15px;
+  line-height: 55px;
+  background: #dd4343;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  width: 100%;
+  top: 0;
+  outline: 0;
+  height: 40px;
+  line-height: 40px;
+  position: relative;
+}
+
+.input-error-class::-webkit-input-placeholder {
+    color: #C52020 !important;
+}
+
+#simplemodal-login-container input, #simplemodal-register-container input::-webkit-input-placeholder {
+	color: #161616;
+}
+
+#blazemeter-login-modal input::-webkit-input-placeholder {
+	color: #161616;
+} 
+
+.simplemodal-data .form-item:before {
+content: '*';
+display: inline-block;
+position: absolute;
+left: 5px;
+
+bottom: 25px;
+margin: auto;
+height: 14px;
+width: 24px;
+color: #EA4A4A;
+text-align: center;
+font-size: 12px;
+font-weight: 600;
+}
+
+.simplemodal-data .form-item.red:before{
+    color:#c41919;            
+}
+
+.simplemodal-data .form-item {
+position: relative;
+display: flex;
+}
+
+#blazemeter-signup, #blazemeter-login {
+float: left;
+font: 13px/15px Verdana;
+margin: 5px
+}
+
+#simplemodal-register-container .terms {
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+  color: #f9f6ee;
+}
+
+#simplemodal-register-container .terms a {
+color: #FFFFFF;
+text-decoration: underline;
+-webkit-transition: color .3s ease;
+transition: color .3s ease;
+}
+
+#simplemodal-register-container .terms a:hover {
+  color: #ff4343;
+  text-decoration: none;
+}
+
+#simplemodal-login-container .simplemodal-close,
+#simplemodal-register-container .simplemodal-close  {
+  width: 46px;
+  height: 46px;
+  border-radius: 23px;
+  position: absolute;
+  right: 5px;
+  top: 6px;
+  padding: 5px;
+}
+
+#simplemodal-login-container .close-popup a, 
+#simplemodal-register-container .close-popup a {
+  display: block;
+  width: 36px;
+  height: 36px;
+  margin: 5px;
+  border-radius: 18px;
+  text-indent: -9999px;
+  overflow: hidden;
+  background: url(close-popup.png) no-repeat 50% 50%;
+  transform: scale(1.2);
+}
+
+.blazemeter-button {
+  border: 1px solid #C7C7C7;
+  padding: 5px;
+  cursor: pointer;
+  font: 13px/35px Verdana;
+  color: #646464;
+  margin-right: 10px;
+}
+
+.blazemeter-button:hover {
+  color: #494961;
+}
+
+#blazemeter-scenario .button-selected {
+  background-color: #C7C7C7;
+}
+
+#blazemeter-scenario .tooltip {
+  display: none;
+  background: none repeat scroll 0 0 #fff;
+  color: #878686;
+  font: 14px/14px Verdana, Geneva, Arial, Helvetica, sans-serif;
+  display: none;
+  padding: 25px;
+  z-index: 9999;
+  width: 570px;
+  height: 250px;
+  border: 1px solid #C7C7C7
+}
+
+#blazemeter-scenario .tooltip h3 {
+  color: #385060;
+  font: 18px/22px Verdana, Geneva, Arial, Helvetica, sans-serif;
+  margin: 28px 0 4px;
+}
+
+#blazemeter-scenario .sc_img, #blazemeter-scenario .sc_desc, #blazemeter-scenario .sc_int {
+  display: inline-block;
+  vertical-align: top;
+}
+
+#blazemeter-scenario .sc_img {
+  width: 37%;
+  float: left;
+}
+
+#blazemeter-scenario .sc_desc {
+  width: 28%;
+  float: left;
+}
+
+#blazemeter-scenario .sc_int {
+  width: 34%;
+  float: right;
+}
+
+#blazemeter-admin-settings-form .ui-slider-range.ui-widget-header {
+  border: none;
+  background-color: #414042;
+  background-image: none;
+  color: white;
+  font-weight: bold;
+}
+
+#blazemeter-admin-settings-form .ui-slider.ui-widget-content {
+  border: none;
+}
+
+#blazemeter-admin-settings-form .ui-slider-horizontal {
+  height: .6em !important;
+}
+
+#blazemeter-admin-settings-form .ui-slider .ui-slider-handle {
+  background: url("bg-ui-slider.png") no-repeat scroll 0 0 transparent !important;
+  border: medium none !important;
+  cursor: default;
+  height: 24px !important;
+  position: absolute;
+  width: 24px !important;
+  z-index: 2;
+  margin-left: -8px;
+  top: -8px;
+}
+
+#blazemeter-admin-settings-form .ui-slider {
+  background: none repeat scroll 0 0 #DBDBDB !important;
+  border-radius: 6px 6px 6px 6px;
+  position: relative;
+  border: medium none;
+}
+
+#blazemeter-admin-settings-form  .form-submit {
+  background: none repeat scroll 0 0 padding-box #E35353;
+  border-radius: 2px 2px 2px 2px;
+  border-style: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  font: 13px/28px Verdana, Geneva, Arial, Helvetica, sans-serif;
+  height: 28px;
+  margin: 0 16px 20px 0;
+  overflow: visible;
+  padding: 0 15px;
+}
+
+.simplemodal-wrap {
+  overflow: visible !important;
+}
+
+#blazemeter-admin-settings-form a.form-submit {
+  display: inline-block;
+}
+
+#blazemeter-admin-settings-form .form-required {
+  color: #D70000;
+  font-size: 1.4em;
+  font-weight: 700;
+  line-height: normal;
+  vertical-align: top;
+}
+
+#blazemeter-admin-settings-form .form-item label,
+#blazemeter-admin-settings-form .span-label {
+  color: #385060;
+  font: 14px/16px Verdana;
+  margin: 8px 0;
+}
+
+#blazemeter-admin-settings-form fieldset .fieldset-legend {
+  color: #494961;
+  font-size: 18px;
+}
+
+#blazemeter-admin-settings-form  .form-submit:hover {
+  border-radius: 2px;
+  border-style: none;
+  color: #fff;
+  background-color: #ff4343 !important;
+}
+
+.form-item-meta-testid {
+  float: left;
+}
+
+.form-item-meta-testname {
+  float: right;
+}
+
+#blazemeter-signlogin-wrapper {
+  clear: both;
+}
+
+#blazemeter-strip {
+  background-color: #FFF;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+#blazemeter-strip img {
+  background-color: #FFF;
+}
+
+#blazemeter-admin-settings-form .description {
+  color: #646464;
+  font-size: 13px;
+}
+
+#blazemeter-signup-modal .description {
+	font-size: 9px !important;
+	color: #fff !important;
+}
+
+#blazemeter-admin-settings-form .form-text,
+#blazemeter-admin-settings-form select {
+  width: 100%;
+}
+
+#blazemeter-admin-settings-form #edit-anonymous-anon,
+#blazemeter-admin-settings-form #edit-authenticated-auth {
+  width: 100px;
+}
+
+.form-item-anonymous-anon label,
+.form-item-authenticated-auth label {
+  float: left;
+  width: 86%;
+}
+
+#blazemeter-admin-settings-form #edit-meta-domain-domain-2-domain-choice-textfield {
+  width: 400px;
+}
+
+#blazemeter-admin-settings-form #edit-buttons-goto {
+  float: right;
+  width: 50%;
+}
+
+#blazemeter-admin-settings-form #edit-meta-userkey {
+  display: none;
+}
+
+#blazemeter-admin-settings-form .form-item-meta-geolocation {
+  clear: both;
+}
+
+#blazemeter-signup-modal, #blazemeter-login-modal {
+  padding: 44px;
+}
+
+#blazemeter-signup-modal iframe,
+#blazemeter-login-modal iframe {
+  overflow: hidden;
+}
+
+.page-admin-config-blazemeter #block-system-help .content {
+  color: #494961;
+  font: 14px/16px Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+#blazemeter-scenario .load {
+  background: url("//s3-eu-west-1.amazonaws.com/ci-web-files/media/images/test_types.png") no-repeat scroll -211px 0 transparent;
+  height: 180px;
+  width: 200px;
+}
+
+#blazemeter-scenario .stress {
+  background: url("//s3-eu-west-1.amazonaws.com/ci-web-files/media/images/test_types.png") no-repeat scroll 0 0 transparent;
+  height: 180px;
+  width: 200px;
+}
+
+#blazemeter-scenario .estress {
+  background: url("//s3-eu-west-1.amazonaws.com/ci-web-files/media/images/test_types.png") no-repeat scroll 0 -191px transparent;
+  height: 180px;
+  width: 200px;
+}
+
+.form-title {
+    display: block;
+    font-size: 29px;
+    line-height: 36px;
+    font-weight: 600;
+    margin: 0 0 15px;
+    color: #f9f6ee;
+    text-align: left;
+}
+
+.reg-error-message ,
+.error-message {
+  border: 1px solid #ed541d;
+  text-align: center;
+  background-color: #fef5f1;
+  margin-top: 10px;
+  color: #DD4343;
+}
+
+.reg-error-message  p,
+.error-message p {
+  color: #8c2e0b;
+  padding: 8px;
+  margin: 0;
+}

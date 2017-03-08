@@ -1,0 +1,90 @@
+<?php
+/**
+ * @file
+ * Install the DB table for the View Mode Page module
+ */
+
+/**
+ * Just return the current schema
+ * @return array Schema array
+ */
+function view_mode_page_module_schema() {
+  $schema = array();
+  $schema['view_mode_page'] = array(
+    'fields' => array(
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => 55,
+        'not null' => TRUE,
+        'description' => 'The bundle for this entity',
+      ),
+      'view_mode' => array(
+        'type' => 'varchar',
+        'length' => 55,
+        'not null' => TRUE,
+      ),
+      'url_pattern' => array(
+        'type' => 'varchar',
+        'length' => 200,
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'type' => 'varchar',
+        'length' => 55,
+        'not null' => TRUE,
+        'default' => 'node',
+        'description' => 'The entity type for this node',
+      ),
+      'show_title' => array(
+        'type' => 'int',
+        'default' => 0,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('content_type', 'view_mode', 'url_pattern'),
+    'index' => array('entity_type' => array('entity_type')),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_schema().
+ */
+function view_mode_page_schema() {
+  return view_mode_page_module_schema();
+}
+
+/**
+ * Add title and show title fields.
+ */
+function view_mode_page_update_7100() {
+  $schema = view_mode_page_module_schema();
+  db_add_field('view_mode_page', 'show_title', $schema['view_mode_page']['fields']['show_title']);
+  db_add_field('view_mode_page', 'title', $schema['view_mode_page']['fields']['title']);
+}
+
+/**
+ * Add the entity_type field
+ */
+function view_mode_page_update_7101() {
+  $schema = view_mode_page_module_schema();
+  db_add_field('view_mode_page', 'entity_type', $schema['view_mode_page']['fields']['entity_type']);
+  $update = db_update('view_mode_page');
+  $update
+    ->fields(array(
+    'entity_type' => 'node',
+    ))
+    ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function view_mode_page_uninstall() {
+  variable_del('view_mode_page_missing_view_modes');
+}

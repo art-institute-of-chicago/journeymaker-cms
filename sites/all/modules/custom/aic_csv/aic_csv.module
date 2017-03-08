@@ -1,0 +1,476 @@
+<?php
+
+function aic_csv_menu() {
+
+  $items['admin/content/csv-import'] = array(
+    'title' => 'CSV Import',
+    'page callback' => 'aic_csv_page',
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/csv-import/processForm'] = array(
+    'title' => 'CSV Import',
+    'page callback' => 'aic_csv_processForm',
+    'access callback' => TRUE,
+  );
+
+
+  return $items;
+}
+
+
+function aic_csv_page() {
+
+  $form = "
+    <form action='/?q=admin/content/csv-import/processForm' method='post' enctype='multipart/form-data'>
+      <input type='file' name='csv' />
+      <input type='submit' class='form-submit' />
+    </form>
+  ";
+
+  return $form;
+}
+
+
+function aic_csv_processForm() {
+/*
+  $result = db_query("SELECT title, nid FROM {node} WHERE type IN ('aic_theme', 'artwork')");
+
+  foreach ($result as $r) {
+    node_delete($r->nid);
+    drupal_set_message('deleting node: ' . $r->title);
+  }
+*/
+  global $user;
+
+  $data = array_map('str_getcsv', file($_FILES['csv']['tmp_name']));
+
+  $node = new stdClass();
+  $node->type = 'aic_theme';
+  $node->title = $data[3][0];
+
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  $node->uid = $user->uid;
+  $node->status = 1;
+  $node->promote = 0;
+  $node->comment = 0;
+
+  $node->field_intro['und'][0]['value'] = $data[3][1];
+
+  drupal_set_message("created theme: " . $node->title);
+  node_save($node);
+
+  $layout = array(
+    array('start' => 6,  'end' => 14, 'info' => 5),
+    array('start' => 16, 'end' => 23, 'info' => 15),
+    array('start' => 26, 'end' => 34, 'info' => 25),
+    array('start' => 37, 'end' => 44, 'info' => 36),
+    array('start' => 47, 'end' => 54, 'info' => 46),
+  );
+
+  foreach ($layout as $l) {
+    $prompt_artwork_nids = array();
+    for ($x=$l['start']; $x<=$l['end']; $x++) {
+      $prompt_artwork_nids[] = aic_csv_create_artwork($data[$x], $data[$l['info']][9]);
+    }
+
+    $fc = array();
+
+    $fc['field_name'] = 'field_prompt';
+
+    $fc['field_title']['und'][0]['value'] = htmlentities(utf8_encode($data[$l['info']][2]));
+    $fc['field_sub_title']['und'][0]['value'] = htmlentities(utf8_encode($data[$l['info']][3]));
+
+    foreach ($prompt_artwork_nids as $pnid) {
+      if (isset($pnid)) {
+        $fc['field_artwork']['und'][]['nid'] = $pnid;
+      }
+    }
+
+    drupal_set_message("created prompt: " . htmlentities(utf8_encode($data[$l['info']][2])));
+
+    $entity = entity_create('field_collection_item', $fc);
+    $entity->setHostEntity('node', $node);
+    $entity->save();
+
+  }
+
+  drupal_goto('admin/content/csv-import');
+}
+
+function replaceLastMatch($string, $search, $replacement) {
+    // Escape all '/' as it delimits the regex
+    // Construct the regex pattern to be ungreedy at the right (? behind .*)
+    $search = '/^.*(' . str_replace('/', '\\/', $search) . ').*?$/s';
+
+    // Match our regex and store matches including offsets
+    // If regex does not match, return $string as-is
+    if(1 !== preg_match($search, $string, $matches, PREG_OFFSET_CAPTURE))
+        return $string;
+
+    return substr($string, 0, $matches[1][1]) . $replacement
+           . substr($string, $matches[1][1] + strlen($matches[1][0]));
+}
+
+
+function aic_csv_create_artwork($d, $activity) {
+  global $user;
+
+  $map = map_images();
+
+  $info = str_replace('&ETH;',' - ',htmlentities(utf8_encode($d['4'])));
+
+  if ($info == '') {
+    return;
+  }
+
+  preg_match('/^.*\)\./', $info, $matches);
+
+  if (isset($matches[0])) {
+    $artist = preg_replace('/.$/','',$matches[0]);
+  } else {
+    preg_match('/^.*?\./', $info, $matches);
+    $artist = preg_replace('/.$/','',$matches[0]);
+  }
+
+  $title = str_replace($artist . '.', '', $info);
+
+  preg_match('/^(.*?),/', $title, $matches);
+
+  $title = $matches[1];
+
+  $year = str_replace($title . ',', '', str_replace($artist . '.', '', $info));
+
+  preg_match('/(.*?[^c|A|B])\./', $year, $matches);
+
+  $year = $matches[1];
+
+  $medium = str_replace($year . '.','',str_replace($title . ',', '', str_replace($artist . '.', '', $info)));
+
+  $node = new stdClass();
+  $node->type = 'artwork';
+  $node->title = $title;
+
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  $node->uid = $user->uid;
+  $node->status = 1;
+  $node->promote = 0;
+  $node->comment = 0;
+
+  $node->field_artist['und'][0]['value'] = $artist;
+  $node->field_year['und'][0]['value'] = $year;
+  $node->field_medium['und'][0]['value'] = $medium;
+
+  $node->field_detail_narrative['und'][0]['value'] = htmlentities(utf8_encode($d[6]));
+  $node->field_viewing_description['und'][0]['value'] = htmlentities(utf8_encode($d[7]));
+  $node->field_activity_instructions['und'][0]['value'] = htmlentities(utf8_encode($activity));
+
+  $key = trim($d['8']);
+
+  global $base_url;
+  $host = parse_url($base_url, PHP_URL_HOST);
+  $key = str_replace('https://drive.google.com/a/' .$host .'/file/d/', '', str_replace('/view', '', $key));
+
+  if (isset($map[$key])) {
+
+    $file_name = $map[$key];
+    $file_path = '/tmp/images/' . str_replace(' ','-',$file_name);
+
+    if (!preg_match('/.jpg$/', $file_name)) {
+      $file_name .= '.jpg';
+    }
+
+    $file = file_get_contents($file_path);
+    $file_upload = file_save_data($file, 'public://' . $file_name, FILE_EXISTS_RENAME);
+    $file_upload->display = 1;
+
+    $node->field_artwork_image['und'][] = (array) $file_upload;
+  }
+
+  //print '<pre>'; print_r($node); print '</pre>';
+
+  if (isset($node->title)) {
+    node_save($node);
+    drupal_set_message('created artwork: ' . $node->title);
+    return $node->nid;
+  }
+
+  return;
+}
+
+
+function map_images() {
+  $map = array(
+'0B5Ftg0dHNuVIOHRTTFNKQzZTbFk'=>'20Armed-Ganesha.jpg',
+'0B5Ftg0dHNuVIUGRMT1JPS3pfM2M'=>'Acoma.jpg',
+'0B0RA5jBrr6UIS25uNVVvWVNDVVU'=>'Alaiye_Rooster-Offering-Bowl.jpg',
+'0B6T_20KJf4e7Vl9nZWFqUDFXUFU'=>'Albright_Picture-of-Dorian-Gray',
+'0BwcKdEkqSZBTVTdCc0tpQ2xxdDA'=>'American-Whirligig.jpg',
+'0B3gzLtw9NYA-WmI1U1E2NkxUZFk'=>'American_BullTerrier.jpg',
+'0B6T_20KJf4e7N0NIdlZtTGM0eEU'=>'American_Steer-Horn-Chair',
+'0B3gzLtw9NYA-dk8tTi0xclAwd0k'=>'Ando_Room.png',
+'0B5Ftg0dHNuVIOTQtbU1Pdk44NUk'=>'Armor-for-Field-Tournament.jpg',
+'0B0RA5jBrr6UIMjR4dnNmczVWMjQ'=>'Armored-Guardian.jpg',
+'0BwcKdEkqSZBTZmlCQ3FBZm1ObTA'=>'Arthur-Wesley-Dow-boat.jpg',
+'0B6T_20KJf4e7dEQ0dThQd2dLcUU'=>'Asamu_Headdress-for-Gelede',
+'0BwcKdEkqSZBTX3NadkZlYlJoWjQ'=>'Asante-linguist-staff.jpg',
+'0B6T_20KJf4e7TkNTVUdJSXRGN28'=>'Asante_Goldweight-Catfish',
+'0B5Ftg0dHNuVIaVFGZ2plSTN1T3c'=>'Augsburg.jpg',
+'0B5Ftg0dHNuVIMTdKem9uMFdEZ2M'=>'Baer.jpg',
+'0B5Ftg0dHNuVIVjAwWFotZDNaRjA'=>'Baga.jpg',
+'0B3gzLtw9NYA-eWZhNnFxdFptR0k'=>'Balthus_GirlwithCat.jpg',
+'0B6T_20KJf4e7dHRla1h5c3FuWUE'=>'Bamana_Boli',
+'0B3gzLtw9NYA-SURuaWYxWWx5U0E'=>'Bamana_PairofHeaddresses.jpg',
+'0B5Ftg0dHNuVIQUJOT3gyOGxPaHc'=>'Banda-Mask.jpg',
+'0B5Ftg0dHNuVIbFJZcE9NR1NtM1k'=>'Barthe.jpg',
+'0B5Ftg0dHNuVIUGF5U0RXSWNsOEk'=>'Barye.jpg',
+'0B0RA5jBrr6UIYl90OF85U0pxSjQ'=>'Bazille_Self-Portrait.jpg',
+'0B6T_20KJf4e7UW9Ta25ocDdzVUU'=>'Beaux_Dorothea-and-Francesca',
+'0B6T_20KJf4e7SWFhQk1ydDA3aFE'=>'Beckmann_Self-Portrait',
+'0B5Ftg0dHNuVIdVItdkhxdDhHSWs'=>'Bishamon.jpg',
+'0B6T_20KJf4e7aXAxaFA4SzNaM0E'=>'Blume_The-Rock',
+'0B0RA5jBrr6UIQmNsVHZVN1l5OFU'=>'Boar-Incarnation-of-God-Vishnu.jpg',
+'0B5Ftg0dHNuVIYktVY3hMdEU1RGs'=>'Bontecou.jpg',
+'0B5Ftg0dHNuVISkNJbnNyWkFxTUU'=>'Bradford.jpg',
+'0B3gzLtw9NYA-TE5ZT1JDbWJ2Wnc'=>'Brancusi_Leda.jpg',
+'0BwcKdEkqSZBTajJpaFJCM3JZT2M'=>'Bugatti-cobra-chair.jpg',
+'0B0RA5jBrr6UISU0tY1htVm5na0U'=>'Burga_Untitled',
+'0B6T_20KJf4e7dWlmVkloWkJ3dnc'=>'Burkina-Faso_Reclining-Chair',
+'0B6T_20KJf4e7WXh3emQ0T3JLbnM'=>'Burma_Buddha',
+'0B5Ftg0dHNuVIaWVtc0Zxa3JoYWs'=>'Bwa-Butterfly-Mask.jpg',
+'0B6T_20KJf4e7NWRSYXMyZkFXZWM'=>'Bwa-Dossi_Butterfly-Mask',
+'0B6T_20KJf4e7UnVQNEk0SlQtNkk'=>'Byzantine_Mosaic-Man-Giraffe',
+'0B3gzLtw9NYA-eG90b0JfXzZ2Mm8'=>'Byzantine_MosaicFragmentwithGrazingCamel.jpg',
+'0B0RA5jBrr6UIclRZMUZSUDFiUUE'=>'Cahun_Object.jpg',
+'0B6T_20KJf4e7WmIwaThFN3FtbWM'=>'Caillebotte_Paris-Street',
+'0BwcKdEkqSZBTZUdjRXNzSHktdVk'=>'Calder-Streetcar.jpg',
+'0B0RA5jBrr6UIa2UxVjR6WmFfNTA'=>'Calder_Flying-Dragon.jpg',
+'0BwcKdEkqSZBTS1otNUx5bGw2OWs'=>'Camel-and-Rider.jpg',
+'0B6T_20KJf4e7cHh0bEl6M3JXU1E'=>'Carries_Le-Grenouillard-FrogMan',
+'0B5Ftg0dHNuVIakVMd1V0TjZSTFE'=>'Cassatt_Childs-Bath.jpg',
+'0B5Ftg0dHNuVIQUpzSXd0MF9id1k'=>'Chagall.jpg',
+'0B6T_20KJf4e7eVhqOEt2WS1GZ2s'=>'China_Camel-and-Rider',
+'0B3gzLtw9NYA-YXBjMk9xOGVTT2c'=>'China_Equestrienne.jpg',
+'0B6T_20KJf4e7VjBlZC16Mnp3dzg'=>'China_OgreHeaded-Guardian-Beast',
+'0B3gzLtw9NYA-ZDhYOERYOGVHdUk'=>'China_StandintheFormofaLion.jpg',
+'0BwcKdEkqSZBTZGlCNWJqT2liV1E'=>'chinese-mask.jpg',
+'0BwcKdEkqSZBTZXA4bzZiaDB5eVk'=>'Chinese-tomb-doors.jpg',
+'0B0RA5jBrr6UINUo5RzRBSHRDM1E'=>'Claesz_Still-Life.jpg',
+'0B5Ftg0dHNuVIUEdFWHNGVFlFME0'=>'Clark.jpg',
+'0B3gzLtw9NYA-cURibWlyU0loU1U'=>'Colima_FigureofaDog.jpg',
+'0BwcKdEkqSZBTc0J6cEJBQm1lVUE'=>'Composition-in-BLue-Leger.jpg',
+'0B5Ftg0dHNuVIazhTa3k0aHltVXM'=>'Copy-of-Lawrence-Wedding.jpg',
+'0BwcKdEkqSZBTNjBWd3dpY1JQTW8'=>'Cornell-box',
+'0B6T_20KJf4e7VzZabVNRLVFUQlE'=>'Cornell_Untitled-Large-Owl',
+'0B5Ftg0dHNuVINVhCdEZINUFPMTA'=>'Coronation-Stone.jpg',
+'0B3gzLtw9NYA-YkVKQTV3cnVuZjQ'=>'Cropsey_BlastedTree.jpg',
+'0B5Ftg0dHNuVIQkJmREl0clktdE0'=>'Croquet-Scene.jpg',
+'0B3gzLtw9NYA-b0szYm9ic2tBTEE'=>'Curry_HogsKillingaSnake.jpg',
+'0B5Ftg0dHNuVIWEJmRmlIWi1ZVGM'=>'Curry.jpg',
+'0B6T_20KJf4e7OVdVYkhieFRtQ0U'=>'Cycladic_Statuette-of-Female',
+'0B6T_20KJf4e7WkNQSlJaQi1qckU'=>'Dali_Inventions-of-the-Monsters',
+'0B5Ftg0dHNuVIcWw5VEktVlFmNE0'=>'de-Chirico.jpg',
+'0B6T_20KJf4e7YTlrc1MyNTdVTTA'=>'de-Kooning_Excavation',
+'0B5Ftg0dHNuVIc2ZDcm9MeVZmLVU'=>'Delacroix.jpg',
+'0B0RA5jBrr6UIMGdNa1luNWluSDg'=>'Delaney_Self-Portrait.jpg',
+'0BwcKdEkqSZBTb2FVaVdZUHR5ZWc'=>'Delaunay-The-Red-Tower.jpg',
+'0BwcKdEkqSZBTWDFacG9Za2Zjbzg'=>'Diana-diadem.jpg',
+'0BwcKdEkqSZBTNjhFcGtsRmRjTlE'=>'Diego-Rivera-the-Weavr.jpg',
+'0BwcKdEkqSZBTVHNhY1pQVWFVQmc'=>'Doris-Lee-Thanksgiving.jpg',
+'0B5Ftg0dHNuVIRnozRWlvdFMxNzg'=>'Dove-Dogs-Chasing.jpg',
+'0BwcKdEkqSZBTZjFLaXpiMkcxRzA'=>'dragonfly-lamp.jpg',
+'0B3gzLtw9NYA-VkdZQlBkeXJQdFU'=>'Driscoll-Tiffany_HangingHeadDragonfly.jpg',
+'0BwcKdEkqSZBTeG9SbDhabDEtR2s'=>'Duchamp-hat-rack.jpg',
+'0B5Ftg0dHNuVIWDhHcUo0MTI5bWM'=>'Dyer.jpg',
+'0B5Ftg0dHNuVISjQxMWFJY29iaHc'=>'Eagle',
+'0B6T_20KJf4e7NmxYU1BGdlJSZTQ'=>'Eakins_Riter-Fitzgerald',
+'0B3gzLtw9NYA-d1RfV1dIUERsdlk'=>'EarlyClassicMaya_Covered-Vesselwithth.jpg',
+'0B5Ftg0dHNuVIRDN2allKRUxkSGM'=>'Elevator-Grill.jpg',
+'0BwcKdEkqSZBTWHR0NllCZ044b3M'=>'Ellison-train-station.jpg',
+'0B5Ftg0dHNuVId0Q4dDl5Umc5bGs'=>'Equestrienne.jpg',
+'0B3gzLtw9NYA-V2xZSm1weHRlWkk'=>'Etruscan_Amphora.jpg',
+'0B5Ftg0dHNuVIUk9QZm9XWC1QMms'=>'Family-Concert.jpg',
+'0B0RA5jBrr6UIejJIS0FibUtnNXc'=>'Figure-of-Seated-Leader.jpg',
+'0B6T_20KJf4e7WUUyZE4yaUczRUk'=>'France_Wall-Clock',
+'0BwcKdEkqSZBTRDFmVzg3U2RnQlk'=>'French-bedroom-Thorne-Rm.jpg',
+'0B6T_20KJf4e7ZF9nMkgwQmhKN0k'=>'French_Abraham-Lincoln',
+'0B5Ftg0dHNuVIYVU3WVQ3M1JFNm8'=>'Fritsch.jpg',
+'0B0RA5jBrr6UIckt0VEJYSTM4RWs'=>'Fuseli_Milton-Dictating.jpg',
+'0B0RA5jBrr6UIMlpqcjM2OG9JT1U'=>'Ganesha.jpg',
+'0B5Ftg0dHNuVIdERBMEkxVmUwSEk'=>'Ganesha.jpg',
+'0B3gzLtw9NYA-RVMtU0IyRURkdTQ'=>'Gauguin_TheBigTree.jpg',
+'0B3gzLtw9NYA-UzdySW5xaS1zWTg'=>'German_LionAquamanile.jpg',
+'0B6T_20KJf4e7QkJ5ZTI2M3YyM0E'=>'Germany_Reliquary-with-Tooth',
+'0B5Ftg0dHNuVIYzQyZmlNSVp5Smc'=>'Gerome.jpg',
+'0BwcKdEkqSZBTelcydkEwV0luTlE'=>'Globe-table.jpg',
+'0B0RA5jBrr6UIQ1J4Ymg3OXdlcVE'=>'Goddess-Durga-Slaying-Buffalo-Demon.jpg',
+'0B5Ftg0dHNuVIZVhjamdIdWhaTDg'=>'Goya.jpg',
+'0B3gzLtw9NYA-VXVxY1cySnF5Q1U'=>'Greek_FishPlate.jpg',
+'0B3gzLtw9NYA-WVIzbjhQVzEzazA'=>'Greek_OinochoePitcher.jpg',
+'0B6T_20KJf4e7Qkp6RDBFSm5yaGc'=>'Greek_Pair-of-Protomes-Griffin',
+'0B0RA5jBrr6UIVmJGREROaUQtOHc'=>'Greek_Rhyton-Donkey.jpg',
+'0B6T_20KJf4e7cWZRTFBET3ZUUFE'=>'Greek_Stater-Coin-with-Tortoise',
+'0B6T_20KJf4e7blhDamdMOFRZMlE'=>'Grippo_Analogia-I',
+'0B5Ftg0dHNuVIUllXZVdqWEtWNVU'=>'Guro-Elephant-Mask.jpg',
+'0B5Ftg0dHNuVISGRsbFhvSG5WNHM'=>'HanDoors.jpg',
+'0B0RA5jBrr6UIWVRtNlkwRS01ZGc'=>'Harnett_For-Sundays-Dinner.jpg',
+'0B5Ftg0dHNuVId0FxeTFwUHhnNlU'=>'Hercules.jpg',
+'0B5Ftg0dHNuVIWXpPYm02SjBlQjA'=>'Hippogriff.jpg',
+'0B5Ftg0dHNuVIa25UQ1VnWFNFaEk'=>'Holy-Family.jpg',
+'0BwcKdEkqSZBTeVc5YUdSQ2MxM0k'=>'honeybee-paperweight.jpg',
+'0BwcKdEkqSZBTSDhBN1ZYWlh5Smc'=>'Hopper-Nighthawks.jpg',
+'0B6T_20KJf4e7anFnR3NQaVl5dU0'=>'Horn_Deeps-and-Skies',
+'0B5Ftg0dHNuVIcDBkaWh1VDdxck0'=>'Horn,-Roni.jpg',
+'0BwcKdEkqSZBTXzZ4SlhobHM0dlE'=>'Horse-Duchamp-Villon.jpg',
+'0B6T_20KJf4e7d25wR1JEczB2X28'=>'India_Boar-Incarnation-Vishnu',
+'0B6T_20KJf4e7ank1TXVpT1BBTXM'=>'India_Buddha',
+'0B6T_20KJf4e7eVQ2dWJnenE1Y0E'=>'India_Four-Armed-God-Vishnu',
+'0B6T_20KJf4e7dWxGWWJwczZzdXM'=>'Indonesia_God-Ganesha',
+'0B5Ftg0dHNuVITlZHMmtYWnVyaXM'=>'Ingres.jpg',
+'0BwcKdEkqSZBTSjAxRmxKX3ItRmc'=>'Iran-grille.jpg',
+'0BwcKdEkqSZBTQkRJU0Nsc0I3U3M'=>'Iran-tile.jpg',
+'0B5Ftg0dHNuVIemh6V3d2UDNrRUU'=>'Iran-Window-Grill.jpg',
+'0BwcKdEkqSZBTbTBHd1RBd1V6STg'=>'Italian-door.jpg',
+'0B0RA5jBrr6UIR2l6ZjkzYWlnVUE'=>'Jalisco_Storyteller-Figure.jpg',
+'0B3gzLtw9NYA-azIyd2V6dXpaNnc'=>'Japan_HandleintheFormofanAnimalHead.jpg',
+'0B3gzLtw9NYA-c3BiNmI5bjlJaEE'=>'Japan_Hen.jpg',
+'0B3gzLtw9NYA-eFRhWTIxc055V3M'=>'Japan_Horse.jpg',
+'0B6T_20KJf4e7Rm8yZEl2N3BCLXM'=>'Japan_Shukongojin.jpg',
+'0B5Ftg0dHNuVIeHRtbUFzdGVpems'=>'Japanese-Wrestler.jpg',
+'0BwcKdEkqSZBTdVhoQXdBYjh3NTg'=>'Joan-Mitchell.jpg',
+'0B5Ftg0dHNuVIS0JkVXd4RHNLQ2M'=>'Johns.jpg',
+'0B0RA5jBrr6UIM2otQnBzZHFyYTA'=>'Katz_Vincent-and-Tony',
+'0B3gzLtw9NYA-X3dZMjR4al9XRnM'=>'Kemeys_Lion.jpg',
+'0B6T_20KJf4e7dVZjaXVIRi05elE'=>'King-Vulture',
+'0B5Ftg0dHNuVIdlRDWUMxRGtaMTg'=>'Koralewsky.jpg',
+'0BwcKdEkqSZBTZ2NsYTRYNEc0RE0'=>'Korea-bird-ewer.jpg',
+'0B3gzLtw9NYA-Q0VEaUlLQmRxWEE'=>'Kuba_Mask.jpg',
+'0B5Ftg0dHNuVIeVp5QVZOWXpTOXM'=>'Kusama.jpg',
+'0BwcKdEkqSZBTZ042QldqdVJqUU0'=>'Latz-wall-clock.jpg',
+'0B5Ftg0dHNuVIWmdfQ1YxOWtybzA'=>'Lawrence-Wedding.jpg',
+'0BwcKdEkqSZBTbi1KTjBGZ0d6V1E'=>'Lee-Bontecou.jpg',
+'0B0RA5jBrr6UIcHBBVUF3bXE3dVE'=>'Lee_Thanksgiving.jpg',
+'0BwcKdEkqSZBTeHB1OXpEWTFrNEE'=>'Lichtenstein-studio.jpg',
+'0B5Ftg0dHNuVIOEx5RU5kNGFxbUk'=>'LichtensteinOhhAlright.jpg',
+'0B6T_20KJf4e7YU5DSjZXWk1Ga28'=>'Ligon_Stranger-in-the-Village',
+'0BwcKdEkqSZBTcEFnZU9fNG4zMG8'=>'Londonderry-vase.jpg',
+'0B5Ftg0dHNuVIOG56RGt6MHVOdTA'=>'Magritte.jpg',
+'0B6T_20KJf4e7ckpyX0E1ZkROZ1E'=>'Maher-and-Millet_Fireplace',
+'0B5Ftg0dHNuVIWlJLMGlpQjEyaDQ'=>'Malevich.jpg',
+'0B6T_20KJf4e7c2ROR254enczVmM'=>'Martorell_St-George-Dragon',
+'0B6T_20KJf4e7U212aHVuTVZwdWM'=>'Masatoshi_Islands',
+'0B0RA5jBrr6UIbnlQcFJWWTFYeTQ'=>'Matisse_Interior-at-Nice.jpg',
+'0B5Ftg0dHNuVIZEZkUVBwM0VWVlU'=>'Maya-Ball-Court-Panel.jpg',
+'0B6T_20KJf4e7NVpDUUdQWk9Lbms'=>'Maya_Standing-Male-Figure',
+'0B6T_20KJf4e7ZTdxZy1YajJaakk'=>'Maya_Standing-Male-Figure',
+'0B6T_20KJf4e7ZmFFUlB3dF9LM1k'=>'Maya_Vessel-Sacrificial-Ceremon',
+'0B3gzLtw9NYA-ZVBVWlZCLXRCcVk'=>'Meissen_ConductorMonkeyBand.jpg',
+'0B3gzLtw9NYA-RUVSdjctbzlZcEU'=>'Meissen_KingVulture.jpg',
+'0B6T_20KJf4e7RHVXUnJEZTFBcFk'=>'Merz_Living-Sculpture.jpg',
+'0B5Ftg0dHNuVIcVI0aEJnQVNnbnc'=>'Middletown-Parlor.jpg',
+'0B3gzLtw9NYA-QkdGX256Vmh5S1U'=>'Millet_PeasantsBringingHome.jpg',
+'0B6T_20KJf4e7bjRVLWZYdUkwODQ'=>'Miro_Maquette-for-Miros-Chicago',
+'0B5Ftg0dHNuVIVTJzWHMydDdISFk'=>'Mirror-Frame.jpg',
+'0B6T_20KJf4e7Zk84ZHg4VUhnSWs'=>'Missouri-River-Tribe_War-Shirt',
+'0B6T_20KJf4e7d09EcDFmdVVOR1E'=>'Mitchell_City-Landscape',
+'0B6T_20KJf4e7QWFObkpYS2JVQ1E'=>'Mitchell_Rack-Picture-for-Dr.-N',
+'0B6T_20KJf4e7cEduMnVpYU1LTGs'=>'Mixtec_Miniature-Mask',
+'0B6T_20KJf4e7RUJldFNBV1F5a2c'=>'Mixtec_Mosaic-Disc',
+'0B6T_20KJf4e7bE9iQm11Mnl1b28'=>'Mixtec_Mosaic-Disc',
+'0B5Ftg0dHNuVIQnJIX0pNX3lYMHM'=>'Moche-Vessel.jpg',
+'0B3gzLtw9NYA-QU1IMXlBQUNiSms'=>'Moche_VesselOwlImpersonator.jpg',
+'0BwcKdEkqSZBTeFhfRnlUQmZHWEk'=>'Monet-Normandy-Train.jpg',
+'0B5Ftg0dHNuVIWEFfN2J2T0s0dGs'=>'Monet-Water-Lily.jpg',
+'0B0RA5jBrr6UIU2k0ZzREY2ZLRjg'=>'Monkey_Band.jpg',
+'0B5Ftg0dHNuVIVzNtZHhZSHpXN3c'=>'MoquiRunner.jpg',
+'0B0RA5jBrr6UISUU1OEVHUVhGUDA'=>'Moreau_Hercules-Lernaean-Hydra.jpg',
+'0B0RA5jBrr6UISUhxemd1UFRKbGM'=>'Motley_Nightlife.jpg',
+'0B5Ftg0dHNuVIY1RxeEV0T0VzLXc'=>'Motley.jpg',
+'0BwcKdEkqSZBTZ0p2YXlnbUdHblU'=>'Mukenga-mask.jpg',
+'0B6T_20KJf4e7SnZjcVBkY2RNY2s'=>'Munch_Girl-by-the-Window',
+'0B3gzLtw9NYA-QlF3cmFBcVRSajQ'=>'Murakami_Mr.Pointy.jpg',
+'0B0RA5jBrr6UIUU5jQlpoQm1qaFE'=>'Nazca_Vessel-Pampas-Cat.jpg',
+'0B6T_20KJf4e7RF9jclY1ZTJRc3M'=>'Nazca_Vessel-Shark-Feline-Human.jpg',
+'0BwcKdEkqSZBTeVRkVU1YM1Fkcm8'=>'New-England-bedroom.jpg',
+'0B5Ftg0dHNuVIRHRmdDk0T0R0U2s'=>'Noguchi.jpg',
+'0B0RA5jBrr6UIdlBycDZmX2RMZG8'=>'Ogre-headed-Guardian-Beast',
+'0B6T_20KJf4e7SnBqSWtLajdRMW8'=>'OKeeffe_Sky-Above-Clouds-IV.jpg',
+'0B0RA5jBrr6UIa3JkLTBKeGFyT3M'=>'Peale_Still-Life-Strawberries-Nuts-Etc.jpg',
+'0B6T_20KJf4e7andXTk45YmFLOWM'=>'Picabia_Untitled-Match-Woman-I',
+'0B6T_20KJf4e7M2MxT1lTYzREbDA'=>'Picasso_Old-Guitarist',
+'0B5Ftg0dHNuVISzdoNHk3M2pkNTg'=>'Pollock',
+'0B6T_20KJf4e7OS1PZFhjaFVzaXc'=>'Pollock_Greyed-Rainbow',
+'0B6T_20KJf4e7VV9ZNmNwcDRYY00'=>'Portions-of-Armor-Field-&amp;-Tilt',
+'0B5Ftg0dHNuVITmwtUjZPaFV0N1E'=>'Races-at-Longchamp.jpg',
+'0B6T_20KJf4e7bUdZRkdIcHdFY3c'=>'Rauschenberg_Short-Circuit',
+'0B3gzLtw9NYA-VGZlLUFGT2sxZ0U'=>'Ray_Boy.jpg',
+'0B6T_20KJf4e7cU9iRzdQX3VZQ0k'=>'Ray_Hinoki',
+'0B5Ftg0dHNuVIUEpKUG5fQjNONXM'=>'RayBoy.jpg',
+'0B5Ftg0dHNuVIbTFla084UGhUbGc'=>'Reclining-Chair.jpg',
+'0BwcKdEkqSZBTZ2lmd1hWUjV4aEU'=>'red-cabinet.jpg',
+'0BwcKdEkqSZBTek8xbldERWp0Ujg'=>'reliquary-with-tooth.jpg',
+'0B5Ftg0dHNuVIMFlhNHhPMmJjTFk'=>'Rembandt.jpg',
+'0B5Ftg0dHNuVIbXBIMWpvS000Zzg'=>'Remington.jpg',
+'0B6T_20KJf4e7NjlkZXYtU2NhMXM'=>'Rivera_Portrait-of-Marevna',
+'0B6T_20KJf4e7US1uWUJkRVBfOEU'=>'Rogers_Nydia-Blind-Flower-Girl',
+'0B6T_20KJf4e7RE9pQlo1S3JQM28'=>'Roman_Seated-Woman',
+'0B5Ftg0dHNuVIeGY3M3BBa3ZQWHM'=>'RomanEmperor.jpg',
+'0BwcKdEkqSZBTM2gxN25vREtxbHM'=>'Rousseau-waterfall.jpg',
+'0B3gzLtw9NYA-bVpzV25Pbjh2TVE'=>'Saftlaven_AWitchesSabbath.jpg',
+'0BwcKdEkqSZBTdWRRSUVzLVJoY2c'=>'Salado-ritual-cache.jpg',
+'0B3gzLtw9NYA-c3ROSDcwa05JZG8'=>'Schimmel_Eagle.jpg',
+'0B5Ftg0dHNuVIZ2V3VnpsYXpjZFU'=>'Schreckengost.jpg',
+'0B5Ftg0dHNuVIcFFWZmFwZTNYWVk'=>'Secretery.jpg',
+'0BwcKdEkqSZBTYnVJWVFncU5MUWc'=>'Senufo-door.jpg',
+'0BwcKdEkqSZBTa1dVVXU5ZTM5SXM'=>'Seurat-La-Grande-Jatte.jpg',
+'0B5Ftg0dHNuVITDBOSkVFV09rT0k'=>'Seurat.jpg',
+'0B5Ftg0dHNuVIenlyMDFJcmotLWc'=>'Severini.jpg',
+'0B0RA5jBrr6UINlNJTE5HTFBTWHc'=>'Skeele_Fruit-Piece.jpg',
+'0B0RA5jBrr6UIVGkyZlF5TGJvZDg'=>'Snyders_Still-Life-Dead-Game.jpg',
+'0B6T_20KJf4e7N1E2UWhMWDJsclU'=>'Stati_Samson-and-the-Lion',
+'0B5Ftg0dHNuVITXlGLXNVd0V4NGc'=>'Tamayo.jpg',
+'0BwcKdEkqSZBTOWNsVlNmMnJiSEU'=>'Tanguy-screen.jpg',
+'0B5Ftg0dHNuVIeVc2N2tpRXh5WVE'=>'Thembu-Wedding.jpg',
+'0B6T_20KJf4e7U1F3M3ZHNmIxZlk'=>'Theotihuacan_Shell-Mosaic',
+'0B6T_20KJf4e7aGZnSmtVVkloRU0'=>'Theotihuacan_Shell-Mosaic',
+'0B0RA5jBrr6UIdmJwQnlnTzNhdkU'=>'Thomas_Starry-Night.jpg',
+'0BwcKdEkqSZBTMEFVbTBRZHhrR0U'=>'Thorne-Room-middleton-parlo.jpg',
+'0B0RA5jBrr6UIMUxiclBkcVVYb0E'=>'Thorne_A13-New-England-Bedroom.jpg',
+'0B6T_20KJf4e7RW5tZV90aFNpZjA'=>'Thorne_New-England-Bedroom',
+'0B5Ftg0dHNuVINjlpYkxwME9SaTA'=>'Tiepolo-Door.jpg',
+'0B6T_20KJf4e7YW14S3RLazFCYmM'=>'Tiepolo_Rinaldo-and-the-Magus',
+'0B6T_20KJf4e7ZWc3MGpHRWJtOWs'=>'Tiffany_Dragonfly-Shade',
+'0B6T_20KJf4e7S2pxXy1xUlBITGs'=>'Trading-Room.jpg',
+'0B5Ftg0dHNuVIMTdZU1lmSS0yVVU'=>'Turban-Helmet.jpg',
+'0B6T_20KJf4e7OTJtZ21HWmFmSG8'=>'Turner_Fishing-Boats-Hucksters',
+'0B6T_20KJf4e7cXBqSndqbVhFNVk'=>'Turner_Valley-of-Aosta',
+'0B3gzLtw9NYA-Nl9sc3pYNWp1bzg'=>'Twachtman_Icebound.jpg',
+'0B0RA5jBrr6UIR2dxWUt6YU1zeUE'=>'Van-Gogh_Bedroom.jpg',
+'0B6T_20KJf4e7azhmTWpQNHRJZFU'=>'Van-Gogh_Self-Portrait',
+'0B5Ftg0dHNuVIaFF5bGRrVFVaTTA'=>'van-Meiris-and-van-der-Spel.jpg',
+'0B6T_20KJf4e7SmVKb3p3bWUyejA'=>'van-Rijn_Man-at-a-Desk-',
+'0B3gzLtw9NYA-UFhIdjhEdllpVGs'=>'vanGogh_TheBedroom.jpg',
+'0B5Ftg0dHNuVIYVhuQzhpQjJEVzA'=>'Venturi-Chair.jpg',
+'0B5Ftg0dHNuVIb1JLanZ2V0kyaWc'=>'Vessel-with-Peccary-Head.jpg',
+'0B6T_20KJf4e7dEh5akhfSDBvSDg'=>'Vili_Nkisi-Nkondi-Power-Figure',
+'0B6T_20KJf4e7LU53Yl9pNVNkUUk'=>'Vili_Power-Figure',
+'0B6T_20KJf4e7LURQcktqbDV6ZTA'=>'Volaire_Eruption-of-Vesuvius',
+'0B5Ftg0dHNuVIdEthQTFwOEo0Qms'=>'Vuillard.jpg',
+'0B5Ftg0dHNuVIVG9yWFoyRERrblU'=>'War-shirt.jpg',
+'0B6T_20KJf4e7TURZbXM5WlpPRUU'=>'Warhol_Four-Mona-Lisas',
+'0B6T_20KJf4e7R3NTYi1FamlsTG8'=>'Warhol_Liz-#3',
+'0B5Ftg0dHNuVIRXZpQ3o5a3FsOWM'=>'Whitten.jpg',
+'0B0RA5jBrr6UIX3NreWxneXN6ZEk'=>'Wicar_Virgil-Reading-Aeneid.jpg',
+'0B5Ftg0dHNuVIMFdBUFU3cXdQdmc'=>'Witches-Sabbath',
+'0B6T_20KJf4e7cWZ3MnlaSTBPaGM'=>'Wood_American-Gothic.jpg',
+'0B6T_20KJf4e7WnlvY0VscndhN1k'=>'Wright_Coonley-Playhouse',
+'0B0RA5jBrr6UIRGtPOXU4RF95TUk'=>'Yokuts_Gambling-Tray.jpg',
+'0BwcKdEkqSZBTWFlBWTB4aWVHVnM'=>'Zao-Wou-Ki.jpg',
+'0B5Ftg0dHNuVINE9ZZ29tVVRNNUk'=>'Zeisel.jpg',
+'0B6T_20KJf4e7RjBEZFFhMldEQnc'=>'Zishou_Snuff-Bottle-w-Fish',);
+
+  return $map;
+}

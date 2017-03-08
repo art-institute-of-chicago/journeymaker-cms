@@ -1,0 +1,92 @@
+<?php
+/**
+ * @file
+ * require_login.module
+ */
+
+define('REQUIRE_LOGIN_DEFAULT_MESSAGE', 'You must login to use this site.');
+
+/**
+ * Implements hook_menu().
+ */
+function require_login_menu() {
+  $items['admin/config/system/require-login'] = array(
+    'title' => 'Require Login',
+    'description' => 'Configure Require Login settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('require_login_admin_settings'),
+    'file' => 'require_login.admin.inc',
+    'access arguments' => array('administer require login'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function require_login_permission() {
+  return array(
+    'administer require login' => array(
+      'title' => t('Administer Require Login'),
+      'description' => t('Customize require login configurations.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function require_login_init() {
+
+  // Check user authentication status. Non-authenticated visitors will
+  // automatically be redirected to /user/login. Display customizable message
+  // to user stating authentication requirements.
+  if (!require_login_authcheck()) {
+    $deny_message = variable_get('require_login_deny_message', REQUIRE_LOGIN_DEFAULT_MESSAGE);
+    drupal_set_message(t($deny_message));
+    drupal_goto('user/login', array('query' => array('destination' => $_GET['q'])));
+  }
+}
+
+/**
+ * Checks current user authentication.
+ *
+ * @return boolean
+ *   Returns TRUE if authenticated and FALSE otherwise.
+ */
+function require_login_authcheck() {
+  $path = drupal_get_path_alias($_GET['q']);
+
+  // Compare current URL with customizable excluded paths. Returns TRUE when
+  // at least one excluded path matches the current page path.
+  $exclude_paths = explode(PHP_EOL, variable_get('require_login_excluded_paths', ''));
+  foreach ($exclude_paths as $key => $exclude_path) {
+    $exclude_paths[$key] = trim($exclude_path);
+    if ($exclude_paths[$key] == '<front>') {
+      $exclude_paths[$key] = drupal_get_path_alias(variable_get('site_frontpage', 'node'));
+    }
+  }
+  if (drupal_match_path($path, implode(PHP_EOL, $exclude_paths))) {
+    return TRUE;
+  }
+
+  // Various checks to determine exceptions for current page. Returns TRUE
+  // when at least one check has evaluated as TRUE.
+  $checks = array(
+    (user_is_logged_in()), // Authentication
+    (variable_get('maintenance_mode', 0)), // Maintenance Mode
+    (isset($_SESSION['openid'])), // OpenID
+    (preg_match('/\/cron.php/i', request_uri())), // Cron
+    (arg(0) == 'user' && (!arg(1) || !is_numeric(arg(1)))), // User Pages
+    (function_exists('drupal_is_cli') && drupal_is_cli()), // Drush
+  );
+  foreach ($checks as $check) {
+    if ($check) {
+      return TRUE;
+    }
+  }
+
+  // Return FALSE when checks have all passed.
+  return FALSE;
+}

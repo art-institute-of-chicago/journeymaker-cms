@@ -1,0 +1,158 @@
+<?php
+/**
+ * @file
+ * Module for adding a widget to a field of type Node Reference.
+ * The widget allows the user to select an image field of the Refering
+ * content type and a Image style to render the field as a grid of
+ * selectable images.
+ */
+
+/**
+ * Implements hook_widget_info().
+ */
+function nodereference_selector_field_widget_info() {
+  return array(
+    'nodereference_selector' => array(
+      'label' => t('Reference Node Selector'),
+      'description' => t('Select nodes with image selector'),
+      'field types' => array('node_reference'),
+      'settings' => array(
+        'fallback' => 'select',
+        'node_link' => array(),
+        'edit_fallback' => 0,
+        'autocomplete_match' => 'contains',
+      ),
+      'behaviors' => array('multiple values' => FIELD_BEHAVIOR_CUSTOM),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function nodereference_selector_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $defaults = field_info_widget_settings($widget['type']);
+  $settings = array_merge($defaults, $widget['settings']);
+
+  $form = array();
+
+  $image_styles = array_keys(image_styles());
+
+  if ($widget['type'] == 'nodereference_selector') {
+    $form['image_style'] = array(
+      '#type' => 'select',
+      '#title' => t('Image style'),
+      '#options' => array_combine($image_styles, $image_styles),
+      '#description' => t('Select the image style that will be used by the selector widget'),
+      '#required' => TRUE,
+      '#default_value' => isset($settings['image_style']) ? $settings['image_style'] : NULL,
+    );
+    foreach ($field['settings']['referenceable_types'] as $type) {
+      if ($type == '0') {
+        continue;
+      }
+      $fields = field_info_instances('node', $type);
+      $image_fields = array();
+      foreach ($fields as $key => $field) {
+        if ($field['widget']['type'] == 'image_image') {
+          $image_fields[$key] = $field['label'] . ' (' . $key . ')';
+        }
+      }
+      $form['image_field_' . $type] = array(
+        '#type' => 'select',
+        '#title' => t('@name Image Field', array('@name' => node_type_get_name($type))),
+        '#options' => $image_fields,
+        '#description' => t('Select the image field in the node, which will be used as a reference field'),
+        '#required' => TRUE,
+        '#default_value' => isset($settings['image_field_' . $type]) ? $settings['image_field_' . $type] : NULL,
+      );
+    }
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function nodereference_selector_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $radios = $field['cardinality'] == 1 && $element['#required'];
+  $options = array();
+  foreach ($field['settings']['referenceable_types'] as $type) {
+    if (is_numeric($type) || !isset($instance['widget']['settings']['image_field_' . $type])) {
+      continue;
+    }
+    $query = db_select('node', 'n');
+    $query->addTag('node_access');
+    $query->join('field_data_' . $instance['widget']['settings']['image_field_' . $type], 'fd', 'fd.entity_id = n.nid');
+    $query->fields('n', array('title', 'nid'));
+    $query->fields('fd', array(
+      $instance['widget']['settings']['image_field_' . $type] . '_fid')
+    );
+    $query->condition('n.type', $type, '=');
+    $query->condition('fd.delta', 0, '=');
+    $query->orderBy('n.title', 'ASC');
+    $result = $query->execute();
+    foreach ($result as $node) {
+      $options[$node->nid] = theme('image_style', array(
+          'style_name'  => $instance['widget']['settings']['image_style'],
+          'path'        => file_load($node->{$instance['widget']['settings']['image_field_' . $type] . '_fid'})->uri,
+          'title'       => check_plain($node->title),
+        )
+      );
+    }
+  }
+
+  $defaults = array();
+  if (isset($form_state['build_info']['args'][0]->{$instance['field_name']}[$langcode])) {
+    foreach ($form_state['build_info']['args'][0]->{$instance['field_name']}[$langcode] as $value) {
+      $defaults[] = $value['nid'];
+    }
+  }
+  $element += array(
+    '#type'             => $radios ? 'radios' : 'checkboxes',
+    '#options'          => $options,
+    '#element_validate' => array('nodereference_selector_validate'),
+    '#attributes'       => array(
+      'class' => array('clearfix'),
+    ),
+    '#attached' => array(
+      'js'  => array(
+        drupal_get_path('module', 'nodereference_selector') . '/js/nodereference_selector.js',
+      ),
+      'css' => array(
+        drupal_get_path('module', 'nodereference_selector') . '/css/nodereference_selector.css',
+      ),
+    ),
+    '#default_value' => $defaults,
+  );
+  return $element;
+}
+
+/**
+ * Validation callback for a node_reference_selector widget element.
+ */
+function nodereference_selector_validate($element, &$form_state, $form) {
+  $field = field_widget_field($element, $form_state);
+  $lang = $element['#language'];
+  $field_name = $element['#field_name'];
+  $allowed = $field['cardinality'];
+  $selected = count(array_filter($form_state['values'][$field_name][$lang], "_nodereference_selector_check_zero"));
+  if ($allowed > 0 && $selected > $allowed) {
+    form_error($element, t('You selected more than %num allowed elements', array('%num' => $allowed)));
+  }
+}
+
+/**
+ * Callback function for array_filter function to remove not selected elements.
+ */
+function _nodereference_selector_check_zero($val) {
+  return $val !== 0;
+}
+
+/**
+ * Implements hook_field_widget_error().
+ */
+function nodereference_selector_field_widget_error($element, $error, $form, &$form_state) {
+  form_error($element['nid'], $error['message']);
+}

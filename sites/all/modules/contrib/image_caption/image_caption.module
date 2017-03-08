@@ -1,0 +1,18 @@
+<?php
+/**
+* @file
+* Image Captioner Module using JQuery
+* Requires javascript as enabled on client pc
+* Adds a caption to images with 'caption' as their class using JQuery
+* Caption is taken from image html title attribute
+* @author David Thomas
+* @contact davidwhthomas@gmail.com
+*/
+
+/**
+ * Implementation of hook_init
+ * Add captioning javascript
+ */
+function image_caption_init(){
+  drupal_add_js(drupal_get_path('module', 'image_caption') . '/image_caption.min.js');
+}

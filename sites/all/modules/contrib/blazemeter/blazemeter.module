@@ -1,0 +1,1491 @@
+<?php
+
+define('BLAZEMETER_URL', 'https://a.blazemeter.com');
+define('BLAZEMETER_APPKEY', '10c51410c51410c51422');
+
+module_load_include('inc', 'blazemeter', 'blazemeter_ahah');
+/**
+ * Implements hook_menu()
+ */
+function blazemeter_menu() {
+  $items['admin/config/blazemeter'] = array(
+    'title' => 'BlazeMeter',
+    'description' => 'BlazeMeter',
+    'page callback' => 'blazemeter_admin_menu_block_page',
+    'access arguments' => array('administer blazemeter configuration'),
+  );
+
+  $items['admin/config/blazemeter/blazemeter-config'] = array(
+    'title' => 'BlazeMeter',
+    'description' => 'BlazeMeter Settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('blazemeter_admin_settings_form'),
+    'access arguments' => array('administer blazemeter configuration'),
+    'type' => MENU_NORMAL_ITEM
+  );
+
+  $items['blazemeter_autocomplete/nodereference/%'] = array(
+    'title' => 'Return Nodes',
+    'page callback' => 'blazemeter_node_reference_autocomplete',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['blazemeter_ajax/user-login'] = array(
+    'title' => 'AJAX Callback - Login',
+    'description' => '',
+    'page callback' => 'blazemeter_ajax_login',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+  
+  $items['blazemeter_ajax/user-register'] = array(
+    'title' => 'AJAX Callback - User register',
+    'description' => '',
+    'page callback' => 'blazemeter_ajax_register',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+  
+    $items['blazemeter/set_userkey/%'] = array(
+    'title' => 'AJAX set userkey',
+    'page arguments' => array(2),
+    'page callback' => 'blazemeter_set_userkey',
+    'type' => MENU_CALLBACK,
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function blazemeter_permission() {
+  return array(
+    'administer blazemeter configuration' => array(
+      'title' => 'administer blazemeter configuration',
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function blazemeter_help($path) {
+  switch ($path) {
+    case 'admin/config/blazemeter/blazemeter-config':
+      return t('Saving the form for first time can take few seconds to minutes as the virtual users are being created.');
+      break;
+  }
+}
+
+function _blazemeter_add_js() {
+  drupal_add_library('system', 'ui.core');
+  drupal_add_library('system', 'ui.widget');
+  drupal_add_library('system', 'ui.mouse');
+  drupal_add_library('system', 'ui.slider');
+
+  drupal_add_js(drupal_get_path('module', 'blazemeter') . '/js/jquery.simplemodal.1.4.2.min.js');
+  drupal_add_js(drupal_get_path('module', 'blazemeter') . '/js/tooltip.min.js');
+
+  drupal_add_css(drupal_get_path('module', 'blazemeter') . '/css/blazemeter.css');
+  drupal_add_js(drupal_get_path('module', 'blazemeter') . '/js/blazemeter.js');
+}
+
+function blazemeter_get_api_url($method, $key = NULL) {
+  switch (strtolower($method)) {
+    case 'getip':
+      $url = BLAZEMETER_URL . "/api/rest/blazemeter/getIp?app_key=" . BLAZEMETER_APPKEY;
+      break;
+    case 'setcmstest':
+      $testid = variable_get('blazemeter_testid', '-1');
+      $url = BLAZEMETER_URL . "/api/rest/blazemeter/startCustomTest.json?user_key=" . variable_get('blazemeter_userkey', '') . "&app_key=" . BLAZEMETER_APPKEY . "&test_id=" . $testid;
+      break;
+    case 'usercreate':
+      $url = BLAZEMETER_URL . '/api/rest/blazemeter/userCreate';
+      break;
+    case 'userinfo':
+      if($key === NULL) {
+        $key = variable_get('blazemeter_userkey', '');
+      }
+      $url = BLAZEMETER_URL . "/api/rest/blazemeter/getUserInfo.json/?user_key=" . $key;
+      break;
+    case 'testcreate':
+      $url = BLAZEMETER_URL . "/api/latest/tests";
+      break;
+    case 'teststart':
+      $testid = variable_get('blazemeter_testid', '-1');
+      $url = BLAZEMETER_URL . "/api/latest/tests/".$testid."/start";
+      break;
+  }
+  return $url;
+}
+
+function blazemeter_admin_menu_block_page() {
+  drupal_goto('admin/config/blazemeter/blazemeter-config');
+}
+
+function blazemeter_admin_settings_form($form, &$form_state) {
+  global $base_url;
+  _blazemeter_add_js();
+
+  drupal_set_title('<div id="blazemeter-strip"><img src="' . base_path() . drupal_get_path('module', 'blazemeter') . '/logo.png"/></div>', PASS_THROUGH);
+  $form = array();
+
+  //Store max allowed users
+  if (variable_get('blazemeter_userkey', '')) {
+    $user_info = file_get_contents(blazemeter_get_api_url('userinfo'));
+    $json_user_info = json_decode($user_info);
+  }
+
+  $max_users = isset($json_user_info->max_users_limit) ? $json_user_info->max_users_limit : 5000;
+  $form['max-users'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $max_users,
+    //in D7 hidden form elements don't have id, so have to add one: http://drupal.org/node/1182224#comment-4580658
+    '#attributes' => array('id' => 'edit-max-users'),
+  );
+
+  $form['anonymous'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Anonymous Pages'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['anonymous']['anon'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max Concurrent Anonymous Visitors') . ':',
+    '#default_value' => variable_get('blazemeter_anon_visitors', '0'),
+    '#suffix' => '<div id="anon-slider"></div>',
+  );
+
+  $default_domain = variable_get('blazemeter_domain', $base_url . '/');
+  $form['anonymous']['anon_pages_title'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div class="form-item"><label>' . t('Pages') . ':</label></div>
+    <div class="description">' . t('Enter the page title, node id, &lt;front&gt; or relative path from %domain', array('%domain' => $default_domain)) . '</div>
+    ',
+  );
+
+  // Because we have many fields with the same values, we have to set
+  // #tree to be able to access them.
+  $form['#tree'] = TRUE;
+
+  // Build the fieldset with the proper number of textfields.
+  // $form_state['blazemeter_ahah_anon_page_count'] to determine the number of textfields to build.
+  if (empty($form_state['blazemeter_ahah_anon_page_count'])) {
+    $form_state['blazemeter_ahah_anon_page_count'] = variable_get('blazemeter_numof_anon_pages', 2);
+  }
+  for ($i = 0; $i < $form_state['blazemeter_ahah_anon_page_count']; $i++) {
+    $form['anonymous']['anon_page'][$i] = array(
+      '#title' => '',
+      '#type' => 'textfield',
+      '#default_value' => variable_get('blazemeter_anon_page_' . $i, ''),
+      '#autocomplete_path' => 'blazemeter_autocomplete/nodereference/anon',
+    );
+  }
+  
+  $form['anonymous']['anon_page_text'] = array(
+      '#title' => '',
+      '#type' => 'textarea',
+      '#title' => t('Optionally use textarea, URLs must be relative and split by line break.'),
+      '#default_value' => variable_get('blazemeter_anon_text'),
+    );
+
+  $form['anonymous']['anon_page']['#prefix'] = '<div id="anon-page-fieldset-wrapper">';
+  $form['anonymous']['anon_page']['#suffix'] = '</div>';
+
+  $form['anonymous']['blazemeter_ahah_anon_page'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add Anon Page'),
+    '#submit' => array('blazemeter_ahah_add_more_anon'),
+    '#ajax' => array(
+      'callback' => 'blazemeter_ahah_add_more_anon_callback',
+      'wrapper' => 'anon-page-fieldset-wrapper',
+    ),
+  );
+
+  $form['authenticated'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Authenticated Access'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
+  );
+
+  $form['authenticated']['auth'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max Concurrent Authenticated Users') . ':',
+    '#default_value' => variable_get('blazemeter_auth_users', '0'),
+    '#suffix' => '<div id="auth-slider"></div>',
+  );
+
+  /*$form['authenticated']['unique'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Total Unique Authenticated User Names'),
+    '#default_value' => variable_get('blazemeter_unique_names', '0'),
+    '#suffix' => '<div id="unique-slider"></div>',
+  );*/
+
+  $form['authenticated']['auth_pages_title'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div class="form-item"><label>' . t('Pages') . ':</label></div>
+    <div class="description">' . t('Enter the page title, node id, &lt;front&gt; or relative path from %domain', array('%domain' => $default_domain)) . '</div>
+    ',
+  );
+
+  // Build the fieldset with the proper number of textfields.
+  // $form_state['blazemeter_ahah_auth_page_count'] to determine the number of textfields to build.
+  if (empty($form_state['blazemeter_ahah_auth_page_count'])) {
+    $form_state['blazemeter_ahah_auth_page_count'] = variable_get('blazemeter_numof_auth_pages', 2);
+    //$form_state['blazemeter_ahah_auth_page_count'] = 2;
+  }
+  for ($i = 0; $i < $form_state['blazemeter_ahah_auth_page_count']; $i++) {
+    $form['authenticated']['auth_page'][$i] = array(
+      '#title' => '',
+      '#type' => 'textfield',
+      '#default_value' => variable_get('blazemeter_auth_page_' . $i, ''),
+      '#autocomplete_path' => 'blazemeter_autocomplete/nodereference/auth',
+    );
+  }
+  
+  $form['authenticated']['auth_page_text'] = array(
+      '#title' => '',
+      '#type' => 'textarea',
+      '#title' => t('Optionally use textarea, URLs must be relative and split by line break.'),
+      '#default_value' => variable_get('blazemeter_auth_text'),
+    );
+  
+  $form['authenticated']['auth_page']['#prefix'] = '<div id="auth-page-fieldset-wrapper">';
+  $form['authenticated']['auth_page']['#suffix'] = '</div>';
+
+  $form['authenticated']['blazemeter_ahah_auth_page'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add Auth Page'),
+    '#submit' => array('blazemeter_ahah_add_more_auth'),
+    '#ajax' => array(
+      'callback' => 'blazemeter_ahah_add_more_auth_callback',
+      'wrapper' => 'auth-page-fieldset-wrapper',
+    ),
+  );
+
+  $form['meta'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Meta Data'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE
+  );
+
+  $default_scenario = variable_get('blazemeter_scenario', 'load');
+  $form['meta']['scenario'] = array(
+    '#type' => 'hidden',
+    '#title' => t('Load Scenario'),
+    '#default_value' => $default_scenario,
+    //in D7 hidden form elements don't have id, so have to add one: http://drupal.org/node/1182224#comment-4580658
+    '#attributes' => array('id' => 'edit-meta-scenario'),
+  );
+
+  $load_selected = '';
+  $stress_selected = '';
+  $extreme_selected = '';
+
+  if ($default_scenario == 'load') {
+    $load_selected = "button-selected";
+  }
+  else {
+    if ($default_scenario == 'stress') {
+      $stress_selected = "button-selected";
+    }
+    else {
+      if ($default_scenario == 'extreme stress') {
+        $extreme_selected = "button-selected";
+      }
+    }
+  }
+
+  $load_scenario_html = '<div id="sc_load_tab" class="scenario"><div class="sc_img"><h3>Scheme</h3>
+  <div class="load"></div></div>
+  <div class="sc_desc"><h3>Description</h3><p>Gradual increase in the number of concurrent users.</p>
+  <p>Server is not overwhelmed.</p>30 minute user ramp up.<p>10 minute continuous load.</p></div>
+  <div class="sc_int"><h3>Intelligence</h3><p>Evaluate performance and user experience under various load levels.</p>
+  <p>Pinpoint where and why website performance levels start to decline.</p><p>Pinpoint where and why website performance levels become unacceptable.</p>
+  </div></div>';
+
+  $stress_scenario_html = '<div id="sc_stress_tab" class="scenario"><div class="sc_img"><h3>Scheme</h3>
+  <div class="stress"></div></div><div class="sc_desc"><h3>Description</h3>
+  <p>Number of concurrent users is increased at an accelerated rate.</p>
+  <p>Server is stressed and numerous threads are spawned in a shorter period of time.</p>
+  <p>15 minute user ramp up.</p><p>25 minute continuous load.</p></div><div class="sc_int">
+  <h3>Intelligence</h3><p>Evaluate performance and user experience during a stressful load scenario.</p>
+  <p>Identify downtime or crash points.</p></div></div>';
+
+  $extreme_scenario_html = '<div id="sc_estress_tab" class="scenario"><div class="sc_img"><h3>Scheme</h3>
+  <div class="estress"></div></div>
+  <div class="sc_desc"><h3>Description</h3><p>Number of concurrent users is increased at an accelerated rate.</p>
+  <p>Server is overwhelmed.</p><p>5 minute user ramp up.</p>35 minute continuous load.</div><div class="sc_int">
+  <h3>Intelligence</h3><p>Evaluate performance and user experience when subjected to extreme stress.</p><p>Identify downtime or crash points.</p>
+  </div></div>';
+
+
+  $form['meta']['scenario_html'] = array(
+    '#type' => 'markup',
+    '#markup' => '
+    <div id="blazemeter-scenario">
+    <span class="form-item span-label">' . t('Load Scenario') . ': </span>
+    <span id="blazemeter-scenario-load" class="blazemeter-button ' . $load_selected . '">' . t('Load') . '</span>
+    <div id="blazemeter-scenario-load-frame" class="tooltip">
+      <div class="inner-tooltip">
+      ' . $load_scenario_html . '
+      </div>
+    </div>
+    <span id="blazemeter-scenario-stress" class="blazemeter-button ' . $stress_selected . '">' . t('Stress') . '</span>
+     <div id="blazemeter-scenario-stress-frame" class="tooltip">
+      <div class="inner-tooltip">
+      ' . $stress_scenario_html . '
+      </div>
+    </div>
+    <span id="blazemeter-scenario-extreme" class="blazemeter-button ' . $extreme_selected . '">' . t('Extreme Stress') . '</span>
+     <div id="blazemeter-scenario-extreme-frame" class="tooltip">
+      <div class="inner-tooltip">
+      ' . $extreme_scenario_html . '
+      </div>
+    </div>
+    </div>
+
+    ',
+  );
+
+  if (module_exists('domain')) {
+    //Multisite installation
+    $domains = domain_domains();
+
+    $form['meta']['domain'] = array(
+      '#type' => 'item',
+      '#title' => '<span class="form-required">*</span> ' . t('Site Home URL') . ':',
+    );
+
+    $i = 0;
+    $using_custom_domain = TRUE;
+    foreach ($domains as $domain) {
+      $options[$domain['path']] = $domain['path'];
+      $form['meta']['domain']['domain_' . $i] = array(
+        '#type' => 'radio',
+        '#title' => $domain['path'],
+        '#return_value' => $domain['path'],
+        '#default_value' => $default_domain,
+        '#parents' => array('domain')
+      );
+      if ($default_domain == $domain['path']) {
+        $using_custom_domain = FALSE;
+      }
+      $i++;
+    }
+
+    $form['meta']['domain']['domain_' . $i]= array(
+      '#type' => 'radio',
+      '#title' => t('Use other domain') . ':',
+      '#return_value' => -1,
+      '#default_value' => $using_custom_domain ? -1 : '',
+      '#parents' => array('domain')
+    );
+
+    $form['meta']['domain']['domain_other'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $using_custom_domain ? $default_domain : '',
+      '#size' => 20,
+      '#attributes' => array('onClick' => '$("input[name=domain][value=-1]").attr("checked", true);'),
+    );
+  }
+  else {
+    $form['meta']['domain'] = array(
+      '#type' => 'textfield',
+      '#title' => '<span class="form-required">*</span> ' . t('Site Home URL') . ':',
+      '#default_value' => variable_get('blazemeter_domain', $base_url. '/'),
+    );
+  }
+
+  $ip = file_get_contents(blazemeter_get_api_url('getIp'));
+  $ip = str_replace('"', "", $ip);
+
+  $form['meta']['ip'] = array(
+    '#type' => 'textfield',
+    '#title' => '<span class="form-required">*</span> ' . t('IP') . ':',
+    '#default_value' => variable_get('blazemeter_ip', $ip),
+  );
+
+  $userkey = variable_get('blazemeter_userkey', '');
+
+  $form['meta']['userkey_holder'] = array(
+    '#type' => 'password',
+    '#title' => '<span class="form-required">*</span> ' . t('User Key') . ':',
+  );
+
+  //Drupal password field doesn't use default_value property,
+  //therefore a fix to prevent user from filling password again in case of form validation error
+  $form['meta']['userkey'] = array(
+    '#type' => 'textfield',
+    '#title' => '',
+    '#default_value' => $userkey,
+  );
+
+  $form['meta']['testid'] = array(
+    '#title' => t('Test ID') . ':',
+    '#type' => 'textfield',
+    '#value' => variable_get('blazemeter_testid', ''),
+    '#disabled' => TRUE,
+    '#size' => 58,
+  );
+
+  $form['meta']['testname'] = array(
+    '#title' => t('Test Name') . ':',
+    '#type' => 'textfield',
+    '#default_value' => variable_get('blazemeter_testname', $default_domain),
+  );
+
+  $geolocations = array(
+    'eu-west-1' => 'EU West (Ireland)',
+    'us-east-1' => 'US East (Virginia)',
+    'us-west-1' => 'US West (N.California)',
+    'us-west-2' => 'US West (Oregon)',
+    'sa-east-1' => 'South America(Sao Paulo)',
+    'ap-southeast-1' => 'Asia Pacific (Singapore)',
+    'ap-southeast-2' => 'Australia (Sydney)',
+    'ap-northeast-1' => 'Japan (Tokyo)',
+  );
+  $form['meta']['geolocation'] = array(
+    '#title' => t('Geo Location') . ':',
+    '#type' => 'select',
+    '#options' => $geolocations,
+    '#default_value' => variable_get('blazemeter_geolocation', ''),
+  );
+
+  if (!$userkey) {
+    $form['meta']['signup'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div id="blazemeter-signlogin-wrapper"><a id="blazemeter-signup" class="blazemeter-button">' . t('Sign up to BlazeMeter and Get 10 Free Tests for Free') . '</a>' . _blazemeter_signup_modal_form(),
+    );
+
+    $form['meta']['login'] = array(
+      '#type' => 'markup',
+      '#markup' => '<a id="blazemeter-login" class="blazemeter-button">' . t('Login to BlazeMeter') . '</a>' . _blazemeter_login_modal_form() . '</div>',
+    );
+  }
+  else {
+    $form['meta']['hasuserkey'] = array(
+      '#type' => 'hidden',
+      '#default_value' => 'true',
+      //in D7 hidden form elements don't have id, so have to add one: http://drupal.org/node/1182224#comment-4580658
+      '#attributes' => array('id' => 'edit-meta-hasuserkey'),
+    );
+  }
+
+  $form['meta']['appkey'] = array(
+    '#type' => 'hidden',
+    '#value' => BLAZEMETER_APPKEY,
+  );
+
+
+  /* $form['advanced'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE
+  );*/
+  // Avoid submitting the form to AHAH handler on checkout.
+  //$form['#action'] = url('admin/config/blazemeter');
+
+  $form['buttons']['submit'] = array(
+    '#prefix' => '<div class="submit-buttons">',
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  $form['buttons']['cleanup'] = array(
+    '#type' => 'submit',
+    '#value' => t('Cleanup'),
+  );
+
+  $form['buttons']['help'] = array(
+    '#type' => 'markup',
+    '#markup' => '<a id="edit-buttons-help" class="button form-submit" target="_blank" href="https://docs.blazemeter.com/customer/portal/articles/2281341-blazemeter-to-drupal-module">' . t('Help') . '</a>',
+  );
+
+  $form['buttons']['goto'] = array(
+    '#type' => 'submit',
+    '#value' => t('Start Testing / Go to Test Page'),
+    '#suffix' => '</div>',
+  );
+
+  /*$testid = variable_get('blazemeter_testid', '');
+  if (!$testid) {
+    $form['buttons']['goto'] = array(
+      '#type' => 'submit',
+      '#disabled' => TRUE,
+      '#value' => t('Start Testing / Go to Test Page'),
+      '#suffix' => '</div>',
+    );
+  }
+  else {
+    $form['buttons']['goto'] = array(
+      '#type' => 'markup',
+      '#markup' => '<a id="edit-buttons-goto" class="button form-submit" target="_blank" href="https://a.blazemeter.com/node/' . $testid . '/?start=true">' . t('Start Testing / Go to Test Page') . '</a>',
+      '#suffix' => '</div>',
+    );
+  }*/
+
+  return $form;
+}
+
+function blazemeter_admin_settings_form_validate($form, &$form_state) {
+  _blazemeter_add_js();
+  switch ($form_state['clicked_button']['#id']) {
+    case 'edit-buttons-submit':
+      _blazemeter_admin_settings_validate($form_state);
+      break;
+    case 'edit-buttons-goto':
+      if (!variable_get('blazemeter_testid', '')) {
+        form_set_error('testid', t('You must save the configuration form before you can go to test page.'));
+      }
+      break;
+  }
+}
+
+function _blazemeter_admin_settings_validate(&$form_state) {
+if(!empty($form_state['input']['meta']['userkey']) && variable_get('blazemeter_userkey', '') != $form_state['input']['meta']['userkey'] && $form_state['input']['meta']['userkey'] != 'user key is stored')  {
+  if(!$user_info = @file_get_contents(blazemeter_get_api_url('userinfo', $form_state['input']['meta']['userkey']))) {
+    form_set_error('', t('User key is not correct.'));
+  }
+} else {
+  $user_info = @file_get_contents(blazemeter_get_api_url('userinfo'));
+}
+
+  $json_user_info = json_decode($user_info);
+  $max_users = isset($json_user_info->max_users_limit) ? $json_user_info->max_users_limit : 5000;
+
+  //Check if php_curl extension is installed
+  if (!extension_loaded("curl")) {
+    form_set_error('', t('The BlazeMeter module requires php_curl extension to be installed.'));
+  }
+
+  if (!is_numeric($form_state['values']['anonymous']['anon']) || $form_state['values']['anonymous']['anon'] < 0 || $form_state['values']['anonymous']['anon'] > $max_users) {
+    form_set_error('anon', t('Max Concurrent Anonymous Visitors must be integer number between 0 and !max_users.', array('!max_users' => $max_users)));
+  }
+
+  if (!is_numeric($form_state['values']['authenticated']['auth']) || $form_state['values']['authenticated']['auth'] < 0 || $form_state['values']['authenticated']['auth'] > $max_users) {
+    form_set_error('auth', t('Max Concurrent Authenticated Users must be integer number between 0 and !max_users.', array('!max_users' => $max_users)));
+  }
+
+  //anon_users+auth_users must be <= max_users_limit
+  $total_users = $form_state['values']['anonymous']['anon'] + $form_state['values']['authenticated']['auth'];
+  if ($total_users > $max_users) {
+    form_set_error('anon', t('Total number of Anonymous Visitors and  Authenticated Users must not exceed !max_users.', array('!max_users' => $max_users)));
+  }
+
+  //Make sure only valid nodes are accepted
+  $anon_found = FALSE;
+  foreach ($form_state['values']['anonymous']['anon_page'] as $anon_page) {
+    if ($anon_page) {
+      $matches = explode(' - ', $anon_page);
+      $system_path = drupal_get_normal_path($matches[0]);
+      if($matches[0] != "<front>") {
+	   if ($system_path) {
+        if (!menu_get_item($system_path)) {
+          form_set_error('anon_page', t('Only valid pages are acceptable. Please choose from the list.'));
+        }
+      }
+      else {
+        form_set_error('anon_page', t('Only valid pages are acceptable. Please choose from the list.'));
+      }  
+      }
+      $anon_found = TRUE;
+    }
+  }
+
+  //Make sure only valid nodes are accepted
+  $auth_found = FALSE;
+  foreach ($form_state['values']['authenticated']['auth_page'] as $auth_page) {
+    if ($auth_page) {
+      $matches = explode(' - ', $auth_page);
+      $system_path = drupal_get_normal_path($matches[0]);
+      if($matches[0] != "<front>") {
+	   if ($system_path) {
+        if (!menu_get_item($system_path)) {
+          form_set_error('anon_page', t('Only valid pages are acceptable. Please choose from the list.'));
+        }
+      }
+      else {
+        form_set_error('anon_page', t('Only valid pages are acceptable. Please choose from the list.'));
+      }  
+      }
+      $auth_found = TRUE;
+    }
+  }
+  
+  $auth_text_found = FALSE;
+  $auth_text = $form_state['values']['authenticated']['auth_page_text'];
+  if(!empty($auth_text)) {
+	  $matches = explode("\r\n", $auth_text);
+	  foreach($matches as $path) {
+		if($path != "<front>") {
+			$system_path = drupal_get_normal_path($path);
+			if($system_path) {
+			if (!menu_get_item($system_path)) {
+	          form_set_error('auth_page_text', t('Only valid pages are acceptable. Please write list again or choose from textfield list.'));
+	        }
+		}
+		}
+	  }
+	  $auth_text_found = TRUE;
+  }
+  
+  $anon_text_found = FALSE;
+  $annon_text = $form_state['values']['anonymous']['anon_page_text'];
+  if(!empty($annon_text)) {
+	  $matches = explode("\r\n", $annon_text);
+	  foreach($matches as $path) {
+		if($path != "<front>") {
+			$system_path = drupal_get_normal_path($path);
+			if($system_path) {
+			if (!menu_get_item($system_path)) {
+	          form_set_error('auth_page_text', t('Only valid pages are acceptable. Please write list again or choose from textfield list.'));
+	        }
+		}
+		}
+	  }
+	  $anon_text_found = TRUE;
+  }
+
+  if (!$anon_found && !$auth_found && !$anon_text_found && !$auth_text_found) {
+    form_set_error('blazemeter', t('You must select either Anonymous Pages or Authenticated Pages.'));
+  }
+
+  //Make sure for scenario there is either load, stress or extreme stress
+  if (empty($form_state['values']['meta']['scenario'])) {
+    form_set_error('scenario_html', t('You must choose a scenario.'));
+  }
+  else {
+    if (!in_array($form_state['values']['meta']['scenario'], array(
+      'load',
+      'stress',
+      'extreme stress'
+    ))
+    ) {
+      form_set_error('scenario_html', t('You must choose a valid scenario.'));
+    }
+  }
+
+  if (empty($form_state['values']['meta']['userkey'])) {
+    form_set_error('scenario_html', t('You must enter User key.'));
+  }
+}
+
+function blazemeter_admin_settings_form_submit($form, &$form_state) {
+  switch ($form_state['clicked_button']['#id']) {
+    case 'edit-buttons-submit':
+      _blazemeter_admin_settings_submit($form_state['values']);
+      break;
+    case 'edit-buttons-goto':
+      _blazemeter_admin_settings_goto();
+      break;
+    case 'edit-buttons-cleanup':
+      _blazemeter_admin_settings_cleanup();
+      break;
+  }
+}
+
+function _blazemeter_admin_settings_submit($values) {
+
+  //If domain is -1 then we are using custom textfield
+  if(isset($values['domain'])) {
+    if ($values['domain'] == -1) {
+      $values['meta']['domain'] = $values['meta']['domain']['domain_other'];
+    }
+    else {
+      //Take domain from Domain radio list
+      $values['meta']['domain'] =  $values['domain'];
+    }
+  }
+
+  //Save the values
+  _blazemeter_admin_settings_save($values);
+  //Create auth users
+  $num_of_users = $values['authenticated']['auth'];
+  $continue = blazemeter_create_users($num_of_users);
+  if ($continue) {
+    blazemeter_send_json($values);
+  }
+}
+
+function _blazemeter_admin_settings_goto() {
+  $url = blazemeter_get_api_url('teststart');
+  //open connection
+  $ch = curl_init();
+
+  //set the url, number of POST vars, POST data
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  // Set so curl_exec returns the result instead of outputting it.
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  //configure cURL to accept HTTPS connections.
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  //Add API key as header
+  $api_key = variable_get('blazemeter_userkey', '');
+  curl_setopt($ch, CURLOPT_HTTPHEADER,array('X-Api-Key: '.$api_key));
+  //execute post
+  $result = curl_exec($ch);
+
+  if(curl_errno($ch)) {
+    watchdog('blazemeter', "Curl error " . curl_error($ch));
+    drupal_set_message(curl_error($ch), 'error');
+  }
+  else {
+    $result = mb_convert_encoding($result, 'utf-8');
+    if ($result) {
+      $json = json_decode($result);
+
+      if ($json->error) {
+        watchdog('blazemeter', "Json error returned from server " . print_r($json, TRUE));
+        drupal_set_message($json->error->message, 'error');
+      }
+      else {
+        $testid = variable_get('blazemeter_testid', '');
+        drupal_goto(BLAZEMETER_URL."/app/#test/".$testid);
+      }
+    }
+    else {
+      drupal_set_message(t('BlazeMeter server not responding.'), 'error');
+    }
+  }
+
+  //close connection
+  curl_close($ch);
+
+
+}
+function blazemeter_send_json($values) {
+  //Create JSON
+  $json = blazemeter_create_json($values);
+  $url = blazemeter_get_api_url('testcreate');
+  //open connection
+  $ch = curl_init();
+
+  //set the url, number of POST vars, POST data
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+  // Set so curl_exec returns the result instead of outputting it.
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  //configure cURL to accept HTTPS connections.
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+  //Add API key as header
+  $api_key = variable_get('blazemeter_userkey', '');
+  curl_setopt($ch, CURLOPT_HTTPHEADER,array('X-Api-Key: '.$api_key, 'Content-Type: application/json'));
+
+  //execute post
+  $result = curl_exec($ch);
+
+  if(curl_errno($ch)) {
+    watchdog('blazemeter', "Curl error " . curl_error($ch));
+    drupal_set_message(curl_error($ch), 'error');
+  }
+  else {
+    $result = mb_convert_encoding($result, 'utf-8');
+    if ($result) {
+      $json = json_decode($result);
+      if (isset($json->result->id)) {
+        variable_set('blazemeter_testid', $json->result->id);
+        drupal_set_message('Test successfully created in BlazeMeter. Your test id is ' . $json->result->id);
+        //@Todo: Upload files using POST /tests/{test_id}/files - done
+        //@Todo: example files: https://a.blazemeter.com/node/885754/files - done 
+        //@Todo: Upload drupa7.jmx - done
+        //@Todo: Upload anon_pages.csv - done 
+        //@Todo: Upload auth_pages.csv - done
+        //@Todo: Upload auth_users.csv - done
+        //@Todo: Upload user.properties - done
+
+        //Example generate the file
+        blazemeter_generate_user_properties($values['anonymous']['anon'], $values['authenticated']['auth'], $values['meta']['domain'], $values['meta']['ip'], $values['meta']['scenario']);
+        blazemeter_generate_anon_pages_csv($values['anonymous']);
+        blazemeter_generate_auth_pages_csv($values['authenticated']);
+        if($values['authenticated']['auth'] > 0) {
+          $num_of_users = $values['authenticated']['auth'];
+          $get_auth_users = blazemeter_get_users($num_of_users);
+          $create_auth_users_csv =  blazemeter_generate_auth_users_csv($get_auth_users, $num_of_users);        
+        }
+        //Now upload it.... - done
+        blazemeter_jmx_upload();
+      }
+      else {
+        if ($json->error) {
+          watchdog('blazemeter', "Json error returned from server " . print_r($json, TRUE));
+          drupal_set_message($json->error->message, 'error');
+        }
+      }
+    }
+    else {
+      drupal_set_message(t('BlazeMeter server not responding.'), 'error');
+    }
+  }
+  //close connection
+  curl_close($ch);
+
+}
+
+/*Helper function to save the values from BlazeMeter form*/
+function _blazemeter_admin_settings_save($values) {
+	
+  variable_set('blazemeter_anon_visitors', $values['anonymous']['anon']);
+  variable_set('blazemeter_anon_text', $values['anonymous']['anon_page_text']);
+  variable_set('blazemeter_auth_text', $values['authenticated']['auth_page_text']);
+  variable_set('blazemeter_auth_users', $values['authenticated']['auth']);
+  variable_set('blazemeter_scenario', $values['meta']['scenario']);
+  variable_set('blazemeter_domain', $values['meta']['domain']);
+  variable_set('blazemeter_ip', $values['meta']['ip']);
+  variable_set('blazemeter_testname', $values['meta']['testname']);
+  variable_set('blazemeter_geolocation', $values['meta']['geolocation']);
+  if ($values['meta']['userkey'] && $values['meta']['userkey'] != 'user key is stored') {
+    variable_set('blazemeter_userkey', $values['meta']['userkey']);
+  }
+
+  db_delete('variable')
+    ->condition('name', 'blazemeter_anon_page_%', 'LIKE')
+    ->execute();
+
+  $save_index = 0;
+  foreach ($values['anonymous']['anon_page'] as $anon_page) {
+    if ($anon_page) {
+      variable_set('blazemeter_anon_page_' . $save_index, $anon_page);
+      $save_index++;
+    }
+  }
+
+  if ($save_index < 2) {
+    $save_index = 2;
+  }
+  //Save number of saved anon pages so we can display appropriate number of fields in form
+  variable_set('blazemeter_numof_anon_pages', $save_index);
+
+  //db_query("DELETE FROM {variable} WHERE name LIKE 'blazemeter_auth_page_%%'");
+  db_delete('variable')
+    ->condition('name', 'blazemeter_auth_page_%', 'LIKE')
+    ->execute();
+
+  $save_index = 0;
+  foreach ($values['authenticated']['auth_page'] as $auth_page) {
+    if ($auth_page) {
+      variable_set('blazemeter_auth_page_' . $save_index, $auth_page);
+      $save_index++;
+    }
+  }
+  if ($save_index < 2) {
+    $save_index = 2;
+  }
+  //Save number of saved auth pages so we can display appropriate number of fields in form
+  variable_set('blazemeter_numof_auth_pages', $save_index);
+
+  drupal_set_message(t('BlazeMeter configuration form is saved.'));
+}
+
+/*Helper function to clean up the BlazeMeter form*/
+function _blazemeter_admin_settings_cleanup() {
+  variable_del('blazemeter_anon_visitors');
+  variable_del('blazemeter_auth_users');
+  variable_del('blazemeter_auth_text');
+  variable_del('blazemeter_anon_text');
+  variable_del('blazemeter_scenario');
+  variable_del('blazemeter_domain');
+  variable_del('blazemeter_ip');
+  variable_del('blazemeter_numof_anon_pages');
+  variable_del('blazemeter_numof_auth_pages');
+  variable_del('blazemeter_userkey');
+  variable_del('blazemeter_testid');
+  variable_del('blazemeter_testname');
+  variable_del('blazemeter_geolocation');
+
+  db_delete('variable')
+    ->condition('name', 'blazemeter_anon_page_%', 'LIKE')
+    ->execute();
+  db_delete('variable')
+    ->condition('name', 'blazemeter_auth_page_%', 'LIKE')
+    ->execute();
+
+  //Delete all created users
+  blazemeter_delete_users();
+
+  drupal_set_message(t('BlazeMeter configuration form is reset.'));
+}
+
+
+/**
+ * Retrieve a string of autocomplete suggestions for existing nodes
+ */
+function blazemeter_node_reference_autocomplete($op, $string) {
+  $matches_node = array();
+  $matches_alias = array();
+  $matches_links = array();
+
+  //http://drupal.org/node/1492378  (REQUIRES D7.13 or above)
+  // If the request has a '/' in the search text, then the menu system will have
+  // split it into multiple arguments, recover the intended $tags_typed.
+  if (func_num_args() > 3) {
+    $all_args = func_get_args();
+    $string .= '/' . implode('/', array_slice($all_args, 3));
+  }
+
+  if (strlen($string) <= 5 && stripos('node/', $string, 0) === 0) {
+    //If users starts typing "node" then return first 10 nodes.
+    $result1 = db_query_range("SELECT * FROM {node} WHERE status = 1", 0, 10);
+  }
+  else {
+    if (stripos($string, 'node/', 0) === 0) {
+      //Remove node from search
+      $string = str_replace('node/', '', $string);
+    }
+
+    //The below will fail when run against PostgreSQL but runs just fine against MySQL, therefore breaking queries into two
+    //$result1 = db_query_range("SELECT * FROM {node} WHERE LOWER(title) LIKE LOWER(:string) OR nid = :nid AND status = 1", 0, 10, array(':string' => '%'.$string.'%', ':nid' => $string));
+    // first search by nid if input is numeric since that will be a
+    // lookup by primary key
+    if (is_numeric($string)) {
+      $result1 = db_query_range("SELECT * FROM {node} WHERE nid = :nid AND status = 1", 0, 10, array(':nid' => $string));
+    }
+    // if nothing found or string is not numeric, search by title
+    if (empty($result1)) {
+      $result1 = db_query_range("SELECT * FROM {node} WHERE LOWER(title) LIKE LOWER(:string) AND status = 1", 0, 10, array(':string' => '%' . $string . '%'));
+    }
+  }
+
+  //Search by nodes
+  foreach ($result1 as $node) {
+    if ($op == 'anon') {
+      //Filter by Anonymous available pages only
+      $node = node_load($node->nid);
+      $account = user_load(0);
+      if (node_access('view', $node, $account)) {
+        $node_url = 'node/' . $node->nid . ' - ' . $node->title;
+        $matches_node[$node_url] = $node_url;
+      }
+    }
+    else {
+      //Authenticated user - can view all pages
+      $node_url = 'node/' . $node->nid . ' - ' . $node->title;
+      $matches_node[$node_url] = $node_url;
+    }
+  }
+  
+  $node_url = '<front>';
+  $matches_node[$node_url] = $node_url;
+  $original_user = $GLOBALS['user'];
+  if (module_exists('path')) {
+    //Search by paths
+    $result2 = db_query_range("SELECT * FROM {url_alias} WHERE source LIKE LOWER(:source) OR alias LIKE LOWER(:alias)", 0, 10, array(
+      ':source' => '%' . $string . '%',
+      ':alias' => '%' . $string . '%'
+    ));
+
+    if ($op == 'anon') {
+      //Force the current user to anonymous to check anonymous permissions
+      $GLOBALS['user'] = drupal_anonymous_user();
+    }
+
+    foreach ($result2 as $alias) {
+      //Filter by available pages only
+      $menu_item = menu_get_item($alias->source);
+      $title = '';
+      if ($menu_item && $menu_item['access']) {
+        if (isset($menu_item['page_arguments'][0]->title)) {
+          $title = ' - ' . $menu_item['page_arguments'][0]->title;
+        }
+        $alias_url = $alias->alias . $title;
+        $matches_alias[$alias_url] = $alias_url;
+      }
+    }
+  }
+
+  //Search by menu links
+  $result3 = db_query_range("SELECT * FROM {menu_links} WHERE link_path LIKE LOWER(:path)", 0, 10, array(':path' => '%' . $string . '%'));
+  foreach ($result3 as $link) {
+    //Filter by available pages only
+    $menu_item = menu_get_item($link->link_path);
+    $title = '';
+    if ($menu_item && $menu_item['access']) {
+      if (isset($menu_item['title'])) {
+        $title = ' - ' . $menu_item['title'];
+      }
+      $link_url = $link->link_path . $title;
+      $matches_links[$link_url] = $link_url;
+    }
+  }
+
+  //Restore user
+  $GLOBALS['user'] = $original_user;
+
+  $matches = array_merge((array) $matches_alias, (array) $matches_node);
+  $matches = array_merge((array) $matches, (array) $matches_links);
+
+  drupal_json_output($matches);
+  exit();
+}
+
+function blazemeter_login_form($form, &$form_state) {
+  $form['email'] = array(
+    '#type' => 'textfield',
+	'#required' => TRUE,
+	'#attributes' => array('placeholder' => t('E-mail')),
+	'#prefix' => '<div style="display: none;" id="blazemeter-login-modal"><strong class="title">Login</strong><div style="display: none;" class="error-message"></div><div style="display:none" class="creating-account"><p>Logging in...</p></div>',
+  );
+
+  $form['password'] = array(
+    '#type' => 'password',
+	'#required' => TRUE,
+	'#attributes' => array('placeholder' => t('Password')),
+  );
+  
+  $form['submit-login'] = array(
+    '#value' => 'Login',
+    '#type' => 'submit',
+	'#suffix' => '</div>',
+  );
+  return $form;
+}
+
+function blazemeter_register_form($form, &$form_state) {
+  $form['reg-first-name'] = array(
+    '#type' => 'textfield',
+	'#attributes' => array('placeholder' => t('First name')),
+	'#prefix' => '<div style="display: none;" id="blazemeter-signup-modal"><strong class="title">
+	<strong class="form-title">Get Started</strong>
+	<strong class="form-title">14-day Free PRO Trial</strong>
+	</strong><div style="display:none;" class="creating-account"><p>Creating account...</p></div><div style="display:none;" class="reg-error-message"></div>',
+  );
+  
+  $form['reg-last-name'] = array(
+    '#type' => 'textfield',
+	'#attributes' => array('placeholder' => t('Last name')),
+  );
+
+  $form['reg-email'] = array(
+    '#type' => 'textfield',
+	'#required' => TRUE,
+	'#attributes' => array('placeholder' => t('E-mail')),
+  );
+
+  $form['reg-password'] = array(
+    '#type' => 'password',
+	'#required' => TRUE,
+	'#attributes' => array('placeholder' => t('Password')),
+	'#suffix' => '<div class="description">Password should be at least 8 characters long and contain 3 of: lowercase, uppercase, numbers, special characters</div>',
+  );
+  
+  $form['submit-sign-up'] = array(
+    '#value' => 'Sign up',
+    '#type' => 'submit',
+	'#suffix' => '<p class="terms">By clicking Sign Up, you agree to our <a target="_blank" href="http://blazemeter.com/terms-service">Terms of Service</a></p></div>',
+	);
+  return $form;
+}
+
+function blazemeter_ajax_register() {
+	$firstname = $_POST['firstName'];
+	$lastname = $_POST['lastName'];
+	$email = $_POST['email'];
+	$password = $_POST['password'];
+	$data = array("email" => $email, "password" => $password, "firstname" => $firstname, "lastname" => $lastname);
+	$data_string = json_encode($data);
+	$url = BLAZEMETER_URL . "/api/user/register";
+	$ch = curl_init();
+	curl_setopt($ch,CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
+	    'Content-Type: application/json',                                                                                
+	    'Content-Length: ' . strlen($data_string))                                                                   
+	);
+	$result = curl_exec($ch);
+	curl_close($ch);
+}
+
+function blazemeter_ajax_login() {
+	$email = $_POST['email'];
+	$password = $_POST['password'];
+	$data = array("email" => $email, "password" => $password);
+	$data_string = json_encode($data);
+	$url = BLAZEMETER_URL . "/api/user/login";
+	$ch = curl_init();
+	curl_setopt($ch,CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
+	    'Content-Type: application/json',                                                                                
+	    'Content-Length: ' . strlen($data_string))                                                                   
+	);
+	$result = curl_exec($ch);
+	curl_close($ch);
+}
+
+function blazemeter_set_userkey($userkey) {
+	variable_set('blazemeter_userkey', $userkey);
+}
+
+function _blazemeter_login_modal_form() {
+  $get_login_form = drupal_get_form('blazemeter_login_form');
+  $login_form = drupal_render($get_login_form);
+  return $login_form;
+}
+
+function _blazemeter_signup_modal_form() {
+  $get_register_form = drupal_get_form('blazemeter_register_form');
+  $register_form = drupal_render($get_register_form);
+  return $register_form;
+}
+
+/*Programatically creates users per BlazeMeter template*/
+function blazemeter_create_users($num_of_users) {
+  //See if we already have blazemeter users
+  $existing_users = db_query("SELECT COUNT(uid) FROM {users} WHERE init='blazemeter'")->fetchField();
+
+  if ($existing_users >= $num_of_users) {
+    //Leave extra users
+    return TRUE;
+  }
+  elseif ($existing_users < $num_of_users) {
+    $batch = array(
+      'operations' => array(
+        array(
+          'blazemeter_user_save',
+          array($existing_users, $num_of_users)
+        )
+      ),
+      'finished' => 'blazemeter_batch_finished',
+      'title' => t('Creating Blazemeter Users'),
+      'init_message' => t('Creating Blazemeter Users'),
+      'progress_message' => t('Creating Blazemeter Users (@percentage%).'),
+      'error_message' => t('Creating Blazemeter Users has encountered an error.'),
+    );
+    batch_set($batch);
+    return FALSE; //don't continue wait for batch
+  }
+}
+
+function blazemeter_get_users($num_of_users) {
+  $auth_users = NULL;
+  for ($i = 0; $i < $num_of_users; $i++) {
+    $username = 'bz-user' . $i;
+    $password = db_query("SELECT pass FROM {blazemeter} WHERE name=:name", array(':name' => $username))->fetchField();
+    $auth_users[] = array(
+      'username' => $username,
+      'password' => $password,
+    );
+  }
+
+  return $auth_users;
+}
+
+function blazemeter_user_save($existing_users, $num_of_users, &$context) {
+  if (!isset($context['sandbox']['progress']) || $context['sandbox']['progress'] < $existing_users) {
+    $context['sandbox']['progress'] = $existing_users;
+  }
+  $max_per_batch = 25; //Create 25 users per batch call
+  for ($i = 0; $i < $max_per_batch; $i++) {
+    if ($context['sandbox']['progress'] >= $num_of_users) {
+      break;
+    }
+    $plain_password = user_password();
+    $newuser = array(
+      'name' => 'bz-user' . $context['sandbox']['progress'],
+      'mail' => 'bz-user' . $context['sandbox']['progress'],
+      'init' => 'blazemeter',
+      'pass' => $plain_password,
+      'status' => 1,
+    );
+
+    $account = user_save('', $newuser);
+    //Save password in plaintext so we can send it to Blazemeter
+    db_insert('blazemeter')
+      ->fields(array(
+      'name' => $account->name,
+      'pass' => $plain_password,
+    ))
+      ->execute();
+    $context['sandbox']['progress']++;
+  }
+
+  if ($context['sandbox']['progress'] >= $num_of_users) {
+    $context['finished'] = 1;
+  }
+  else {
+    $context['finished'] = $context['sandbox']['progress'] / $num_of_users;
+  }
+}
+
+/*Delete all users created via BlazeMeter template*/
+function blazemeter_delete_users() {
+  db_delete('users')
+    ->condition('init', 'blazemeter')
+    ->execute();
+
+  if (db_table_exists('blazemeter')) {
+    db_delete('blazemeter')
+      ->execute();
+  }
+}
+
+/*Create Outbound JSON format for BlazeMeter*/
+function blazemeter_create_json($values) {
+
+  //Create auth users
+  $num_of_users = $values['authenticated']['auth'];
+  $auth_users = blazemeter_get_users($num_of_users);
+
+  //Get list of auth pages
+  $auth_pages = NULL;
+  foreach ($values['authenticated']['auth_page'] as $auth_page) {
+    if ($auth_page) {
+      $matches = explode(' - ', $auth_page);
+      $system_path = drupal_get_normal_path($matches[0]);
+      if ($system_path) {
+        $menu_item = menu_get_item($system_path);
+        if ($menu_item) {
+          $auth_pages[] = array(
+            'label' => isset($matches[1]) ? $matches[1] : '',
+            'url' => url(drupal_get_path_alias($system_path), array('absolute' => TRUE)),
+          );
+        }
+      }
+    }
+  }
+
+  //Get list of anon pages
+  $anon_pages = NULL;
+  foreach ($values['anonymous']['anon_page'] as $anon_page) {
+    if ($anon_page) {
+      $matches = explode(' - ', $anon_page);
+      $system_path = drupal_get_normal_path($matches[0]);
+      if ($system_path) {
+        $menu_item = menu_get_item($system_path);
+        if ($menu_item) {
+          $anon_pages[] = array(
+            'label' => isset($matches[1]) ? $matches[1] : '',
+            'url' => url(drupal_get_path_alias($system_path), array('absolute' => TRUE)),
+          );
+        }
+      }
+    }
+  }
+/*
+  $json = array(
+    'scenario' => $values['meta']['scenario'],
+    'host' => $values['meta']['domain'],
+    'ip' => $values['meta']['ip'],
+    'custom_type' => 'drupal7',
+    'auth_users' => $auth_users, // optional. if NULL, no auth pages
+    'auth_pages' => $auth_pages, // optional. if NULL, no auth pages
+    'anon_pages' => $anon_pages, // optional. if NULL, no auth pages
+    'auth_user_load' => $values['authenticated']['auth'],
+    'anon_user_load' => $values['anonymous']['anon'],
+    'test_name' => $values['meta']['testname'],
+    'options' => array(
+      'LOCATION' => $values['meta']['geolocation'],
+    ),
+  );
+ */
+  //@Todo: we had Load Scenario (Load, Stress, Extreme stress). How do we send this param using new API?
+  //@Todo: we had Host (which contained domain) as part of create test? How do we send this param using new API?
+  //@Todo: same thing for IP?
+  $concurrency = $values['authenticated']['auth'] + $values['anonymous']['anon'];
+  $json = array(
+    "name" => $values['meta']['testname'],
+    "configuration" => array(
+      "type" => "jmeter",
+      "concurrency" => $concurrency,
+      "location" => $values['meta']['geolocation'],
+      "plugins" => array(
+        "jmeter" => array(
+          "override" => array(
+            "duration" => 20,
+          ),
+          "filename" => "drupal7.jmx"
+        )
+      )
+    ),
+  );
+
+  return drupal_json_encode($json);
+}
+
+/**
+ * Batch 'finished' callback
+ */
+function blazemeter_batch_finished($success, $results, $operations) {
+  if (!$success) {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array(
+      '%error_operation' => $error_operation[0],
+      '@arguments' => print_r($error_operation[1], TRUE)
+    ));
+    drupal_set_message($message);
+  }
+  else {
+    global $base_url;
+    $values['authenticated']['auth'] = variable_get('blazemeter_auth_users', '0');
+    $blazemeter_ahah_auth_page_count = variable_get('blazemeter_numof_auth_pages', 2);
+    $values['authenticated']['auth_page'] = array();
+    for ($i = 0; $i < $blazemeter_ahah_auth_page_count; $i++) {
+      $values['authenticated']['auth_page'][$i] = variable_get('blazemeter_auth_page_' . $i, '');
+    }
+
+    $values['anonymous']['anon'] = variable_get('blazemeter_anon_visitors', '0');
+    $blazemeter_ahah_anon_page_count = variable_get('blazemeter_numof_anon_pages', 2);
+    $values['anonymous']['anon_page'] = array();
+    for ($i = 0; $i < $blazemeter_ahah_anon_page_count; $i++) {
+      $values['anonymous']['anon_page'][$i] = variable_get('blazemeter_anon_page_' . $i, '');
+    }
+
+    $values['meta']['scenario'] = variable_get('blazemeter_scenario', 'load');
+    $values['meta']['domain'] = variable_get('blazemeter_domain', $base_url);
+    $values['meta']['ip'] = variable_get('blazemeter_ip', '');
+    $values['meta']['testname'] = variable_get('blazemeter_testname', '');
+    $values['meta']['geolocation'] = variable_get('blazemeter_geolocation', '');
+    blazemeter_send_json($values);
+  }
+}
+
+/*
+ * Helper function to generate user.properties file
+ * */
+function blazemeter_generate_user_properties($num_of_anon_users, $num_of_auth_users, $domain, $ip, $rampup) {
+  //@Todo: Rampup depends on load scenario: load --> 1800, stress --> 900, extreme stress --> 300
+	$load = '';
+	if($rampup == 'load') {
+		$load = '1800';
+	}
+	elseif($rampup == 'stress') {
+		$load = '900';
+	}
+	elseif($rampup == 'extreme stress') {
+		$load = '300';
+	}
+  $parts = parse_url($domain);
+	$data = '
+#GENERATED BY API
+#numberOfEngines = 0
+# anon_user_load/=numberOfEngines+1;
+Anon='.$num_of_anon_users.'
+# auth_user_load/=numberOfEngines+1;
+Auth='.$num_of_auth_users.'
+Host='.$parts["host"].'
+IP='.$ip.'
+Protocol='.$parts["scheme"].'
+Rampup='.$load.'
+Delay=10000
+Login=/user
+DrupalPath='.$parts["path"].'
+PerformancePort=-1
+WebPath='.$parts["path"];
+	$file = file_unmanaged_save_data($data, $destination = '/tmp', $replace = FILE_EXISTS_RENAME);
+	$send_script = array('script' => new CurlFile($file, 'text/plain', 'user.properties'));
+	_blazemeter_test_upload_file($send_script);
+	drupal_unlink($file);
+	  //@todo: generate a file? or how to send to server? - done
+}
+
+function blazemeter_generate_anon_pages_csv($anon_pages) {
+	$data_anon = '';
+	foreach ($anon_pages['anon_page'] as $anon_page) {
+		if(!empty($anon_page)) {
+			if($anon_page == "<front>") {
+				$anon_page = "<front> - Home page";
+			}
+		$matches_anon = explode(' - ', $anon_page);
+		$system_path_anon = drupal_get_normal_path($matches_anon[0]);
+		$path_anon = url(drupal_get_path_alias($system_path_anon), array('absolute' => TRUE));
+		$data_anon .= $path_anon . ',' .  $matches_anon[1] . "\r\n";
+		}
+	}
+	if(!empty($anon_pages['anon_page_text'])) {
+	$anon_text = explode("\r\n", $anon_pages['anon_page_text']);
+	foreach($anon_text as $anon_text_page) {
+		$system_path_anon_text = drupal_get_normal_path($anon_text_page);
+		$path_anon_text = url(drupal_get_path_alias($system_path_anon_text), array('absolute' => TRUE));
+		$data_anon .= $path_anon_text . "\r\n";
+	}
+	}
+	$data_anon .= 'Stop';
+	if($data_anon != 'Stop'){
+	$file = file_unmanaged_save_data($data_anon, $destination = '/tmp', $replace = FILE_EXISTS_RENAME);
+	$send_script = array('script' => new CurlFile($file, 'text/plain', 'anon_pages.csv'));
+	_blazemeter_test_upload_file($send_script);
+	drupal_unlink($file);
+	}
+}
+
+function blazemeter_generate_auth_pages_csv($auth_pages) {
+	$data_auth = '';
+	foreach ($auth_pages['auth_page'] as $auth_page) {
+		if(!empty($auth_page)){
+			if($auth_page == "<front>") {
+				$auth_page = "<front> - Home page";
+			}
+		$matches_auth = explode(' - ', $auth_page);
+		$system_path_auth = drupal_get_normal_path($matches_auth[0]);
+		$path_auth = url(drupal_get_path_alias($system_path_auth), array('absolute' => TRUE));
+		$data_auth .= $path_auth . ',' .  $matches_auth[1] . "\r\n";
+		}
+	}
+	if(!empty($auth_pages['auth_page_text'])) {
+	$auth_text = explode("\r\n", $auth_pages['auth_page_text']);
+	 foreach($auth_text as $auth_text_page) {
+		$system_path_auth_text = drupal_get_normal_path($auth_text_page);
+		$path_auth_text = url(drupal_get_path_alias($system_path_auth_text), array('absolute' => TRUE));
+		$data_auth .= $path_auth_text . "\r\n";
+	 }
+	}
+	$data_auth .= 'Stop';
+	if($data_auth != 'Stop'){
+	$file = file_unmanaged_save_data($data_auth, $destination = '/tmp', $replace = FILE_EXISTS_RENAME);
+	$send_script = array('script' => new CurlFile($file, 'text/plain', 'auth_pages.csv'));
+	_blazemeter_test_upload_file($send_script);
+	drupal_unlink($file);
+	}
+}
+
+function blazemeter_generate_auth_users_csv($auth_users, $num_of_users) {
+	$data_users = '';
+	for ($i = 0; $i < $num_of_users; $i++) {
+		$username = $auth_users[$i]['username'];
+		$password = $auth_users[$i]['password'];
+		$data_users .= $username . ',' . $password . "\r\n";
+	}
+	$file = file_unmanaged_save_data($data_users, $destination = '/tmp', $replace = FILE_EXISTS_RENAME);
+	$send_script = array('script' => new CurlFile($file, 'text/plain', 'auth_users.csv'));
+	_blazemeter_test_upload_file($send_script);
+	drupal_unlink($file);
+}
+
+function blazemeter_jmx_upload() {
+    $file = drupal_realpath(drupal_get_path('module', 'blazemeter') . '/drupal7.jmx');
+	$send_script = array('script' => new CurlFile($file, 'text/plain', 'drupal7.jmx'));
+	_blazemeter_test_upload_file($send_script);
+}
+
+function _blazemeter_test_upload_file($script) {
+	$testid = variable_get('blazemeter_testid', '-1');
+	$api_key = variable_get('blazemeter_userkey', '');
+	$server_url = 'https://a.blazemeter.com/api/latest/tests/' . $testid . '/files';
+	$headers = array('X-Api-Key: '.$api_key, "Content-Type:multipart/form-data");
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $server_url);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $script);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	curl_setopt($ch, CURLOPT_SAFE_UPLOAD, FALSE);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+	$server_output = curl_exec($ch);
+	curl_close ($ch);
+	//unlink($file);
+}

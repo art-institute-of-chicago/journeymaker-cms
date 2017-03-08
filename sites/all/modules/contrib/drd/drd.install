@@ -1,0 +1,783 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the drd module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function drd_install() {
+  _drd_install_taxonomy();
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function drd_schema() {
+  variable_set('cache_class_cache_drd', 'DrupalDatabaseCache');
+  $schema['cache_drd'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_drd']['description'] = 'Cache table for DRD to store Drupal core and domain details of the dashboard.';
+
+  $schema['drd_server'] = array(
+    'description' => 'A Drupal core (= Drupal installation) to be managed.',
+    'fields' => array(
+      'sid' => array(
+        'description' => 'The Drupal core ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the Drupal core.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'url' => array(
+        'description' => 'The url of the Drupal core.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'usessl' => array(
+        'description' => 'Whether the Drupal core allows use of SSL(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status' => array(
+        'description' => 'Whether the Drupal core is enabled(1) or disabled(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+      'remoteinstall' => array(
+        'description' => 'Whether remote installation is supported(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'weight' => array(
+        'description' => 'For sorting Drupal cores in the list.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'aes_key' => array(
+        'description' => 'AES key for this Drupal core and all its domains.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'aes_cipher' => array(
+        'description' => 'AES cipher, e.g. rijndael-128.',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'aes_iv' => array(
+        'description' => 'AES IV.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'aes_impl' => array(
+        'description' => 'AES implementation, can be "phpseclib" or "mcrypt".',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'drupalversion' => array(
+        'description' => 'Drupal version on this Drupal core.',
+        'type' => 'varchar',
+        'length' => 60,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'settings' => array(
+        'description' => 'Extra settings.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('sid'),
+  );
+
+  $schema['drd_domain'] = array(
+    'description' => 'A domain on a Drupal core.',
+    'fields' => array(
+      'did' => array(
+        'description' => 'The domain ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'sid' => array(
+        'description' => 'The Drupal core on which the domain is hosted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'name' => array(
+        'description' => 'The name of the domain.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'url' => array(
+        'description' => 'The url of the domain.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'usessl' => array(
+        'description' => 'Whether the domain uses SSL(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status' => array(
+        'description' => 'Whether the domain is active(1) or disabled(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+      'weight' => array(
+        'description' => 'For sorting domain in the list.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'installed' => array(
+        'description' => 'Whether DRD is installed(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_w_health' => array(
+        'description' => 'Status about warnings available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_e_health' => array(
+        'description' => 'Status about errors available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_w_secure' => array(
+        'description' => 'Status about warnings available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_e_secure' => array(
+        'description' => 'Status about errors available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_w_tuning' => array(
+        'description' => 'Status about warnings available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_e_tuning' => array(
+        'description' => 'Status about errors available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_w_seo' => array(
+        'description' => 'Status about warnings available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_e_seo' => array(
+        'description' => 'Status about errors available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_w_other' => array(
+        'description' => 'Status about warnings available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'status_e_other' => array(
+        'description' => 'Status about errors available(1) or not(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+      ),
+      'settings' => array(
+        'description' => 'Extra settings.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('did'),
+  );
+
+  $schema['drd_domain_alias'] = array(
+    'description' => 'An alias for a domain on a Drupal core.',
+    'fields' => array(
+      'aid' => array(
+        'description' => 'The alias ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'did' => array(
+        'description' => 'The domain for which this is an alias.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'url' => array(
+        'description' => 'The url of the domain.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'status' => array(
+        'description' => 'Whether the alias is active(1) or disabled(0).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'size' => 'tiny',
+      ),
+    ),
+    'primary key' => array('aid'),
+  );
+
+  $schema['drd_term'] = array(
+    'description' => 'Tagging for Drupal core and domains.',
+    'fields' => array(
+      'mode' => array(
+        'description' => 'The mode as Drupal core or domain.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'oid' => array(
+        'description' => 'The id of the object.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tid' => array(
+        'description' => 'The id of the term.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('mode', 'oid', 'tid'),
+  );
+  $schema['drd_monitor_values'] = array(
+    'description' => 'Monitored values for drd domains and Drupal cores.',
+    'fields' => array(
+      'did' => array(
+        'description' => 'The domain id.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'timestamp' => array(
+        'description' => 'Timestamp of the monitored values.',
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'Type of the record as current(0), daily(1), weekly(2), monthly(3), quarterly(4), yearly(5).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'user_accounts' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'user_sessions' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'user_authenticated' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'node_count' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'comment_count' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'files_temp_count' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'files_temp_size' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'size' => 'big', ),
+      'files_perm_count' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'files_perm_size' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, 'size' => 'big', ),
+      // The watchdog values are the number of new records since the last record
+      'watchdog_emergency' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_alert' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_critical' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_error' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_warning' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_notice' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_info' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+      'watchdog_debug' => array('type' => 'int', 'not null' => TRUE, 'default' => 0, ),
+    ),
+    'primary key' => array('did', 'timestamp', 'type'),
+    'indexes' => array(
+      'did' => array('did'),
+      'timestamp' => array('timestamp'),
+      'type' => array('type'),
+    )
+  );
+  $schema['drd_project'] = array(
+    'description' => 'Modules, Themes, etc.',
+    'fields' => array(
+      'pid' => array(
+        'description' => 'The project ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the project.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => 'The type of the project.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of the project.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'link' => array(
+        'description' => 'The link to the project.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'details' => array(
+        'description' => 'Details.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+    'indexes' => array(
+      'name' => array('name'),
+      'type' => array('type'),
+    ),
+  );
+  $schema['drd_project_release'] = array(
+    'description' => 'Releases of projects.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'The release ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'description' => 'The project ID.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'version' => array(
+        'description' => 'The version string of the project.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'link' => array(
+        'description' => 'The link to the project.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'timestamp' => array(
+        'description' => 'Timestamp of the project release.',
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'details' => array(
+        'description' => 'Details.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('rid'),
+    'indexes' => array(
+      'pid' => array('pid'),
+      'version' => array('version'),
+    ),
+  );
+  $schema['drd_project_release_domain'] = array(
+    'description' => 'Installed project releases on domains.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'The release ID.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'did' => array(
+        'description' => 'The domain ID.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('rid', 'did'),
+    'indexes' => array(
+      'rid' => array('rid'),
+      'did' => array('did'),
+    ),
+  );
+  $schema['drd_project_release_server'] = array(
+    'description' => 'Installed project releases on servers.',
+    'fields' => array(
+      'rid' => array(
+        'description' => 'The release ID.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'sid' => array(
+        'description' => 'The server ID.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('rid', 'sid'),
+    'indexes' => array(
+      'rid' => array('rid'),
+      'sid' => array('sid'),
+    ),
+  );
+
+  return $schema;
+}
+
+function _drd_install_taxonomy() {
+  if (module_exists(('taxonomy'))) {
+    if (!taxonomy_vocabulary_machine_name_load('drd')) {
+      $vocabulary = new stdClass();
+      $vocabulary->name = 'Drupal Remote Dashboard';
+      $vocabulary->machine_name = 'drd';
+      $vocabulary->hierarchy = 0;
+      taxonomy_vocabulary_save($vocabulary);
+    }
+  }
+}
+
+
+/**
+ * Update to DRD version 7.x-2.x from a previous version
+ */
+function drd_update_7200() {
+  if (!db_table_exists('drd_server')) {
+    $schema = drd_schema();
+    db_create_table('drd_server', $schema['drd_server']);
+    db_create_table('drd_domain', $schema['drd_domain']);
+    db_create_table('drd_domain_alias', $schema['drd_domain_alias']);
+    drupal_flush_all_caches();
+  }
+
+  $servers = variable_get('drd_servers', array());
+  foreach ($servers as $key => $server) {
+    $values = array(
+      'name' => substr($server['url'], 0, 255),
+      'url' => $server['url'],
+      'usessl' => 0,
+      'status' => !$server['disabled'],
+      'weight' => $server['weight'],
+      'aes_key' => '',
+      'aes_cipher' => '',
+      'aes_iv' => '',
+      'aes_impl' => '',
+      'drupalversion' => '',
+      'svnenable' => isset($server['svn']['enabled']) ? $server['svn']['enabled'] : 0,
+      'svnusername' => $server['svn']['user'],
+      'svnuserpass' => $server['svn']['password'],
+      'svnforceexternal' => isset($server['svn']['force_external']) ? $server['svn']['force_external'] : 0,
+      'svnrevision' => 0,
+    );
+    drupal_write_record('drd_server', $values);
+    $sid = $values['sid'];
+    $i = 1;
+    while ($cache = cache_get(_drd_cache_id($key, $i, 'DomainInfo'), 'cache_drd')) {
+      $domain = array(
+        'sid' => $sid,
+        'name' => substr($cache->data['value'][0]['content'], 0, 255),
+        'url' => $cache->data['url'],
+      );
+      drupal_write_record('drd_domain', $domain);
+      $alias = array(
+        'did' => $domain['did'],
+        'url' => $cache->data['url'],
+      );
+      drupal_write_record('drd_domain_alias', $alias);
+      $i++;
+    }
+  }
+  variable_del('drd_servers');
+}
+
+/**
+ * Install taxonomy for drd
+ */
+function drd_update_7201() {
+  _drd_install_taxonomy();
+  if (!db_table_exists('drd_term')) {
+    $schema = drd_schema();
+    db_create_table('drd_term', $schema['drd_term']);
+  }
+}
+
+/**
+ * Install monitor values for drd
+ */
+function drd_update_7202() {
+  if (!db_table_exists('drd_monitor_values')) {
+    $schema = drd_schema();
+    db_create_table('drd_monitor_values', $schema['drd_monitor_values']);
+  }
+}
+
+/**
+ * Remove SVN values from server table
+ */
+function drd_update_7203() {
+  if (db_field_exists('drd_server', 'svnenable')) {
+    db_drop_field('drd_server', 'svnenable');
+    db_drop_field('drd_server', 'svnusername');
+    db_drop_field('drd_server', 'svnuserpass');
+    db_drop_field('drd_server', 'svnforceexternal');
+    db_drop_field('drd_server', 'svnrevision');
+  }
+}
+
+/**
+ * Add field type to monitor values for drd
+ */
+function drd_update_7204() {
+  if (!db_field_exists('drd_monitor_values', 'type')) {
+    $schema = drd_schema();
+    db_add_field('drd_monitor_values', 'type', $schema['drd_monitor_values']['fields']['type']);
+    db_drop_primary_key('drd_monitor_values');
+    db_add_primary_key('drd_monitor_values', $schema['drd_monitor_values']['primary key']);
+    foreach ($schema['drd_monitor_values']['indexes'] as $key => $def) {
+      if (!db_index_exists('drd_monitor_values', $key)) {
+        db_add_index('drd_monitor_values', $key, $schema['drd_monitor_values']['indexes'][$key]);
+      }
+    }
+  }
+}
+
+/**
+ * Add field remoteinstall to Drupal cores
+ */
+function drd_update_7205() {
+  if (!db_field_exists('drd_server', 'remoteinstall')) {
+    $schema = drd_schema();
+    db_add_field('drd_server', 'remoteinstall', $schema['drd_server']['fields']['remoteinstall']);
+  }
+}
+
+/**
+ * Add fields settings to Drupal cores and domains
+ */
+function drd_update_7206() {
+  $schema = drd_schema();
+  if (!db_field_exists('drd_server', 'settings')) {
+    db_add_field('drd_server', 'settings', $schema['drd_server']['fields']['settings']);
+  }
+  if (!db_field_exists('drd_domain', 'settings')) {
+    db_add_field('drd_domain', 'settings', $schema['drd_domain']['fields']['settings']);
+  }
+}
+
+/**
+ * Install project tables
+ */
+function drd_update_7207() {
+  if (!db_table_exists('drd_project')) {
+    $schema = drd_schema();
+    db_create_table('drd_project', $schema['drd_project']);
+    db_create_table('drd_project_release', $schema['drd_project_release']);
+    db_create_table('drd_project_release_domain', $schema['drd_project_release_domain']);
+  }
+}
+
+/**
+ * Add fields for error and warning status of domains
+ */
+function drd_update_7208() {
+  $schema = drd_schema();
+  if (!db_field_exists('drd_domain', 'status_w_secure')) {
+    db_add_field('drd_domain', 'status_w_secure', $schema['drd_domain']['fields']['status_w_secure']);
+    db_add_field('drd_domain', 'status_e_secure', $schema['drd_domain']['fields']['status_e_secure']);
+    db_add_field('drd_domain', 'status_w_tuning', $schema['drd_domain']['fields']['status_w_tuning']);
+    db_add_field('drd_domain', 'status_e_tuning', $schema['drd_domain']['fields']['status_e_tuning']);
+    db_add_field('drd_domain', 'status_w_seo', $schema['drd_domain']['fields']['status_w_seo']);
+    db_add_field('drd_domain', 'status_e_seo', $schema['drd_domain']['fields']['status_e_seo']);
+  }
+}
+
+/**
+ * Change some integer fields to big in the monitor table
+ */
+function drd_update_7209() {
+  $schema = drd_schema();
+  db_change_field('drd_monitor_values', 'files_temp_size', 'files_temp_size', $schema['drd_monitor_values']['fields']['files_temp_size']);
+  db_change_field('drd_monitor_values', 'files_perm_size', 'files_perm_size', $schema['drd_monitor_values']['fields']['files_perm_size']);
+}
+
+/**
+ * Add fields for error and warning status of domains
+ */
+function drd_update_7210() {
+  $schema = drd_schema();
+  if (!db_field_exists('drd_domain', 'status_w_health')) {
+    db_add_field('drd_domain', 'status_w_health', $schema['drd_domain']['fields']['status_w_health']);
+    db_add_field('drd_domain', 'status_e_health', $schema['drd_domain']['fields']['status_e_health']);
+    db_add_field('drd_domain', 'status_w_other', $schema['drd_domain']['fields']['status_w_other']);
+    db_add_field('drd_domain', 'status_e_other', $schema['drd_domain']['fields']['status_e_other']);
+    db_drop_field('drd_domain', 'status_e');
+    db_drop_field('drd_domain', 'status_w');
+  }
+}
+
+/**
+ * Remove cached messages as we slightly changed the format.
+ */
+function drd_update_7211() {
+  db_delete('cache_drd')
+    ->condition('cid', '%' . db_like(':messages'), 'LIKE')
+    ->execute();
+}
+
+/**
+ * Cleanup settings field in the table drd_server that have been double serialized.
+ */
+function drd_update_7212() {
+  $servers = db_select('drd_server', 's')
+    ->fields('s', array('sid', 'settings'))
+    ->execute()
+    ->fetchAll();
+  foreach ($servers as $server) {
+    $changed = FALSE;
+    if (empty($server->settings)) {
+      $server->settings = array();
+      $changed = TRUE;
+    }
+    else {
+      $server->settings = unserialize($server->settings);
+    }
+    if (is_string($server->settings)) {
+      $server->settings = unserialize($server->settings);
+      $changed = TRUE;
+    }
+    if ($changed) {
+      db_update('drd_server')
+        ->fields(array('settings' => serialize($server->settings)))
+        ->condition('sid', $server->sid)
+        ->execute();
+    }
+  }
+
+}
+
+/**
+ * Make sure that DRD cache uses the database for caching.
+ * @see https://drupal.org/node/2256137
+ */
+function drd_update_7213() {
+  variable_set('cache_class_cache_drd', 'DrupalDatabaseCache');
+}
+
+/**
+ * Install drd_project_release_server table
+ */
+function drd_update_7214() {
+  if (!db_table_exists('drd_project_release_server')) {
+    $schema = drd_schema();
+    db_create_table('drd_project_release_server', $schema['drd_project_release_server']);
+  }
+}
+
+/**
+ * Change variable name from drd_operations to drd_actions.
+ * Change array key in tasks from op to action.
+ * @see https://drupal.org/node/2266251
+ */
+function drd_update_7215() {
+  variable_set('drd_actions', variable_get('drd_operations', array()));
+  variable_del('drd_operations');
+  $tasks = variable_get('drd_tasks', array());
+  foreach ($tasks as $key => $task) {
+    $tasks[$key]['action'] = $tasks[$key]['op'];
+    unset($tasks[$key]['op']);
+  }
+  variable_set('drd_tasks', $tasks);
+}
+
+/**
+ * Rename field user_accounts to correct a typo.
+ */
+function drd_update_7216() {
+  $schema = drd_schema();
+  db_change_field('drd_monitor_values', 'user_acounts', 'user_accounts', $schema['drd_monitor_values']['fields']['user_accounts']);
+}

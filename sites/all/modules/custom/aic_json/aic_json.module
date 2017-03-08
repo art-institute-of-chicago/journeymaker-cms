@@ -1,0 +1,333 @@
+<?php
+
+function aic_json_menu() {
+
+  $items['json'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json'),
+    'access callback' => TRUE,
+  );
+
+  $items['json-on-display'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json-on-display'),
+    'access callback' => TRUE,
+  );
+
+  $items['json-off-display'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json-off-display'),
+    'access callback' => TRUE,
+  );
+
+  $items['admin/publish-data'] = array(
+    'title' => 'Publish Data',
+    'page callback' => 'aic_json_publish',
+    'access arguments' => array('publish json data'),
+  );
+
+  return $items;
+}
+
+function aic_json_permission() {
+	return array(
+    		'publish json data' => array(
+      			'title' => t('Publish JSON Data'),
+      			'description' => t('Allow user to schedule JSON for publishing.'),
+    		),
+  	);
+}
+
+function aic_json_publish() {
+
+	$data = 'Boom!';
+
+  file_unmanaged_save_data($data, 'public://file_sync_trigger.txt');
+
+	return 'JSON has been scheduled for publishing.';
+}
+
+function aic_json_page($type) {
+
+  $data = array();
+
+  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'activity_template' ORDER BY title");
+
+  foreach ($result as $r) {
+    $n = node_load($r->nid);
+
+    if (isset($n->field_activity_image['und'][0]['uri'])) {
+      $image = array(
+                'url'     =>  file_create_url($n->field_activity_image['und'][0]['uri']),
+                'width'   =>  (int) $n->field_activity_image['und'][0]['width'],
+                'height'  =>  (int) $n->field_activity_image['und'][0]['height'],
+              );
+    } else {
+      $image = null;
+    }
+
+    $data['activityTemplates'][] =  array(
+                                      'id' => (int) $n->nid,
+                                      'img' => $image,
+                                    );
+  }
+
+  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'aic_theme' ORDER BY title");
+
+  foreach ($result as $r) {
+    $n = node_load($r->nid);
+
+    $backgrounds = array();
+
+    if (isset($n->field_background['und'])) {
+      foreach ($n->field_background['und'] as $b) {
+        if (isset($b['uri'])) {
+          $bg['url'] = image_style_url('aic_background', $b['uri']);
+          global $base_url;
+          list($bg['width'], $bg['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_background', $b['uri'])))));
+        } else {
+          $bg = null;
+        }
+
+        $backgrounds[] = $bg;
+      }
+    }
+
+    $prompts = array();
+
+    foreach ($n->field_prompt['und'] as $p) {
+      $entity = entity_load('field_collection_item', array($p['value']));
+      $e = array_pop($entity);
+
+      $artworks = array();
+
+      foreach ($e->field_artwork['und'] as $aw) {
+        $a = node_load($aw['nid']);
+
+        if (($type == 'json-off-display') and (isset($a->field_map_x['und']) and isset($a->field_map_x['und']))) {
+          continue;
+        }
+
+        if (($type == 'json-on-display') and (!isset($a->field_map_x['und']) and !isset($a->field_map_x['und']))) {
+          continue;
+        }
+
+        if (isset($a->field_artwork_image['und'])) {
+          $img = array(
+            'url'     =>  file_create_url($a->field_artwork_image['und'][0]['uri']),
+            'width'   =>  (int) $a->field_artwork_image['und'][0]['width'],
+            'height'  =>  (int) $a->field_artwork_image['und'][0]['height'],
+          );
+        } else {
+          $img = null;
+        }
+
+        $img_small = array();
+        if (isset($a->field_image_small['und'])) {
+          $img_small['url'] = image_style_url('aic_small', $a->field_image_small['und'][0]['uri']);
+	        list($img_small['width'], $img_small['height']) = getimagesize(image_style_url('aic_small', $a->field_image_small['und'][0]['uri']));
+        } else {
+          $img_small = null;
+        }
+
+
+	$img_medium = array();
+        if (isset($a->field_artwork_image['und'])) {
+          $img_medium['url'] = image_style_url('aic_medium', $b['uri']);
+          global $base_url;
+	   list($img_medium['width'] , $img_medium['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_medium', $b['uri'])))));
+		} else {
+          $img_medium = null;
+        }
+
+	$img_large = array();
+        if (isset($a->field_artwork_image['und'])) {
+          $img_large['url'] = image_style_url('aic_large', $b['uri']);
+          global $base_url;
+	   list($img_large['width'], $img_large['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_large', $b['uri'])))));
+	        } else {
+          $img_large = null;
+        }
+
+        $x = null;
+        $y = null;
+        $floor = null;
+        $activity = null;
+        $activityInst = null;
+        $location = null;
+
+        if (isset($a->field_map_x['und'])) {
+          $x = (float) $a->field_map_x['und'][0]['value'];
+        }
+
+        if (isset($a->field_map_y['und'])) {
+          $y = (float) $a->field_map_y['und'][0]['value'];
+        }
+
+        if (isset($a->field_floor['und'])) {
+          $floor = $a->field_floor['und'][0]['value'];
+        }
+
+        if (isset($a->field_activity_template['und'])) {
+          $activity = $a->field_activity_template['und'][0]['nid'];
+        }
+
+        if (isset($a->field_activity_instructions['und'])) {
+          $activityInst = $a->field_activity_instructions['und'][0]['value'];
+        }
+
+        if (isset($a->field_location_directions['und'])) {
+          $location = $a->field_location_directions['und'][0]['value'];
+        }
+
+
+        $credit = null;
+        if (isset($a->field_artwork_credit['und'])) {
+          $credit = $a->field_artwork_credit['und'][0]['value'];
+        }
+
+        $gallery_id = null;
+        if (isset($a->field_gallery_id['und'])) {
+          $gallery_id = $a->field_gallery_id['und'][0]['value'];
+        }
+
+        $gallery = null;
+        if (isset($a->field_gallery_name['und'])) {
+          $gallery = $a->field_gallery_name['und'][0]['value'];
+        }
+
+        $closer = null;
+        if (isset($a->field_closer_look_text['und'])) {
+          $closer = $a->field_closer_look_text['und'][0]['value'];
+        }
+
+        $artist = null;
+        if (isset($a->field_artist['und'])) {
+          $artist = $a->field_artist['und'][0]['value'];
+        }
+
+        $year = null;
+        if (isset($a->field_year['und'])) {
+          $year = $a->field_year['und'][0]['value'];
+        }
+
+        $medium = null;
+        if (isset($a->field_medium['und'])) {
+          $medium = $a->field_medium['und'][0]['value'];
+        }
+
+        $detailNarrative = null;
+        if (isset($a->field_detail_narrative['und'])) {
+          $detailNarrative = $a->field_detail_narrative['und'][0]['value'];
+        }
+
+        $viewingDescription = null;
+        if (isset($a->field_viewing_description['und'])) {
+          $viewingDescription = $a->field_viewing_description['und'][0]['value'];
+        }
+
+
+        $artworks[] = array(
+          'id'                    =>  (int) $a->nid,
+          'title'                 =>  $a->title,
+          'img'                   =>  $img,
+          'artwork_thumbnail'     =>  $img_small,
+          'img_medium'   	  =>  $img_medium,
+          'img_large'             =>  $img_large,
+          'artist'                =>  $artist,
+          'year'                  =>  $year,
+          'medium'                =>  $medium,
+          'credit'                =>  $credit,
+          'galleryId'             =>  $gallery_id,
+          'galleryName'           =>  $gallery,
+          'closerLook'            =>  $closer,
+          'detailNarrative'       =>  $detailNarrative,
+          'viewingDescription'    =>  $viewingDescription,
+          'activityTemplate'      =>  $activity,
+          'activityInstructions'  =>  $activityInst,
+          'locationDirections'    =>  $location,
+          'mapX'                  =>  $x,
+          'mapY'                  =>  $y,
+          'floor'                 =>  $floor,
+        );
+      }
+
+      $prompts[] = array(
+        'id'        => (int) $p['value'],
+        'title'     => $e->field_title['und'][0]['value'],
+        'subtitle'  => $e->field_sub_title['und'][0]['value'],
+        'artworks'  => $artworks,
+      );
+    }
+
+    if (isset($n->field_journey_guide_cover_title['und'])) {
+      $journey_guide = $n->field_journey_guide_cover_title['und'][0]['value'];
+    } else {
+      $journey_guide = null;
+    }
+
+    if (isset($n->field_shape_face['und'])) {
+      $shapeFace = array(
+        'url'     =>  file_create_url($n->field_shape_face['und'][0]['uri']),
+        'width'   =>  (int) $n->field_shape_face['und'][0]['width'],
+        'height'  =>  (int) $n->field_shape_face['und'][0]['height'],
+      );
+    } else {
+      $shapeFace = null;
+    }
+
+    if (isset($n->field_icon['und'])) {
+      $icon = array(
+        'url'     =>  file_create_url($n->field_icon['und'][0]['uri']),
+        'width'   =>  (int) $n->field_icon['und'][0]['width'],
+        'height'  =>  (int) $n->field_icon['und'][0]['height'],
+      );
+    } else {
+      $icon = null;
+    }
+
+    if (isset($n->field_guide_cover_art['und'])) {
+      $coverArt = array(
+        'url'     =>  file_create_url($n->field_guide_cover_art['und'][0]['uri']),
+        'width'   =>  (int) $n->field_guide_cover_art['und'][0]['width'],
+        'height'  =>  (int) $n->field_guide_cover_art['und'][0]['height'],
+      );
+    } else {
+      $coverArt = null;
+    }
+
+    if (isset($n->field_guide_cover_art_home['und'])) {
+      $coverArtHome = array(
+        'url'     =>  file_create_url($n->field_guide_cover_art_home['und'][0]['uri']),
+        'width'   =>  (int) $n->field_guide_cover_art_home['und'][0]['width'],
+        'height'  =>  (int) $n->field_guide_cover_art_home['und'][0]['height'],
+      );
+    } else {
+      $coverArtHome = null;
+    }
+
+    $data['themes'][] = array(
+      'id'    => (int) $n->nid,
+      'title' => $n->title,
+      'intro' => $n->field_intro['und'][0]['value'],
+      'shapeFace' => $shapeFace,
+      'icon' => $icon,
+      'guideCoverArt' => $coverArt,
+      'guideCoverArtHome' => $coverArtHome,
+      'bgs'     => $backgrounds,
+      'prompts' => $prompts,
+      'journey_guide' => $journey_guide,
+    );
+  }
+
+file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/sites/default/files/json/$type.json", drupal_json_encode($data));
+file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/sites/default/files/json/$type." . date('Y-m-d')  . ".json", drupal_json_encode($data));
+
+  // create sync trigger file
+  aic_json_publish();
+
+  drupal_json_output($data);
+}

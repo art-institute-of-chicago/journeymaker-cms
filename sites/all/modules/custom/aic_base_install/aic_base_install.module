@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the AIC Base Install feature.
+ */
+
+include_once 'aic_base_install.features.inc';

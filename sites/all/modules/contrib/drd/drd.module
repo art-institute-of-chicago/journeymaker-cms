@@ -1,0 +1,2439 @@
+<?php
+
+define('DRD_API_VERSION', '2.4.0');
+
+define('DRD_ERROR_WRONG_API', 1001);
+define('DRD_ERROR_WRONG_REFERER', 1002);
+define('DRD_ERROR_NO_REFERER', 1003);
+define('DRD_ERROR_NO_OP', 1004);
+define('DRD_ERROR_NO_FUNC', 1005);
+define('DRD_ERROR_NO_LOG_PHP', 1006);
+define('DRD_ERROR_MISSING_AES', 1007);
+define('DRD_ERROR_WRONG_KEYS', 1999);
+
+include 'drd.requirements.inc';
+
+/** ======================================================================
+ *
+ * Hooks
+ *
+ */
+
+/**
+ * Implements hook_drd_actions().
+ */
+function drd_drd_actions() {
+  $actions = array(
+    'drd.actions' => array(
+      'category' => t('Drupal cores'),
+      'label' => t('Update remote actions'),
+      'mode' => 'server',
+      'remote' => TRUE,
+      'fields' => array(
+        'reset' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Reset'),
+          '#default_value' => FALSE,
+        ),
+      ),
+    ),
+    'drd.actions.drush' => array(
+      'label' => t('Update Drush commands'),
+      'mode' => 'hidden',
+      'callback' => 'drd_drush_action_update_actions',
+      'file' => 'drd.drush.inc',
+      'queue' => TRUE,
+    ),
+    'drd.server.domains' => array(
+      'category' => t('Drupal cores'),
+      'label' => t('Update Drupal core domains'),
+      'callback' => 'drd_server_server_domains',
+      'mode' => 'server',
+      'remote' => TRUE,
+      'queue' => TRUE,
+      'follower' => array(
+        'a' => 'drd.actions',
+      ),
+    ),
+    'drd.server.delete' => array(
+      'category' => t('Drupal cores'),
+      'label' => t('Delete'),
+      'callback' => 'drd_action_server_delete',
+      'mode' => 'server',
+    ),
+    'set_usessl' => array(
+      'category' => t('Settings'),
+      'label' => t('Use SSL'),
+      'callback' => 'drd_action_set_value',
+      'fields' => array(
+        'field' => array(
+          '#type' => 'hidden',
+          '#value' => 'usessl',
+        ),
+        'usessl' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Use SSL'),
+          '#default_value' => FALSE,
+        ),
+      ),
+    ),
+    'set_enable' => array(
+      'category' => t('Settings'),
+      'label' => t('Enable/Disable'),
+      'callback' => 'drd_action_set_value',
+      'fields' => array(
+        'field' => array(
+          '#type' => 'hidden',
+          '#value' => 'status',
+        ),
+        'status' => array(
+          '#type' => 'checkbox',
+          '#title' => t('Enable'),
+          '#default_value' => TRUE,
+        ),
+      ),
+    ),
+  );
+
+  if (function_exists('ssh2_connect')) {
+    $actions['ssh2_test_connection'] = array(
+      'category' => t('Server'),
+      'label' => t('Test SSH connection'),
+      'callback' => 'drd_action_ssh2_test',
+      'file' => 'drd.ssh2.inc',
+      'mode' => 'server',
+    );
+  }
+
+  return array_merge($actions, variable_get('drd_actions', array()));
+}
+
+/**
+ * Implements hook_drd_svn_module().
+ */
+function drd_drd_svn_module() {
+  return array(
+    'drd' => array(
+      'label' => t('Module DRD'),
+      'paths' => array(
+        DRUPAL_ROOT . '/' . drupal_get_path('module', 'drd'),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function drd_page_build(&$page) {
+  if (user_access('administer drd') && drd_is_dashboard()) {
+    $page['page_bottom']['drd_status'] = array(
+      '#markup' => '
+        <div id="drd-status">
+          <div class="content">
+            <div id="drd-toolbar" class="pointer">
+              <span>Having fun with DRD</span>
+              <span id="drd-queue-info-count">&nbsp;</span>
+            </div>
+            <div id="drd-queue-info" class="info-box">&nbsp;</div>
+            <div id="drd-messages" class="info-box"><span class="element-hidden">' . t('Click here to delete') . '</span><div class="content"></div></div>
+          </div>
+        </div>',
+    );
+  }
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function drd_cron_queue_info() {
+  $queues['drd'] = array(
+    'worker callback' => 'drd_action_queue',
+    'time' => 300,
+  );
+  return $queues;
+}
+
+/**
+ * Implements hook_access().
+ */
+function drd_access($type) {
+  switch ($type) {
+    case 'heartbeat':
+      if (module_exists('chart')) {
+        return user_access('administer drd');
+      }
+      break;
+
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function drd_permission() {
+  return array(
+    'administer drd' =>  array(
+      'title' => t('Administer Drupal Remote Dashboard'),
+      'description' => t('Perform administration tasks for the Drupal Remote Dashboard.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function drd_menu() {
+  $items = array();
+  $items['drd/autocomplete/%/%'] = array(
+    'title' => 'Autocomplete Callback',
+    'page callback' => 'drd_autocomplete',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('administer drd'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['drd/ajax/%/%/%'] = array(
+    'title' => 'Ajax Callback',
+    'page callback' => 'drd_ajax',
+    'page arguments' => array(2, 3, 4),
+    'access arguments' => array('administer drd'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/drd'] = array(
+    'title' => 'Drupal Remote Dashboard',
+    'page callback' => 'drd_server',
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.server.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 0,
+  );
+  $items['admin/drd/servers'] = array(
+    'title' => 'Cores',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/drd/newserver'] = array(
+    'title' => 'Add new Drupal core',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_server_edit'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.server.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
+  $items['admin/drd/domains'] = array(
+    'title' => 'Domains',
+    'page callback' => 'drd_domain',
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/alldomains'] = array(
+    'title' => 'All Domains',
+    'page callback' => 'drd_domain',
+    'page arguments' => array('reset'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['admin/drd/modules'] = array(
+    'title' => 'Modules',
+    'page callback' => 'drd_modules',
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+  $items['admin/drd/modules/all'] = array(
+    'title' => 'All modules',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/modules/updates'] = array(
+    'title' => 'Just updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('updates'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['admin/drd/modules/security'] = array(
+    'title' => 'Just security updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('security'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+  $items['admin/drd/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_admin_settings'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+  );
+  $items['admin/drd/settings/addservertask'] = array(
+    'title' => 'Add server task',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_admin_add_task', 'server'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 1,
+  );
+  $items['admin/drd/settings/adddomaintask'] = array(
+    'title' => 'Add domain task',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_admin_add_task', 'domain'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 2,
+  );
+  $items['admin/drd/settings/resetprojects'] = array(
+    'title' => 'Reset Module Usage',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_admin_reset_projects'),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+  );
+
+  $items['admin/drd/server/%'] = array(
+    'title' => 'Drupal Remote Dashboard - Core',
+    'page callback' => 'drd_server_view',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.server.inc',
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+    'weight' => 0,
+  );
+  $items['admin/drd/server/%/detail'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/drd/server/%/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_server_edit', 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.server.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/server/%/domains'] = array(
+    'title' => 'Domains',
+    'page callback' => 'drd_domain',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+  $items['admin/drd/server/%/modules'] = array(
+    'title' => 'Modules',
+    'page callback' => 'drd_modules',
+    'page arguments' => array(NULL, 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+  );
+  $items['admin/drd/server/%/modules/all'] = array(
+    'title' => 'All modules',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/server/%/modules/updates'] = array(
+    'title' => 'Just updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('updates', 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['admin/drd/server/%/modules/security'] = array(
+    'title' => 'Just security updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('security', 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+
+  $items['admin/drd/server/%/pushaes'] = array(
+    'title' => 'Push AES keys to Drupal core',
+    'page callback' => 'drd_update_aes',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/drd/domain/%'] = array(
+    'title' => 'Drupal Remote Dashboard - Domain',
+    'page callback' => 'drd_domain_view',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.inc',
+    'type' => MENU_VISIBLE_IN_BREADCRUMB,
+    'weight' => 0,
+  );
+  $items['admin/drd/domain/%/detail'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $i = 0;
+  foreach (_drd_detail_areas() as $area => $title) {
+    $items['admin/drd/domain/%/detail/' . $area] = array(
+      'title' => $title,
+      'page callback' => 'drd_domain_view',
+      'page arguments' => array(3, 5),
+      'access arguments' => array('administer drd'),
+      'file' => 'drd.domain.inc',
+      'weight' => $i,
+      'type' => MENU_LOCAL_TASK,
+    );
+    $i++;
+  }
+  $items['admin/drd/domain/%/detail/status']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  $items['admin/drd/domain/%/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_domain_edit', 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/domain/%/modules'] = array(
+    'title' => 'Modules',
+    'page callback' => 'drd_modules',
+    'page arguments' => array(NULL, NULL, 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+  $items['admin/drd/domain/%/modules/all'] = array(
+    'title' => 'All modules',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/drd/domain/%/modules/updates'] = array(
+    'title' => 'Just updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('updates', NULL, 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+  $items['admin/drd/domain/%/modules/security'] = array(
+    'title' => 'Just security updates',
+    'page callback' => 'drd_modules',
+    'page arguments' => array('security', NULL, 3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.modules.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+
+  $items['admin/drd/domain/%/pushaes'] = array(
+    'title' => 'Push AES keys to domain',
+    'page callback' => 'drd_install_drd_server_aes',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/drd/domains/%'] = array(
+    'title' => 'Domains',
+    'page callback' => 'drd_domain',
+    'page arguments' => array(3),
+    'access arguments' => array('administer drd'),
+    'file' => 'drd.domain.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+
+  if (module_exists('chart')) {
+    $items['admin/drd/server/%/heartbeat'] = array(
+      'title' => 'Heartbeat',
+      'page callback' => 'drd_server_view_heartbeat',
+      'page arguments' => array(3),
+      'access arguments' => array('administer drd'),
+      'file' => 'drd.server.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 2,
+    );
+    $periods = _drd_monitor_periods();
+    $i = 0;
+    foreach ($periods as $key => $period) {
+      $items['admin/drd/server/%/heartbeat/' . $key] = array(
+        'title' => $period['label'],
+        'page callback' => 'drd_server_view_heartbeat',
+        'page arguments' => array(3),
+        'access arguments' => array('administer drd'),
+        'file' => 'drd.server.inc',
+        'type' => MENU_LOCAL_TASK,
+        'weight' => $i,
+      );
+      $i++;
+    }
+    $items['admin/drd/server/%/heartbeat/24h']['type'] = MENU_DEFAULT_LOCAL_TASK;
+    $items['admin/drd/domain/%/heartbeat'] = array(
+      'title' => 'Heartbeat',
+      'page callback' => 'drd_domain_view_heartbeat',
+      'page arguments' => array(3),
+      'access callback' => 'drd_access',
+      'access arguments' => array('heartbeat'),
+      'file' => 'drd.domain.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 2,
+    );
+    $i = 0;
+    foreach ($periods as $key => $period) {
+      $items['admin/drd/domain/%/heartbeat/' . $key] = array(
+        'title' => $period['label'],
+        'page callback' => 'drd_domain_view_heartbeat',
+        'page arguments' => array(3),
+        'access callback' => 'drd_access',
+        'access arguments' => array('heartbeat'),
+        'file' => 'drd.domain.inc',
+        'type' => MENU_LOCAL_TASK,
+        'weight' => $i,
+      );
+      $i++;
+    }
+    $items['admin/drd/domain/%/heartbeat/24h']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function drd_cron() {
+
+  // We don't want to execute these tasks for cron runs being performed from the UI.
+  if (!isset($_GET['cron_key']) && !drupal_is_cli()) {
+    return;
+  }
+
+  set_time_limit(0);
+  $domains = db_select('drd_domain', 'd')
+      ->fields('d', array('did'))
+      ->condition('d.installed', 1)
+      ->condition('d.status', 1)
+      ->execute()
+      ->fetchAll();
+  foreach ($domains as $domain) {
+    drd_action_remote('drd.heartbeat', 'domain', $domain->did);
+  }
+
+  // Check other regular tasks and add them to the queue.
+  $tasks = variable_get('drd_tasks', array());
+  foreach ($tasks as $key => $task) {
+    if ($task['next'] < REQUEST_TIME) {
+      if ($task['mode'] == 'server') {
+        $ids = array_keys(drd_server_load_all());
+      }
+      else {
+        $ids = array_keys(drd_domain_load_all());
+      }
+      $_POST = $task['param'];
+      drd_action($task['mode'], $ids, $task['action'], FALSE);
+      $tasks[$key]['next'] += $task['period'];
+    }
+  }
+  variable_set('drd_tasks', $tasks);
+
+  // Cleanup older monitoring data
+  include_once 'drd.monitor.inc';
+  drd_cleanup_monitor_values();
+
+  // Unset all messages that have been set
+  drupal_get_messages();
+}
+
+/**
+ * Implements hook_init().
+ */
+function drd_init() {
+  if (user_access('administer drd') && drd_is_dashboard()) {
+    drupal_add_library('system', 'ui');
+    drupal_add_css(drupal_get_path('module', 'update') . '/update.css');
+
+    drupal_add_css(drupal_get_path('module', 'drd') . '/drd.css', array('group' => CSS_THEME + 1));
+    drupal_add_js(drupal_get_path('module', 'drd') . '/drd.js', array('group' => JS_THEME + 1));
+    drupal_add_js(array(
+      'drd' => array(
+        'parallelAjaxThreads' => 10,
+        'urlAjax' => url('drd/ajax/detail/')
+      )), 'setting');
+  }
+}
+
+/**
+ * Implements hook_modules_enabled();
+ */
+function drd_modules_enabled($modules) {
+  if (in_array('taxonomy', $modules)) {
+    module_load_install('drd');
+    _drd_install_taxonomy();
+  }
+}
+
+/**
+ * Implement hook_theme().
+ */
+function drd_theme($existing, $type, $theme, $path) {
+  $items['drd_status'] = array(
+    'variables' => array('status' => array()),
+  );
+  $items['drd_heartbeat'] = array(
+    'variables' => array('heartbeat' => array()),
+  );
+  $items['drd_requirements'] = array(
+    'variables' => array(
+      'object' => NULL,
+      'title' => '',
+      'requirements' => array(),
+    ),
+    'file' => 'drd.requirements.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_file_download().
+ */
+function drd_file_download($uri) {
+  if (strpos(file_uri_target($uri), 'drd_debug_') === 0) {
+    if (user_access('administer drd')) {
+      return array('Pragma' => 'public',
+        'Expires' => 0,
+        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+        'Content-Type' => 'application/force-download'
+      );
+    }
+  }
+  return NULL;
+}
+
+/** ======================================================================
+ *
+ * Actions
+ *
+ */
+
+/**
+ * @param string|null $action_name
+ * @return array
+ */
+function drd_actions($action_name = NULL) {
+  static $actions;
+  if (!isset($actions)) {
+    $actions = module_invoke_all('drd_actions');
+  }
+  if (isset($action_name)) {
+    return (empty($actions[$action_name])) ? array() : $actions[$action_name];
+  }
+  return $actions;
+}
+
+/**
+ * Main function to determine which actions to execute on selected
+ * Drupal cores and/or domains and in which way.
+ *
+ * @param string $mode
+ * @param array $ids
+ * @param string $action_name
+ * @param bool $goto
+ */
+function drd_action($mode, $ids, $action_name, $goto = TRUE) {
+  $goto_mode = $mode;
+  $action = drd_actions($action_name);
+  $action['follower'] = isset($action['follower']) ? $action['follower'] : array();
+  if (!empty($action['drush'])) {
+    $function = 'drd_drush_action_remote';
+    $action['file'] = 'drd.drush.inc';
+  }
+  else if (empty($action['remote'])) {
+    $function = $action['callback'];
+  }
+  else {
+    $function = 'drd_action_remote';
+  }
+  if (empty($action['remote']) && !empty($action['file']) && is_file(drupal_get_path('module', 'drd') . '/' . $action['file'])) {
+    include_once $action['file'];
+  }
+  if (function_exists($function)) {
+    $values = array();
+    if (!empty($action['fields'])) {
+      foreach ($action['fields'] as $key => $def) {
+        # Support FAPI file field
+        if (isset($def['#type']) && $def['#type'] == 'file') {
+          if (!empty($_FILES['files']['tmp_name'][$key])) {
+            $filename = $_FILES['files']['tmp_name'][$key];
+            $values[] = array(
+              'name' => $_FILES['files']['name'][$key],
+              'tmp_name' => $_FILES['files']['tmp_name'][$key],
+              'type' => $_FILES['files']['type'][$key],
+              'size' => $_FILES['files']['size'][$key],
+              'content' => base64_encode(file_get_contents($filename)),
+            );
+            drupal_unlink($filename);
+          }
+        }
+        elseif (!empty($def['#markup']) || (isset($def['#type']) && $def['#type'] != 'hidden')) {
+          $action['fields'][$key]['#value'] = isset($_POST[$key]) ? $_POST[$key] : 0;
+          $values[] = $action['fields'][$key]['#value'];
+        }
+        else {
+          $values[] = $def['#value'];
+        }
+      }
+    }
+
+    //allow users to hook into this process
+    foreach (module_implements('drd_action_preprocess') as $module) {
+        $func = $module . '_drd_action_preprocess';
+        // pass through the current arguments plus the values
+        $func($mode, $ids, $action_name, $action, $values);
+    }
+
+    if ($action_name == 'drd.actions') {
+      // Check if we need to reset current values
+      if (!empty($_POST['reset'])) {
+        variable_del('drd_actions');
+      }
+      $mode = 'domain';
+      $goto_mode = 'server';
+      $sids = $ids;
+      $ids = array();
+      foreach ($sids as $id) {
+        $dids = drd_server_domains($id);
+        $ids = array_merge($ids, $dids);
+      }
+    }
+    foreach ($ids as $id) {
+      $args = array_merge(array($action_name, $mode, $id), $values);
+      if (empty($action['drush']) && empty($action['queue'])) {
+        _drd_call_user_func_array($mode, $id, $function, $args, $action['follower']);
+      }
+      else {
+        drd_log($mode, $id, $action_name, 'queue');
+        $queue = DrupalQueue::get('drd');
+        $q = array(
+          'mode' => $mode,
+          'id' => $id,
+          'action' => $action_name,
+          'function' => $function,
+          'args' => $args,
+          'follower' => $action['follower'],
+          'file' => empty($action['file']) ? FALSE : $action['file'],
+        );
+        $queue->createItem($q);
+      }
+    }
+    if ($action_name == 'drd.actions') {
+      drd_action('server', $sids, 'drd.actions.drush', FALSE);
+    }
+  }
+  if ($goto) {
+    if ($goto_mode == 'server') {
+      drupal_goto('admin/drd');
+    }
+    drupal_goto('admin/drd/domains');
+  }
+}
+
+/**
+ * @param array $item
+ * @return array|bool
+ */
+function drd_action_queue($item) {
+  if ($item['file']) {
+    include_once $item['file'];
+  }
+  if (function_exists($item['function'])) {
+    $action = drd_actions($item['action']);
+    $object = ($item['mode'] == 'server') ? drd_server_load($item['id']) : drd_domain_load($item['id']);
+    $args = array(
+      '%op' => $action['label'],
+      '%mode' => $item['mode'],
+      '@name' => $object->name,
+      '%id' => $item['id'],
+    );
+    $hash = md5(implode('', $args));
+    $info = '<span id="' . $hash . '">...</span>' . t('%op on %mode @name (ID %id)', $args);
+    $infoQueue = DrupalQueue::get('drd.info');
+    $infoQueue->createItem($info);
+
+    _drd_call_user_func_array($item['mode'], $item['id'], $item['function'], $item['args'], $item['follower']);
+    $infoQueue->createItem(array('completed' => $hash,));
+    if (!empty($action['refresh'])) {
+      // Return the id of the changed object, so that this can be updated in the dashboard
+      return array($item['mode'], $item['id']);
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Main function to execute actions on remote Drupal cores.
+ *
+ * @param string $action_name
+ * @param string $mode
+ * @param int $id
+ * @return mixed
+ */
+function drd_action_remote($action_name, $mode, $id) {
+  // Check if domain has DRD installed and is active
+  if ($mode == 'domain') {
+    $domain = drd_domain_load($id);
+    if (!$domain->installed) {
+      if ($action_name != 'drd.heartbeat' && $action_name != 'drd.status') {
+        drd_set_message($domain, 'Skipping domain ' . $id . ': DRD not installed.');
+      }
+      return;
+    }
+  }
+  else {
+    $domain = NULL;
+  }
+
+  // Check if Drupal core or domain is active or not
+  $server = drd_server_load($id, $mode);
+  $server_domain = ($mode == 'domain') ? $domain : $server;
+  if (!$server_domain->status) {
+    if ($action_name != 'drd.heartbeat' && $action_name != 'drd.status') {
+      drd_set_message($server_domain, 'Skipping ' . $mode . ' ' . $id . ' (' . $server_domain->url . '): Disabled in dashboard.');
+    }
+    return;
+  }
+
+  require_once DRUPAL_ROOT . '/includes/xmlrpc.inc';
+  $args = func_get_args();
+  $action_name = array_shift($args);
+  $mode = array_shift($args);
+  $id = array_shift($args);
+  $url = drd_url_by_id($mode, $id) . '/xmlrpc.php';
+
+  $original_op = $action_name;
+
+  array_unshift($args, DRD_API_VERSION, REQUEST_TIME, language_default('language'), variable_get('drd_debug', FALSE));
+
+  $log_info = array($action_name);
+  if ($action_name == 'drd.key') {
+    if (empty($args[4])) {
+      // Update all domains
+      array_push($args, $server->aes_key, $server->aes_cipher, $server->aes_iv, $server->aes_impl);
+      if (variable_get('drd_cluster_mode', FALSE)) {
+        array_push($args, variable_get('drd_cluster_mode_token'));
+      }
+    }
+  }
+  else {
+    if ($action_name == 'drd.heartbeat') {
+      $unencrypted = array(2, 3);
+      $last = db_select('drd_monitor_values', 'mv')
+          ->fields('mv', array('timestamp'))
+          ->condition('mv.did', $id)
+          ->orderBy('mv.timestamp', 'DESC')
+          ->range(0, 1)
+          ->execute()
+          ->fetchField();
+      $period = ($last) ? (REQUEST_TIME - $last) : (REQUEST_TIME - (60*5));
+      array_push($args, $period);
+    }
+    else if ($action_name == 'drd.status') {
+      $unencrypted = array(2, 3);
+    }
+    else if (($action_name == 'drd.config.server.read') || ($action_name == 'drd.config.domain.read')) {
+      $unencrypted = array(2, 3);
+    }
+    else if (($action_name == 'drd.config.server.save') || ($action_name == 'drd.config.domain.save')) {
+      $unencrypted = array(2, 3);
+    }
+    else if ($action_name == 'drd.retrieve.blocks') {
+      $unencrypted = array(2, 3);
+    }
+    else if ($action_name == 'drd.config.svn.read') {
+      $unencrypted = array(2, 3);
+    }
+    else {
+      array_unshift($args, $action_name);
+      $action_name = 'drd.execute';
+      $unencrypted = array(3, 4);
+    }
+    $log_info['args'] = $args;
+    foreach ($args as $i => $value) {
+      if (!empty($value) && !in_array($i, $unencrypted)) {
+        if (is_array($value) || is_object($value)) {
+          $value = drupal_json_encode($value);
+        }
+        $args[$i] = aes_encrypt($value, TRUE, $server->aes_key, $server->aes_cipher, $server->aes_iv, $server->aes_impl);
+      }
+    }
+  }
+  drd_log($mode, $id, $action_name, 'remote');
+  $options = array('timeout' => 300, 'max_redirects' => 0);
+  $output = _drd_xmlrpc($url, $action_name, $args, $options);
+  if ($output === FALSE) {
+    $error = xmlrpc_error();
+    if (!is_object($error)) {
+      drd_set_message($url, 'Unknown error: ' . print_r($error, TRUE), 'error');
+    }
+    else if ($error->code == -32700) {
+      // Not well formed
+      // Possible reasons:
+      // - remote site has not the right module installed
+      // - error occurred
+      // - AES config mismatch
+      drd_set_message($url, 'Error occurred remotely, looks like drd_server is not properly installed', 'error');
+    }
+    else if ($error->code == 302) {
+      drd_set_message($url, t('Error (302): Redirect for url %url to %target', array('%target' => $error->message, '%url' => $url)), 'error');
+    }
+    else {
+      $error->message = isset($error->message) ? $error->message : 'unknown';
+      drd_set_message($url, t('Error (%code): %message for url %url', array('%code' => $error->code, '%message' => $error->message, '%url' => $url)), 'error');
+    }
+    return;
+  }
+  if (empty($output)) {
+    return;
+  }
+
+  if (substr($output, 0, 1) === '{' && substr($output, -1) === '}') {
+    // not encrypted
+  }
+  else {
+    $output = aes_decrypt($output, TRUE, $server->aes_key, $server->aes_cipher, $server->aes_iv, $server->aes_impl);
+  }
+  $output = drupal_json_decode($output);
+  $log_info['result'] = $output;
+  drd_log($mode, $id, $log_info, 'xmlrpc');
+
+  if (is_array($output) && !empty($output['is_error'])) {
+    $error = new stdClass();
+    $error->code = $output['code'];
+    $error->message = $output['message'];
+    drd_set_message($url, $error->message, 'error');
+    switch ($error->code) {
+      case DRD_ERROR_WRONG_API:
+        drd_set_message($url, 'Please make sure that you use corresponding versions of DRD (here) and DRD_SERVER on your remote Drupal core at ' . $server_domain->url, 'error');
+        break;
+      case DRD_ERROR_WRONG_REFERER:
+      case DRD_ERROR_NO_REFERER:
+        $query = drupal_get_destination();
+        $query['goto'] = '1';
+        $query['destination'] = 'admin/drd' . (($mode == 'domain') ? '/domains' : '');
+        $query['drd-extras'] = '1';
+        drd_set_message($url, 'Please go to the ' . l('config page', drd_url($server_domain) . '/admin/config/system/drd_settings', array('attributes' => array('target' => '_blank'))), 'error');
+        if (variable_get('drd_cluster_mode', FALSE)) {
+          drd_set_message($url, 'Enter the token (' . variable_get('drd_cluster_mode_token') . ') as an allowed referer IP address and add the above IP address into the cluster IPs.', 'error');
+        }
+        drd_set_message($url, 'After that ' . l('click here', 'admin/drd/' . $mode . '/' . $id . '/pushaes', array('query' => $query)) . ' to push the encryption keys to the remote Drupal core/domain.', 'error');
+        break;
+      case DRD_ERROR_NO_OP:
+      case DRD_ERROR_NO_FUNC:
+      case DRD_ERROR_NO_LOG_PHP:
+        break;
+      case DRD_ERROR_MISSING_AES:
+        drd_set_message($url, 'Please go to the ' . l('module list', drd_url($server_domain) . '/admin', array('attributes' => array('target' => '_blank'))), 'error');
+        break;
+      case DRD_ERROR_WRONG_KEYS:
+        drd_set_message($url, 'Please ' . l('edit Drupal core', 'admin/drd/server/' . $server->sid . '/edit') . ' and assign new encryption keys.', 'error');
+        break;
+    }
+    return;
+  }
+
+  if (!empty($output['messages'])) {
+    drd_store_messages($mode, $id, $output['messages']);
+  }
+  if ($mode == 'domain' &&
+      is_array($output) &&
+      !empty($output['message']) &&
+      is_array($output['message']) &&
+      !empty($output['message']['cache']['info']['domain']['arguments']['variables']['requirements'])) {
+    $values = _drd_update_domain_requirements(
+      $output['message']['cache']['info']['domain']['arguments']['variables']['requirements'],
+      $domain->settings['ignore'],
+      TRUE,
+      _drd_cache_id('domain', $id, 'status:')
+    );
+    $output['message']['cache']['info']['domain']['hidden'] = TRUE;
+    $output['message']['cache']['info']['server'] = $output['message']['cache']['info']['domain'];
+    $output['message']['cache']['info']['server']['arguments']['variables']['requirements'] = array_pop($values);
+    if (!empty($values)) {
+      db_update('drd_domain')
+        ->fields($values)
+        ->condition('did', $id)
+        ->execute();
+    }
+  }
+
+  if (!empty($output['message']) && is_array($output['message'])) {
+    if (!empty($output['message']['cache'])) {
+      // Remove cache data about project updates to make sure we don't get outdated status.
+      cache_clear_all(_drd_cache_id('domain', $id, 'update'), 'cache_drd');
+      foreach ($output['message']['cache'] as $type => $cache) {
+        if ($mode == 'domain' && isset($output['message']['cache'][$type]['domain'])) {
+          cache_set(_drd_cache_id('domain', $id, $type), $output['message']['cache'][$type]['domain'], 'cache_drd');
+        }
+        if (isset($output['message']['cache'][$type]['server'])) {
+          cache_set(_drd_cache_id('server', $server->sid, $type), $output['message']['cache'][$type]['server'], 'cache_drd');
+        }
+      }
+    }
+
+    if (!empty($output['message']['drd_db'])) {
+      foreach ($output['message']['drd_db'] as $table => $def) {
+        switch ($def['mode']) {
+          case 'update':
+            $query = db_update($table);
+        }
+        if (isset($query)) {
+          $where = format_string($def['where'], array('@id' => $id, '@sid' => $server->sid));
+          $query->fields(array($def['field'] => $def['value']))
+            ->where($where)
+            ->execute();
+        }
+      }
+    }
+
+    if (!empty($output['message']['projects'])) {
+      include_once 'drd.modules.inc';
+      $domain_mode = ($mode == 'domain');
+      $projects_domain = $domain_mode ? $domain : drd_domain_load_by_url($server->url);
+      if (!empty($projects_domain)) {
+        _drd_update_projects($output['message']['projects'], $projects_domain, !$domain_mode);
+      }
+    }
+  }
+
+  switch ($original_op) {
+    case 'drd.key':
+      return TRUE;
+    case 'drd.status':
+      return $output['message'];
+    case 'drd.heartbeat':
+      $values = array(
+        'did' => $id,
+        'timestamp' => REQUEST_TIME,
+        'user_accounts' => $output['message']['count']['user']['all'],
+        'user_sessions' => $output['message']['count']['user']['sessions'],
+        'user_authenticated' => $output['message']['count']['user']['auth'],
+        'node_count' => $output['message']['count']['content']['node'],
+        'comment_count' => $output['message']['count']['content']['comment'],
+        'files_temp_count' => $output['message']['file']['temp']['count'],
+        'files_temp_size' => $output['message']['file']['temp']['size'],
+        'files_perm_count' => $output['message']['file']['perm']['count'],
+        'files_perm_size' => $output['message']['file']['perm']['size'],
+        'watchdog_emergency' => $output['message']['watchdog']['emergency'],
+        'watchdog_alert' => $output['message']['watchdog']['alert'],
+        'watchdog_critical' => $output['message']['watchdog']['critical'],
+        'watchdog_error' => $output['message']['watchdog']['error'],
+        'watchdog_warning' => $output['message']['watchdog']['warning'],
+        'watchdog_notice' => $output['message']['watchdog']['notice'],
+        'watchdog_info' => $output['message']['watchdog']['info'],
+        'watchdog_debug' => $output['message']['watchdog']['debug'],
+      );
+      drupal_write_record('drd_monitor_values', $values);
+      return theme('drd_heartbeat', array('heartbeat' => $output['message']));
+    case 'drd.config.svn.read':
+    case 'drd.retrieve.blocks':
+    case 'drd.config.server.read':
+    case 'drd.config.domain.read':
+      return $output['message'];
+    case 'drd.actions':
+      $actions = (!empty($output['message']) && is_array($output['message'])) ? $output['message'] : array();
+      $actions = drupal_array_merge_deep(variable_get('drd_actions', array()), $actions);
+      variable_set('drd_actions', $actions);
+      break;
+    case 'drd.server.domains':
+      drd_action_server_domains($server, $output['message']);
+      break;
+  }
+}
+
+/**
+ * DRD Action: Set values into the database for Drupal cores and domains.
+ *
+ * @param string $action_name
+ * @param string $mode
+ * @param int $id
+ * @param string $field
+ * @param string $flag
+ */
+function drd_action_set_value($action_name, $mode, $id, $field, $flag) {
+  list($table, $index) = drd_action_params($mode);
+  db_update($table)
+    ->fields(array($field => $flag))
+    ->condition($index, $id)
+    ->execute();
+}
+
+/**
+ * DRD Action: Delete a given Drupal core from the database. Leave the Drupal core
+ * itself untouched.
+ *
+ * @param string $action_name
+ * @param string $mode
+ * @param int $id
+ */
+function drd_action_server_delete($action_name, $mode, $id) {
+  db_delete('drd_server')
+    ->condition('sid', $id)
+    ->execute();
+  db_delete('drd_domain')
+    ->condition('sid', $id)
+    ->execute();
+}
+
+/**
+ * DRD Action helper: Store the received list of domains from the remote
+ * Drupal core in the database and remove the ones that no longer exist.
+ *
+ * @param stdClass $server
+ * @param array $domains
+ */
+function drd_action_server_domains($server, $domains) {
+  if (!is_array($domains)) {
+    return;
+  }
+  $current_domains = db_select('drd_domain', 'd')
+      ->fields('d', array('did', 'url', 'installed'))
+      ->condition('d.sid', $server->sid)
+      ->execute()
+      ->fetchAll();
+  foreach ($current_domains as $current_domain) {
+    $current_key = '';
+    foreach ($domains as $key => $domain) {
+      if ($current_domain->url == $domain['url']) {
+        $current_key = $key;
+        // Mark the domain, it already exists and we won't add it again
+        $domains[$key]['did'] = $current_domain->did;
+        if ($domains[$key]['drd installed'] != $current_domain->installed) {
+          db_update('drd_domain')
+            ->fields(array('installed' => (int)$domains[$key]['drd installed']))
+            ->condition('did', $current_domain->did)
+            ->execute();
+        }
+        break;
+      }
+    }
+    if (empty($current_key) || empty($domains[$current_key]['did'])) {
+      // Domain doesn't exist anymore, delete it from the database
+      db_delete('drd_domain')->condition('did', $current_domain->did)->execute();
+      db_delete('drd_domain_alias')->condition('did', $current_domain->did)->execute();
+      drd_store_message('server', $server->sid, 'status', t('Domain %url removed', array('%url' => $current_domain->url)));
+    }
+  }
+
+  // Now save the new domains in the database
+  foreach ($domains as $domain) {
+    if (empty($domain['did'])) {
+      $aliases = $domain['aliases'];
+      $domain = array(
+        'sid' => $server->sid,
+        'name' => $domain['url'],
+        'url' => $domain['url'],
+        'installed' => $domain['drd installed'],
+      );
+      drupal_write_record('drd_domain', $domain);
+      $domain['aliases'] = $aliases;
+      drd_store_message('server', $server->sid, 'status', t('Domain %url added', array('%url' => $domain['url'])));
+    }
+    $domain['aliases'][] = $domain['url'];
+    $aliases = db_select('drd_domain_alias', 'a')
+        ->fields('a', array('aid', 'url'))
+        ->condition('a.did', $domain['did'])
+        ->execute()
+        ->fetchAll();
+    foreach ($aliases as $alias) {
+      $key = array_search($alias->url, $domain['aliases']);
+      if ($key === FALSE) {
+        db_delete('drd_domain_alias')->condition('aid', $alias->aid)->execute();
+      }
+      else {
+        unset($domain['aliases'][$key]);
+      }
+    }
+    foreach ($domain['aliases'] as $url) {
+      $alias = array(
+        'did' => $domain['did'],
+        'url' => $url,
+      );
+      drupal_write_record('drd_domain_alias', $alias);
+    }
+  }
+}
+
+/**
+ * @param array $form
+ * @param array $form_state
+ * @param string $mode
+ * @param int $id
+ * @return array
+ */
+function drd_action_form($form, &$form_state, $mode, $id) {
+  drd_action_build_form($form, $mode, $id);
+  return $form;
+}
+
+/**
+ * @param array $form
+ * @param array $form_state
+ */
+function drd_action_form_submit($form, &$form_state) {
+  $ids = array($form['#drd-id']);
+  drd_action($form['#drd-mode'], $ids, $_POST['action'], FALSE);
+}
+
+/**
+ * DRD Action helper: Build a form element to select from available actions.
+ *
+ * @param array $form
+ * @param string $mode
+ * @param int $id
+ */
+function drd_action_build_form(&$form, $mode, $id = 0) {
+  $actions = module_invoke_all('drd_actions');
+
+  $class = array('action-block');
+  if (empty($id)) {
+    $class[] = 'element-hidden';
+  }
+  else {
+    $form['#drd-mode'] = $mode;
+    $form['#drd-id'] = $id;
+  }
+  $form['options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Actions'),
+    '#attributes' => array(
+      'class' => $class,
+    ),
+  );
+
+  $options = array('' => '- ' . t('select one') . ' -');
+  foreach ($actions as $action => $op) {
+    if (isset($op['mode']) && $op['mode'] != $mode) {
+      // This is not for us, skip it
+      continue;
+    }
+    $cat = empty($op['category']) ? ('-' . t('Main Actions') . '-') : $op['category'];
+    $options[$cat][$action] = $op['label'];
+    if (!empty($op['fields'])) {
+      $form['options']['drd_action_' . $action] = array(
+        '#type' => 'container',
+        '#weight' => 0,
+        '#states' => array(
+          'visible' => array(
+            ':input[name="action"]' => array('value' => $action),
+          ),
+        ),
+      );
+      foreach ($op['fields'] as $key => $element) {
+        if (!empty($element['#markup']) || $element['#type'] != 'hidden') {
+          $form['options']['drd_action_' . $action][$key] = $element;
+        }
+      }
+    }
+  }
+  ksort($options);
+  foreach ($options as $key => $option) {
+    if (is_array($options[$key])) {
+      asort($options[$key]);
+    }
+  }
+
+  $form['options']['action'] = array(
+    '#type' => 'select',
+    '#title' => t('Action'),
+    '#title_display' => 'invisible',
+    '#options' => $options,
+    '#default_value' => '',
+    '#weight' => -1,
+  );
+  $form['options']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Execute'),
+    '#weight' => 1,
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="action"]' => array('value' => ''),
+      ),
+    ),
+  );
+}
+
+/**
+ * DRD Action: Update AES encryption keys on remote Drupal core.
+ *
+ * @param int $sid
+ * @param string $domain_url
+ */
+function drd_update_aes($sid, $domain_url = '') {
+  $result = drd_action_remote('drd.key', 'server', $sid, $domain_url);
+  if (!empty($result) && !empty($_GET['drd-extras'])) {
+    drd_action_remote('drd.server.domains', 'server', $sid);
+  }
+  if (isset($_GET['destination']) && isset($_GET['goto'])) {
+    drupal_goto();
+  }
+}
+
+/**
+ * DRD Action: Install the module drd_server on a remote Drupal core and provide
+ * guidelines on how to get through the setup step by step.
+ *
+ * @param string $action_name
+ * @param string $mode
+ * @param int $id
+ * @param string $dummy
+ * @param string $flag
+ * @return bool
+ */
+function drd_install_drd_server($action_name, $mode, $id, $dummy, $flag) {
+  if ($action_name == 'install server') {
+    $url = drd_url_by_id('server', $id);
+    $mode = 'install';
+    $extra = '&server';
+    $domain = NULL;
+  }
+  else {
+    $extra = '&domain';
+    $domain = drd_domain_load($id);
+    if ($flag == $domain->installed) {
+      return;
+    }
+    $server = drd_server_load($domain->sid);
+    if (!$server->remoteinstall) {
+      drd_set_message($server, 'Skipping domain ' . $id . ': remote installation not supported on this Drupal core.');
+      return;
+    }
+    if (($domain->url === $server->url) && !$flag) {
+      drd_set_message($domain, 'Skipping domain ' . $id . ': it is the main domain on this Drupal core.');
+      return;
+    }
+
+    $mode = ($flag) ? 'install' : 'uninstall';
+    $url = drd_url($domain);
+  }
+  $extra .= '&base_url=' . $url;
+  $url .= '/drd_server.install.php?' . $mode . $extra;
+  try {
+    $result = drupal_http_request($url);
+    if ($result->code == 200 && $action_name == 'install server') {
+      return $result->data;
+    }
+    else if ($result->code == 200 && $result->data == ($mode . 'ed')) {
+      db_update('drd_domain')
+        ->fields(array('installed' => (int)$flag))
+        ->condition('did', $id)
+        ->execute();
+      if ($flag) {
+        // Update the aes key on that domain
+        drd_install_drd_server_aes($domain);
+      }
+      return TRUE;
+    }
+  }
+  catch (Exception $e) {
+    watchdog_exception('DRD', $e, 'Exception during remote installation or while updating AES keys.');
+  }
+  if (!isset($result) || !is_object($result)) {
+    $result = new stdClass();
+    $result->code = 0;
+    $result->error = 'unknown';
+  }
+  drd_set_message($url, t('Error %code occurred for %url: %error', array('%code' => $result->code, '%url' => $url, '%error' => $result->error)), 'error');
+  return FALSE;
+}
+
+/**
+ * @param int|stdClass $domain
+ */
+function drd_install_drd_server_aes($domain) {
+  if (!is_object($domain)) {
+    $domain = drd_domain_load($domain);
+  }
+  drd_update_aes($domain->sid, $domain->url);
+}
+
+/** ======================================================================
+ *
+ * Helper functions
+ *
+ */
+
+/**
+ * Determines if the current page load is to display a DRD dashboard page or not.
+ *
+ * @return boolean
+ */
+function drd_is_dashboard() {
+  return (strpos($_GET['q'], 'admin/drd') !== FALSE);
+}
+
+/**
+ * @param string $mode
+ * @param int $id
+ * @param string $function
+ * @param string $execution
+ */
+function drd_log($mode, $id, $function, $execution = 'execute') {
+  $object = drd_object_by_id($mode, $id);
+  if (is_string($function)) {
+    $message = '!execution: !action for !name';
+    $message_args = array(
+      '!execution' => $execution,
+      '!action' => $function,
+      '!name' => $object->url,
+    );
+  }
+  else {
+    $message = 'XMLRPC on !url: <pre>!params</pre>';
+    $message_args = array(
+      '!url' => $object->url,
+      '!params' => print_r($function, TRUE),
+    );
+  }
+  if (variable_get('drd_debug', FALSE)) {
+    watchdog('DRD', $message, $message_args);
+  }
+  if (function_exists('drush_log')) {
+    if (in_array($execution, drd_drush_log_parts())) {
+      drush_log(t($message, $message_args), 'ok');
+    }
+  }
+}
+
+/**
+ * @param string $mode
+ * @param int $id
+ * @param string $type
+ * @param string $message
+ */
+function drd_store_message($mode, $id, $type, $message) {
+  drd_store_messages($mode, $id, array($type => array($message)));
+}
+
+/**
+ * @param string $mode
+ * @param int $id
+ * @param array $messages
+ */
+function drd_store_messages($mode, $id, $messages) {
+  $cid = _drd_cache_id($mode, $id, 'messages');
+  $cache = cache_get($cid, 'cache_drd');
+  $existing = (empty($cache->data)) ? array() : $cache->data;
+  $existing[REQUEST_TIME] = $messages;
+  cache_set($cid, $existing, 'cache_drd');
+}
+
+/**
+ * Determines the database table and key name for select statements for the given mode.
+ *
+ * @param string $mode
+ * @return array
+ */
+function drd_action_params($mode) {
+  if ($mode == 'server') {
+    $table = 'drd_server';
+    $index = 'sid';
+  }
+  else {
+    $table = 'drd_domain';
+    $index = 'did';
+  }
+  return array($table, $index);
+}
+
+/**
+ * @param string $mode
+ * @param int $id
+ * @return stdClass
+ */
+function drd_object_by_id($mode, $id) {
+  list($table, $index) = drd_action_params($mode);
+  return db_select($table, 't')
+    ->fields('t')
+    ->condition('t.' . $index, $id)
+    ->execute()
+    ->fetchObject();
+}
+
+/**
+ * Builds the full URL for the given Drupal core or domain.
+ *
+ * @param string $mode
+ * @param int $id
+ * @return string
+ */
+function drd_url_by_id($mode, $id) {
+  list($table, $index) = drd_action_params($mode);
+  $def = db_select($table, 't')
+      ->fields('t', array('url', 'usessl'))
+      ->condition('t.' . $index, $id)
+      ->execute()
+      ->fetchObject();
+  return drd_url($def);
+}
+
+/**
+ * Builds the full URL for the given Drupal core or domain.
+ *
+ * @param stdClass $object
+ * @param bool $as_link
+ * @return string
+ */
+function drd_url($object, $as_link = FALSE) {
+  $protocol = ($object->usessl) ? 'https://' : 'http://';
+  $url = url($protocol . $object->url, array('https' => $object->usessl, 'external' => TRUE));
+  if ($as_link) {
+    return l($url, $url, array('external' => TRUE, 'attributes' => array('target' => '_blank')));
+  }
+  return $url;
+}
+
+/**
+ * Loads the given Drupal core or the Drupal core of the given domain.
+ *
+ * @param int $sid
+ * @param string $mode
+ * @return stdClass
+ */
+function drd_server_load($sid, $mode = 'server') {
+  if ($mode == 'server') {
+    $server = db_select('drd_server', 's')
+        ->fields('s')
+        ->condition('s.sid', $sid)
+        ->execute()
+        ->fetch();
+  }
+  else {
+    $query = db_select('drd_server', 's');
+    $query->join('drd_domain', 'd', 's.sid = d.sid');
+    $server = $query->fields('s')
+        ->condition('d.did', $sid)
+        ->execute()
+        ->fetch();
+  }
+  if (empty($server->settings)) {
+    $server->settings = array();
+  }
+  else {
+    $server->settings = unserialize($server->settings);
+  }
+  if (!isset($server->settings['ignore'])) {
+    $server->settings['ignore'] = array();
+  }
+  return $server;
+}
+
+/**
+ * @param int $sid
+ * @return array
+ */
+function drd_server_domains($sid) {
+  return db_select('drd_domain', 'd')
+    ->fields('d', array('did'))
+    ->condition('d.sid', $sid)
+    ->execute()
+    ->fetchAllKeyed(0, 0);
+}
+
+/**
+ * @param int $sid
+ * @return int
+ */
+function drd_server_domains_count($sid) {
+  return db_select('drd_domain', 'd')->fields('d', array('did'))->condition('d.sid', $sid)->countQuery()->execute()->FetchField();
+}
+
+/**
+ * @return array
+ */
+function drd_server_load_all() {
+  return db_select('drd_server', 's')
+      ->fields('s', array('sid', 'name'))
+      ->condition('s.status', 1)
+      ->execute()
+      ->fetchAllKeyed();
+}
+
+/**
+ * @return array
+ */
+function drd_drupalversion_load_all() {
+  return db_select('drd_server', 's')
+      ->fields('s', array('drupalversion', 'drupalversion'))
+      ->distinct()
+      ->orderBy('s.drupalversion')
+      ->execute()
+      ->fetchAllKeyed();
+}
+
+/**
+ * Loads the given domain.
+ *
+ * @param int $did
+ * @return stdClass
+ */
+function drd_domain_load($did) {
+  $domain = db_select('drd_domain', 'd')
+      ->fields('d')
+      ->condition('d.did', $did)
+      ->execute()
+      ->fetch();
+  $domain->settings = unserialize($domain->settings);
+  if (!isset($domain->settings['ignore'])) {
+    $domain->settings['ignore'] = array();
+  }
+  return $domain;
+}
+
+/**
+ * @param string $url
+ * @return bool|stdClass
+ */
+function drd_domain_load_by_url($url) {
+  $did = db_select('drd_domain', 'd')
+    ->fields('d', array('did'))
+    ->condition('d.url', $url)
+    ->execute()
+    ->fetchField();
+  if (empty($did)) {
+    // Domain does not exist yet.
+    $domain = db_select('drd_server', 's')
+      ->fields('s', array('sid', 'name', 'url', 'usessl', 'status'))
+      ->condition('s.url', $url)
+      ->execute()
+      ->fetchObject();
+    if (empty($domain)) {
+      drupal_set_message('Critical error: there is no domain for the url ' . $url, 'error');
+      return FALSE;
+    }
+    drupal_write_record('drd_domain', $domain);
+    return $domain;
+  }
+  return drd_domain_load($did);
+}
+
+/**
+ * @param string $field
+ * @return array
+ */
+function drd_domain_load_all($field = 'name') {
+  return db_select('drd_domain', 'd')
+    ->fields('d', array('did', $field))
+    ->condition('d.status', 1)
+    ->execute()
+    ->fetchAllKeyed();
+}
+
+/**
+ * @param string $mode
+ * @param string $typed
+ */
+function drd_autocomplete($mode, $typed) {
+  switch ($mode) {
+    case 'taxonomy':
+      // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+      $tags_typed = drupal_explode_tags($typed);
+      $tag_last = drupal_strtolower(array_pop($tags_typed));
+
+      $term_matches = array();
+      if ($tag_last != '') {
+        $vocabulary = taxonomy_vocabulary_machine_name_load('drd');
+
+        $query = db_select('taxonomy_term_data', 't');
+        $query->addTag('translatable');
+        $query->addTag('term_access');
+
+        // Do not select already entered terms.
+        if (!empty($tags_typed)) {
+          $query->condition('t.name', $tags_typed, 'NOT IN');
+        }
+        // Select rows that match by term name.
+        $tags_return = $query
+          ->fields('t', array('tid', 'name'))
+          ->condition('t.vid', $vocabulary->vid)
+          ->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE')
+          ->range(0, 10)
+          ->execute()
+          ->fetchAllKeyed();
+
+        $prefix = count($tags_typed) ? drupal_implode_tags($tags_typed) . ', ' : '';
+
+        foreach ($tags_return as $tid => $name) {
+          $n = $name;
+          // Term names containing commas or quotes must be wrapped in quotes.
+          if (strpos($name, ',') !== FALSE || strpos($name, '"') !== FALSE) {
+            $n = '"' . str_replace('"', '""', $name) . '"';
+          }
+          $term_matches[$prefix . $n] = check_plain($name);
+        }
+      }
+      drupal_json_output($term_matches);
+      break;
+  }
+}
+
+/**
+ * Generic Ajax callback for the DRD module.
+ *
+ * @param string $mode
+ * @param string $action
+ * @param int $id
+ */
+function drd_ajax($mode, $action, $id) {
+  $refresh = FALSE;
+  $output = array();
+  if ($action == 'heartbeat') {
+    $output['heartbeat'] = drd_action_remote('drd.heartbeat', $mode, $id);
+  }
+  else if ($action == 'status') {
+    $result = drd_action_remote('drd.status', $mode, $id);
+    $output['status'] = theme('drd_status', array('status' => $result));
+  }
+  else if ($action == 'queue') {
+    if ($id == 'run') {
+      $queue = DrupalQueue::get('drd');
+      if ($item = $queue->claimItem()) {
+        $result = drd_action_queue($item->data);
+        if (is_array($result) && in_array($mode, array($result[0], 'detail'))) {
+          // only return refresh data if we are on the page to list
+          // objects (server or domains) that have just been updated
+          $mode = $result[0];
+          $refresh = $result[1];
+        }
+        $queue->deleteItem($item);
+      }
+      else {
+        $output['status'] = 'OK';
+      }
+    }
+    else if ($id == 'info') {
+      $queue = DrupalQueue::get('drd');
+      $output = array(
+        'count' => $queue->numberOfItems(),
+        'info' => array(),
+      );
+      $infoQueue = DrupalQueue::get('drd.info');
+      while ($item = $infoQueue->claimItem()) {
+        $output['info'][] = $item->data;
+        $infoQueue->deleteItem($item);
+      }
+    }
+  }
+  else if ($action == 'function') {
+    list($mode, $id) = explode(':', $_POST['id']);
+    if ($mode == 'server') {
+      $object = drd_server_load($id);
+      $requirements = array();
+    }
+    else {
+      $object = drd_domain_load($id);
+      $requirements = drd_domain_load_requirements($id);
+    }
+    if ($_POST['remote']) {
+      // TODO: call remote function.
+    }
+    else {
+      switch ($_POST['function']) {
+        case 'ignore':
+          $object->settings['ignore'][$_POST['key']] = $_POST['key'];
+          break;
+
+        case 'unignore':
+          unset($object->settings['ignore'][$_POST['key']]);
+          break;
+
+      }
+      $update = array(
+        'settings' => serialize($object->settings),
+      );
+      if ($mode == 'domain') {
+        $update += _drd_update_domain_requirements($requirements, $object->settings['ignore']);
+      }
+      db_update('drd_' . $mode)
+        ->fields($update)
+        ->condition(substr($mode, 0, 1) . 'id', $id)
+        ->execute();
+      $refresh = $id;
+    }
+  }
+  else {
+    include_once('drd.monitor.inc');
+    $function = 'drd_' . $action;
+    if (function_exists($function)) {
+      $parts = explode('-', $id);
+      $mode = $parts[1];
+      $id = $parts[2];
+      $url = drd_url_by_id($mode, $id);
+      if ($function($mode, $id, $url, $output['data'])) {
+        $refresh = $id;
+      }
+    }
+  }
+  $messages = theme('status_messages');
+  if (!empty($messages)) {
+    $output['messages'] = $messages;
+  }
+  if ($refresh) {
+    include_once('drd.' . $mode . '.pages.inc');
+    $function = 'drd_' . $mode . '_build_row';
+    $obj = db_select('drd_' . $mode, 't')->fields('t')->condition('t.' . substr($mode, 0, 1) . 'id', $refresh)->execute()->fetch();
+    $row = $function($obj);
+    $output['refresh_id'] = $row['#attributes']['id'];
+    $output['refresh_data'] = $row;
+    unset($output['refresh_data']['#attributes']);
+  }
+  drupal_json_output($output);
+  exit;
+}
+
+/**
+ * Remove the messages from the given Drupal core or domain from the cache as
+ * they have been seen by the administrator.
+ *
+ * @param string $mode
+ * @param int $id
+ * @return bool
+ */
+function drd_messages_seen($mode, $id) {
+  cache_clear_all(_drd_cache_id($mode, $id, 'messages'), 'cache_drd');
+  return FALSE;
+}
+
+/**
+ * @param array $filter
+ * @return DatabaseStatementInterface
+ */
+function drd_get_server_ids($filter) {
+  return drd_get_servers($filter, FALSE, array(), TRUE);
+}
+
+/**
+ * @param array $filter
+ * @return DatabaseStatementInterface
+ */
+function drd_get_domain_ids($filter) {
+  return drd_get_domains($filter, FALSE, array(), TRUE);
+}
+
+/**
+ * @param array $filter
+ * @param bool $interactive
+ * @param array $header
+ * @param bool $just_ids
+ * @return DatabaseStatementInterface
+ */
+function drd_get_servers($filter, $interactive, $header = array(), $just_ids = FALSE) {
+  module_load_include('inc', 'drd', 'drd.server.pages');
+  $query = db_select('drd_server', 's');
+  drd_server_build_filter_query($query, $filter);
+
+  if ($interactive) {
+    $count_query = clone $query;
+    $count_query->addExpression('COUNT(s.sid)');
+
+    $query = $query->extend('PagerDefault')->extend('TableSort');
+    $query->setCountQuery($count_query);
+    $query->limit(variable_get('drd_items_in_lists', 25));
+  }
+
+  if (!empty($header)) {
+    $query->orderByHeader($header);
+  }
+
+  if ($just_ids) {
+    return $query->fields('s', array('sid'))
+      ->execute()
+      ->fetchCol();
+  }
+
+  $query->fields('s');
+
+  return $query->execute();
+}
+
+/**
+ * @param array $filter
+ * @param bool $interactive
+ * @param array $header
+ * @param bool $just_ids
+ * @return DatabaseStatementInterface
+ */
+function drd_get_domains($filter, $interactive, $header = array(), $just_ids = FALSE) {
+  module_load_include('inc', 'drd', 'drd.domain.pages');
+  $query = db_select('drd_domain', 'd');
+  drd_domain_build_filter_query($query, $filter);
+
+  if ($interactive) {
+    $count_query = clone $query;
+    $count_query->addExpression('COUNT(d.did)');
+
+    $query = $query->extend('PagerDefault')->extend('TableSort');
+    $query->setCountQuery($count_query);
+    $query->limit(variable_get('drd_items_in_lists', 25));
+  }
+
+  if (!empty($header)) {
+    $query->orderByHeader($header);
+  }
+
+  if ($just_ids) {
+    return $query->fields('d', array('did'))
+      ->execute()
+      ->fetchCol();
+  }
+
+  $query->fields('d');
+
+  return $query->execute();
+}
+
+/** ======================================================================
+ *
+ * Output functions
+ *
+ */
+
+/**
+ * Main function to build the output for all the details available for the
+ * selected Drupal core or domain.
+ *
+ * @param string $mode
+ * @param int $id
+ * @param string $url
+ * @param string $output
+ * @param string $sub_mode
+ */
+function drd_info($mode, $id, $url, &$output, $sub_mode = 'status') {
+  // Load this file to make certain variables available
+  module_load_install('update');
+
+  $output = '';
+
+  // Messages
+  $cache = cache_get(_drd_cache_id($mode, $id, 'messages'), 'cache_drd');
+  if (!empty($cache->data)) {
+    foreach ($cache->data as $timestamp => $messages) {
+      foreach ($messages as $type => $entries) {
+        foreach ($entries as $entry) {
+          drupal_set_message('<span class="timestamp">' . format_date($timestamp, 'short') . '</span>' . $entry, $type);
+        }
+      }
+    }
+    $output .= '<div class="drd-box drd-box-messages"><h3>' . t('Messages') . '<span class="msgs-delete" id="msgdel-' . $mode . '-' . $id . '">' . t('Click here to delete') . '</span></h3>';
+    $output .= theme('status_messages');
+    $output .= '</div>';
+  }
+
+  $query = db_select('cache_drd', 'cd')
+      ->fields('cd', array('cid'));
+  if ($sub_mode == 'other') {
+    $query->condition('cd.cid', db_like(_drd_cache_id($mode, $id, '')) . '%', 'LIKE');
+    foreach (_drd_detail_areas() as $area => $title) {
+      $query->condition('cd.cid', db_like(_drd_cache_id($mode, $id, $area)) . '%', 'NOT LIKE');
+    }
+  }
+  else {
+    $query->condition('cd.cid', db_like(_drd_cache_id($mode, $id, $sub_mode)) . '%', 'LIKE');
+  }
+
+  $GLOBALS['drd'] = array(
+    'mode' => $mode,
+    'id' => $id,
+  );
+  $cids = $query->execute()->fetchAll();
+  foreach ($cids as $cid) {
+    $cache = cache_get($cid->cid, 'cache_drd');
+    if (!empty($cache->data)) {
+      if (!empty($cache->data['hidden'])) {
+        continue;
+      }
+      if (isset($cache->data['callback'])) {
+        $cache->data['callbacks'] = array('0' => array(
+          'callback' => $cache->data['callback'],
+          'arguments' => $cache->data['arguments'],
+        ));
+      }
+      if (!empty($cache->data['callbacks'])) {
+        if (!empty($cache->data['title'])) {
+          $output .= '<div class="drd-box"><h3><span class="timestamp">' . format_date($cache->created, 'short') . '</span>' . $cache->data['title'] . '</h3>';
+        }
+        foreach ($cache->data['callbacks'] as $callback) {
+          if (!empty($callback['callback']) && function_exists($callback['callback'])) {
+            if ($callback['callback'] == 'drupal_render') {
+              $output .= drupal_render($callback['arguments']);
+            }
+            else {
+              $output .= call_user_func_array($callback['callback'], $callback['arguments']);
+            }
+          }
+        }
+        if (!empty($cache->data['title'])) {
+          $output .= '</div>';
+        }
+      }
+    }
+  }
+
+  // Retrieve blocks from domain
+  if ($mode == 'domain') {
+    $output .= drd_action_remote('drd.retrieve.blocks', 'domain', $id);
+  }
+
+  // Modify the links
+  $output = str_replace('href="/', 'target="_blank" href="'. $url .'/', $output);
+  $destination = drupal_get_destination();
+  $output = str_replace('destination=' . $destination['destination'], '', $output);
+}
+
+/**
+ * Returns the markup for a warning or error icon.
+ *
+ * @param string $mode
+ * @param string $icon
+ * @param string $toggle_name
+ * @param string $toggle_default
+ * @return string
+ */
+function drd_icon($mode, $icon = 'alert', $toggle_name = 'alert', $toggle_default = 'on') {
+  if ($mode == 'toggle') {
+    $title = $toggle_name . ' ' . $toggle_default;
+    $extra = ' title-on="' . $toggle_name . ' on" title-off="' . $toggle_name . ' off"';
+  }
+  else {
+    $title = $mode;
+    $extra = '';
+  }
+  return '<span class="drd-' . $mode . ' ui-icon ui-icon-' . $icon . '" title="' . $title . '"' . $extra . '>' . $title . '</span>';
+}
+
+/**
+ * @param bool $warning
+ * @param bool $error
+ * @return string
+ */
+function drd_icon_status($warning, $error) {
+  if ($error) {
+    return drd_icon('status-error', 'alert');
+  }
+  else if ($warning) {
+    return drd_icon('status-warning', 'notice');
+  }
+  return drd_icon('status-ok', 'check');
+}
+
+/**
+ * @param string|stdClass $object
+ * @param string $message
+ * @param string $type
+ * @param bool $repeat
+ */
+function drd_set_message($object, $message, $type = 'status', $repeat = TRUE) {
+  $url = is_string($object) ? $object : drd_url($object);
+  $link = l($url, $url, array('external' => TRUE, 'attributes' => array('target' => '_blank')));
+  $message = '[' . $link . '] ' . $message;
+  drupal_set_message($message, $type, $repeat);
+}
+
+/**
+ * @param int|array|stdClass $s
+ * @return array
+ */
+function drd_server_info($s) {
+  if (is_array($s)) {
+    if (count($s) == 1) {
+      $server = drd_server_load(array_shift($s));
+    }
+  }
+  elseif (is_object($s)) {
+    $server = $s;
+  }
+  else {
+    $server = drd_server_load($s);
+  }
+  if (empty($server)) {
+    $serverinfo = t('List contains domains from multiple servers.');
+  }
+  else {
+    $count = drd_server_domains_count($server->sid);
+    $serverinfo  = '<div><span class="title">' . t('Drupal Core') . '</span>' . l($server->name, 'admin/drd/server/' . $server->sid) . ' (' . drd_url($server, TRUE) . ')</div>';
+    $serverinfo .= '<div><span class="title">' . t('Drupal Version') . '</span>' . l($server->drupalversion, 'http://drupal.org/project/drupal', array('external' => TRUE, 'attributes' => array('target' => '_blank'))) . '</div>';
+    $serverinfo .= '<div><span class="title">' . t('Domains') . '</span>' . l($count, 'admin/drd/domains/' . $server->sid) . '</div>';
+  }
+
+  return array(
+    '#markup' => $serverinfo,
+    '#prefix' => '<fieldset id="drd-serverinfo">',
+    '#suffix' => '</fieldset>',
+  );
+}
+
+/**
+ * @param int|array|stdClass $d
+ * @return array
+ */
+function drd_domain_info($d) {
+  if (is_array($d)) {
+    if (count($d) == 1) {
+      $server = drd_domain_load(array_shift($d));
+    }
+  }
+  elseif (is_object($d)) {
+    $domain = $d;
+  }
+  else {
+    $domain = drd_domain_load($d);
+  }
+  if (empty($domain)) {
+    $domain_info = t('List contains more than one domain.');
+  }
+  else {
+    $server = drd_server_load($domain->sid);
+    $count = drd_server_domains_count($domain->sid);
+    $domain_info  = '<div><span class="title">' . t('Domain') . '</span>' . l($domain->name, 'admin/drd/domain/' . $domain->did) . ' (' . drd_url($domain, TRUE) . ')</div>';
+    $domain_info .= '<div><span class="title">' . t('Drupal Core') . '</span>' . l($server->name, 'admin/drd/server/' . $server->sid) . ' (' . drd_url($server, TRUE) . ')</div>';
+    $domain_info .= '<div><span class="title">' . t('Drupal Version') . '</span>' . l($server->drupalversion, 'http://drupal.org/project/drupal', array('external' => TRUE, 'attributes' => array('target' => '_blank'))) . '</div>';
+    $domain_info .= '<div><span class="title">' . t('Domains') . '</span>' . l($count, 'admin/drd/domains/' . $server->sid) . '</div>';
+  }
+
+  return array(
+    '#markup' => $domain_info,
+    '#prefix' => '<fieldset id="drd-domaininfo">',
+    '#suffix' => '</fieldset>',
+  );
+}
+
+/**
+ * @param int $did
+ * @return array
+ */
+function drd_domain_status($did) {
+  $domain = drd_domain_load($did);
+  $sections = _drd_requirements_categories();
+  $output = '';
+  foreach ($sections as $section) {
+    $w = 'status_w_' . $section;
+    $e = 'status_e_' . $section;
+    $output .= '<div><span class="title">' . _drd_requirements_category_label($section) . '</span>' . drd_icon_status($domain->$w, $domain->$e) . '</div>';
+  }
+  return array(
+    '#markup' => $output,
+    '#prefix' => '<fieldset id="drd-domainstatus">',
+    '#suffix' => '</fieldset>',
+  );
+}
+
+/** ======================================================================
+ *
+ * Theme functions.
+ *
+ */
+
+/**
+ * @param array $variables
+ * @return string
+ */
+function theme_drd_status($variables) {
+  $status = $variables['status'];
+
+  if (empty($status['maintenance_mode'])) {
+    $output = drd_icon('status-ok', 'check');
+  }
+  else {
+    $output = drd_icon('status-warning', 'notice');
+  }
+
+  return $output;
+}
+
+/**
+ * @param array $variables
+ * @return string
+ */
+function theme_drd_heartbeat($variables) {
+  $heartbeat = $variables['heartbeat'];
+  $output  = '<div class="headline">' . $heartbeat['count']['user']['auth'] . '/' . $heartbeat['count']['user']['sessions'];
+  $output .= '<span class="drd-display">' . drd_icon('show', 'info');
+  $output .= '<div class="detail">';
+
+  foreach ($heartbeat['detail'] as $detail) {
+    $output .= '<h4>' . $detail['title'] . '</h4>';
+    foreach ($detail['content'] as $part) {
+      $output .= '<p>' . $part . '</p>';
+    }
+  }
+
+  $output .= '</div>';
+  $output .= '</span>';
+  $output .= '</div>';
+  return $output;
+}
+
+/** ======================================================================
+ *
+ * Internal functions
+ *
+ */
+
+/**
+ * Determine the cache id for the given parameters.
+ *
+ * @param string $mode
+ * @param int $id
+ * @param string $type
+ * @return string
+ */
+function _drd_cache_id($mode, $id, $type) {
+  return $mode . ':' . $id . ':' . $type;
+}
+
+/**
+ * @param string $mode
+ * @param int $id
+ * @param string $function
+ * @param array $args
+ * @param array $follower
+ */
+function _drd_call_user_func_array($mode, $id, $function, $args, $follower) {
+  drd_log($mode, $id, $args[0]);
+  call_user_func_array($function, $args);
+  foreach ($follower as $follow_op) {
+    drd_action($mode, array($id), $follow_op, FALSE);
+  }
+}
+
+/**
+ * DRD replacement for the Drupal core _xmlrpc() function.
+ *
+ * @param string $url
+ * @param string $method
+ * @param array $args
+ * @param array $options
+ * @return bool|array
+ */
+function _drd_xmlrpc($url, $method, $args, $options = array()) {
+  require_once DRUPAL_ROOT . '/includes/xmlrpc.inc';
+  xmlrpc_clear_error();
+  $xmlrpc_request = xmlrpc_request($method, $args);
+  // Required options which will replace any that are passed in.
+  $options['method'] = 'POST';
+  $options['headers']['User-Agent'] = 'Drupal Remote Dashboard';
+  $options['headers']['Content-Type'] = 'text/xml';
+  $options['headers']['Accept'] = 'text/xml';
+  $options['headers']['Accept-Encoding'] = 'utf-8';
+  if (variable_get('drd_cluster_mode', FALSE)) {
+    $options['headers']['X-DRD-AUTH-TOKEN'] = variable_get('drd_cluster_mode_token');
+  }
+  $options['data'] = $xmlrpc_request->xml;
+  $result = drupal_http_request($url, $options);
+  if ($result->code != 200) {
+    $result->error = isset($result->error) ? $result->error : 'Error ' . $result->code;
+    if ($result->code == 302) {
+      $result->error = $result->redirect_url;
+    }
+    xmlrpc_error($result->code, $result->error);
+    return FALSE;
+  }
+  $message = xmlrpc_message($result->data);
+  $message->message = trim($message->message);
+  // Now parse what we've got back
+  if (!xmlrpc_message_parse($message)) {
+    drd_set_message($url, t('Parse error for %method on %url: %data', array('%method' => $method, '%url' => $url, '%data' => strip_tags($result->data))), 'error');
+
+    // XML error
+    xmlrpc_error(-32700, t('Parse error. Not well formed'));
+    return FALSE;
+  }
+  // Is the message a fault?
+  if ($message->messagetype == 'fault') {
+    xmlrpc_error($message->fault_code, $message->fault_string);
+    return FALSE;
+  }
+  $return = $message->params[0];
+  return $return;
+}
+
+/**
+ * @param string $vars
+ * @return string
+ */
+function _drd_variables_block($vars) {
+  $vars = unserialize($vars);
+  return '<pre>'.@print_r($vars, TRUE).'</pre>';
+}
+
+/**
+ * @param string $mode
+ * @param int $oid
+ * @param array $form
+ */
+function _drd_tags_build_form($mode, $oid, &$form) {
+  if (module_exists('taxonomy')) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('drd');
+    if ($vocabulary) {
+      $tids = db_select('drd_term', 't')
+          ->fields('t', array('tid'))
+          ->condition('t.mode', $mode)
+          ->condition('t.oid', $oid)
+          ->execute()
+          ->fetchAllKeyed(0, 0);
+      $terms = taxonomy_term_load_multiple(array_keys($tids));
+      $term_data = array();
+      foreach ($terms as $term) {
+        $term_data[] = $term->name;
+      }
+      $form['tags'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Tags'),
+        '#default_value' => implode(', ', $term_data),
+        '#maxlength' => 1024,
+        '#autocomplete_path' => 'drd/autocomplete/taxonomy',
+      );
+    }
+  }
+}
+
+/**
+ * @param string $mode
+ * @param array $form
+ */
+function _drd_tags_build_filter_form($mode, &$form) {
+  if (module_exists('taxonomy')) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('drd');
+    if ($vocabulary) {
+      $tids = db_select('drd_term', 't')
+          ->fields('t', array('tid'))
+          ->condition('t.mode', $mode)
+          ->execute()
+          ->fetchAllKeyed(0, 0);
+      $terms = taxonomy_term_load_multiple(array_keys($tids));
+      $term_data = array();
+      foreach ($terms as $term) {
+        $term_data[$term->tid] = $term->name;
+      }
+      $form['filter_wrapper']['filter_tags'] = array(
+        '#type' => 'select',
+        '#title' => t('Tags'),
+        '#multiple' => TRUE,
+        '#options' => $term_data,
+        '#default_value' => $_SESSION['drd']['filter'][$mode]['tags'],
+      );
+    }
+  }
+}
+
+/**
+ * @param string $mode
+ * @param int $oid
+ * @param string $values
+ */
+function _drd_tags_save($mode, $oid, $values) {
+  if (module_exists('taxonomy')) {
+    $vocabulary = taxonomy_vocabulary_machine_name_load('drd');
+    if ($vocabulary) {
+      $terms = explode(',', $values);
+      foreach ($terms as $name) {
+        $name = trim($name);
+        $term = db_select('taxonomy_term_data', 'td')
+          ->fields('td', array('tid', 'name'))
+          ->condition('name', $name)
+          ->condition('vid', $vocabulary->vid)
+          ->execute()
+          ->fetchObject();
+        if (!$term) {
+          $term = new stdClass();
+          $term->vid = $vocabulary->vid;
+          $term->name = $name;
+          $term->description = '';
+          $term->format = filter_default_format();
+          taxonomy_term_save($term);
+        }
+        $drd_term = array(
+          'mode' => $mode,
+          'oid' => $oid,
+          'tid' => $term->tid,
+        );
+        db_merge('drd_term')->key($drd_term)->fields($drd_term)->execute();
+      }
+    }
+  }
+}
+
+/**
+ * @return array
+ */
+function _drd_detail_areas() {
+  return array(
+    'status' => t('Status'),
+    'variable' => t('Variables'),
+    'globals' => t('Globals'),
+    'block' => t('Blocks'),
+    'other' => t('Others'),
+  );
+}
+
+/**
+ * @return array
+ */
+function _drd_monitor_periods() {
+  return array(
+    '24h' => array(
+      'start' => (REQUEST_TIME - (60*60*24)),
+      'end' => REQUEST_TIME,
+      'type' => 0,
+      'label' => t('Last 24 hours'),
+    ),
+    'daily' => array(
+      'start' => 0,
+      'end' => REQUEST_TIME,
+      'type' => 1,
+      'label' => t('Daily'),
+    ),
+    'weekly' => array(
+      'start' => 0,
+      'end' => REQUEST_TIME,
+      'type' => 2,
+      'label' => t('Weekly'),
+    ),
+    'monthly' => array(
+      'start' => 0,
+      'end' => REQUEST_TIME,
+      'type' => 3,
+      'label' => t('Monthly'),
+    ),
+    'quarterly' => array(
+      'start' => 0,
+      'end' => REQUEST_TIME,
+      'type' => 4,
+      'label' => t('Quarterly'),
+    ),
+    'yearly' => array(
+      'start' => 0,
+      'end' => REQUEST_TIME,
+      'type' => 5,
+      'label' => t('Yearly'),
+    ),
+  );
+}

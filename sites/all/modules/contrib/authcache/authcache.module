@@ -1,0 +1,764 @@
+<?php
+
+/**
+ * @file
+ * Authenticated User Page Caching (and anonymous users, too!)
+ *
+ * This file is limited to Drupal specific functions & hooks only.
+ *
+ * @see authcache.helpers.inc for cache helper functions
+ * @see authcache.admin.inc for admin page functionality
+ */
+
+// Global variables
+$_authcache_is_cacheable = FALSE;
+$_authcache_info;  // Store information about page caching
+
+// Default caching rules (Never cache these pages)
+define('AUTHCACHE_NOCACHE_DEFAULT', '
+user*
+node/add/*
+node/*/edit
+node/*/track
+tracker*
+comment/edit*
+civicrm*
+cart*
+system/files/*
+system/temporary*
+file/ajax/*
+');
+
+// Default non-HTML caching rules (don't append JS to page content)
+define('AUTHCACHE_NONHTML_DEFAULT', '
+  robots.txt
+');
+// Default non-HTML cachable content-types
+define('AUTHCACHE_NONHTML_CONTENTTYPES', '
+text/javascript
+text/plain
+application/xml
+application/atom+xml
+');
+
+define('CACHE_DISABLED', FALSE);
+
+// Functions specifically for caching
+require dirname(__FILE__) . '/authcache.helpers.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function authcache_menu() {
+
+  $items['admin/config/development/performance/performance'] = array(
+    'title' => 'Performance',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  
+  $items['admin/config/development/performance/authcache'] = array(
+    'title' => 'Authcache',
+    'description' => "Configure Authcache.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_admin_config'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  
+  $items['admin/config/development/performance/authcache/config'] = array(
+    'title' => 'Configuration',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  
+  $items['admin/config/development/performance/authcache/pagecaching'] = array(
+    'title' => 'Page caching settings',
+    'description' => "Configure page cache settings.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_admin_pagecaching'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+  );
+  $items['admin/config/development/performance/authcache/blocks'] = array(
+    'title' => 'Blocks',
+    'description' => "View Authcache blocks.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_admin_blocks'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 30,
+  );
+  /* @todo
+  $items['admin/config/development/performance/authcache/advanced'] = array(
+    'title' => 'Advanced Rulesets',
+    'description' => "Configure advanced caching rulesets.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('authcache_admin_advanced'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 30,
+  );
+  $items['admin/config/development/performance/authcache/lookup'] = array(
+    'title' => 'View Cached',
+    'page callback' => 'authcache_admin_lookup',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 30,
+  );
+  */
+  $items['authcache/ajax'] = array(
+    'title' => 'Javascript ajax Callback',
+    'page callback' => 'authcache_ajax',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'authcache.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+
+  return $items;
+}
+
+/**
+ * Implements hook_init().
+ */
+
+function authcache_init() {
+  global $user, $_authcache_is_cacheable, $_authcache_info;
+
+  // Pressflow compatibility (since Pressflow doesn't set this cookie)
+  if (($sysblock = system_block_info()) && $sysblock['powered-by'] == t('Powered by Pressflow')) {
+    drupal_add_js("document.cookie = 'has_js=1; path=/';", array('scope' => 'header'));
+  }
+  
+  // Authcache core JS and cookie library
+  drupal_add_library('system', 'jquery.cookie');
+  drupal_add_js(drupal_get_path('module', 'authcache') .'/authcache.js'); 
+  
+  // Add JS for debug mode?
+  if (_authcache_debug_access()) {
+    drupal_add_js(drupal_get_path('module', 'authcache') . '/authcache.debug.js', array('type' => 'file', 'scope' => 'header'));
+    // Also see authcache_authcache_info() for user debug settings
+  }
+  
+  drupal_add_css(drupal_get_path('module', 'authcache') . '/authcache.css', array('type' => 'file', 'scope' => 'header'));
+
+  //moved to hook_exit (as per boost module) as an experiment
+  //register_shutdown_function('_authcache_shutdown_save_page');
+  
+  $_authcache_info = array();
+  $_authcache_is_cacheable = _authcache_is_cacheable();
+
+  if ($_authcache_is_cacheable) {
+    global $conf;
+
+    // Don't allow format_date() to use the user's local timezone
+    $conf['configurable_timezones'] = FALSE;
+
+
+
+    // Initialize Authcache after all other JS is loaded
+    drupal_add_js('jQuery(function() { Authcache.init(); });',  array('type' => 'inline', 'scope' => 'header'));
+
+    // Force Ajax to use POST method instead of GET
+    if (variable_get('authcache_post', FALSE)) {
+      drupal_add_js(array('Authcache' => array('post' => 1)),  array('type' => 'setting', 'scope' => 'header'));
+    }
+
+    // Forcibly disable Drupal's built-in SQL caching
+    // (No need to cache page twice for anonymous users)
+    if (!$user->uid && variable_get('cache', CACHE_DISABLED) != CACHE_DISABLED) {
+      $conf['cache'] = CACHE_DISABLED;
+    }
+
+    // Status messages prevent pages from being cached.
+    if (variable_get('authcache_debug_page', FALSE)) {
+      drupal_set_message(t('Caching disabled by') . ' ' . l('Authcache Config.', 'admin/config/development/performance/authcache/config'));
+    }
+  } 
+
+  // Remove debug cookies
+  if (isset($_COOKIE['authcache_debug']) && !_authcache_debug_access()) {
+    setcookie('authcache_debug', "", REQUEST_TIME - 84000); // Delete JS cookie
+    setcookie('authcache_debug', "", REQUEST_TIME - 84000, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+    setcookie('nocache', "", REQUEST_TIME - 84000, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+    setcookie('nocache_temp', "", REQUEST_TIME - 84000, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+}
+
+
+/**
+ * Implements hook_user().
+ */
+
+function authcache_user_login(&$edit_ignored, $account) {
+  global $_authcache_is_cacheable;
+  // Cookie expiration
+  $expires = ini_get('session.cookie_lifetime');
+  $expires = (!empty($expires) && is_numeric($expires) ? REQUEST_TIME + (int) $expires : 0);
+
+  //TODO:d7 - does it make sense to disable caching for uid == 1 ?
+  //$no_cache = (isset($account->uid) && ($account->uid == 1 || !isset($_COOKIE['has_js'])));
+  $no_cache = !isset($_COOKIE['has_js']);
+  if ($no_cache) {
+    setcookie('nocache', 1, $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+  else {
+    setcookie('authcache', _authcache_key($account), $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+
+  // Authcache debugging
+  if (_authcache_debug_access()) {
+    setcookie('authcache_debug', 1, $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+
+  // Required to differentiate from anonymous users
+  setcookie('drupal_user', $account->name, $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  setcookie('drupal_uid', $account->uid, $expires, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+}
+
+function authcache_user_logout($account) {
+  // Note: include same cookie deletion in ajax/authcache.module
+
+  setcookie('drupal_user', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  setcookie('drupal_uid', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  setcookie('authcache', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+
+  if (isset($_COOKIE['nocache'])) {
+    setcookie('nocache', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+  if (isset($_COOKIE['nocache_temp'])) {
+    setcookie('nocache_temp', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+  if (isset($_COOKIE['authcache_debug'])) {
+    setcookie('authcache_debug', "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+
+  foreach ($_COOKIE as $key => $value) {
+    if (substr($key, 0, 3) == 'nid') {
+      setcookie($key, "", REQUEST_TIME - 86400, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter(),
+ */
+function authcache_form_alter(&$form, &$form_state, $form_id) {
+  global $user, $_authcache_is_cacheable, $_authcache_is_ajax;
+
+  // Forms for logged-in users
+  if ($user->uid && $_authcache_is_cacheable) {
+
+    // Remove user-specific form token
+    if (isset($form['form_token'])) {
+      if (isset($form['form_token']['#default_value'])) $form['form_token']['#default_value'] = '';
+      if (isset($form['form_token']['#value'])) $form['form_token']['#value'] = '';
+    }
+
+    // Token will be generated via ajax_authcache.php, but correct id is needed
+    $form['form_token_id'] = array(
+      '#type' => 'hidden',
+      '#value' => (isset($form['#token'])) ? $form['#token'] : $form_id,
+    );
+
+    // Views exposed form (Views uses custom form rendering functions)
+    if (isset($form['#theme']) && is_array($form['#theme']) && in_array('views_exposed_form', $form['#theme'])) {
+      unset($form['#token']); // Prevents validation error
+      unset($form['form_token_id']);
+    }
+
+    // Modify specific forms
+    switch ($form_id) {
+      // Remove default values on contact form (hook_authcache_ajax will retrieve defaults)
+      case 'contact_site_form':
+        unset($form['name']['#default_value']);
+        unset($form['mail']['#default_value']);
+        break;
+    }
+  }
+
+  // Anonymous & authenticatd cacheable forms
+  if ($_authcache_is_cacheable) {
+    // Forms won't be cached on cached pages, so no need for build ids
+   
+    $form['#after_build'][] = '_authcache_form_remove_build_id';
+    $form_state['no_cache'] = TRUE;
+  }
+
+  // Forms being rendered during Ajax phase
+  if ($_authcache_is_ajax) {
+    $form['#action'] = "";
+  }
+
+  if ($_authcache_is_cacheable || $_authcache_is_ajax) {
+    switch ($form_id) {
+      // poll vote/results form may be ajax; must keep track of submit for cache invalidation
+      case 'poll_view_voting':
+        $form['vote']['#submit'][] = 'authcache_form_submit';
+        break;
+      case 'poll_cancel_form':
+        $form['actions']['submit']['#submit'][] = 'authcache_form_submit';
+        break;
+    }
+  }
+
+  // Alter all forms
+  switch ($form_id) {
+    // Alter Drupal's "Performance" admin form
+    case 'system_performance_settings':
+      $form['caching']['cache']['#description'] = ' <strong>' . t('If Authcache is enabled for the "anonymous user" role, Drupal\'s built-in page caching will be automatically disabled since all page caching is done through Authcache API instead of Drupal core.') . '</strong>';
+      if (_authcache_is_account_cacheable(drupal_anonymous_user())) {
+        $form['caching']['cache']['#disabled'] = TRUE; //array(0 => t('Disabled') . ' ' . t('by') . ' Authcache');
+        $form['caching']['cache']['#value'] = TRUE;
+      }
+      
+      break;
+    case 'user_profile_form':
+      // Don't allow user local timezone
+      if (_authcache_is_account_cacheable()) {
+        unset($form['timezone']);
+      }
+      break;
+    case 'block_add_block_form':
+    case 'block_admin_configure':
+      $authcache_block = variable_get('authcache_block', array());
+      $block_id = "{$form['module']['#value']}-{$form['delta']['#value']}";
+
+      $form['block_settings']['#weight'] = 50; //simg: changed from -10. why would you want authcache settings at top of block page?
+
+      $form['visibility']['authcache_settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Authcache Ajax'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#group' => 'visibility',
+        '#attached' => array(
+          'js' => array(drupal_get_path('module', 'authcache') . '/authcache.admin.js'),
+        ),
+      );
+      $form['visibility']['authcache_settings']['authcache'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Load block with Ajax on cached Authcache pages'),
+        '#description' => t('This is useful for dynamic or user-centric content, however it places additional load on the server.'),
+        '#default_value' => (isset($authcache_block[$block_id])),
+      );
+      $form['visibility']['authcache_settings']['authcache_lifetime'] = array(
+        '#type'  => 'textfield',
+        '#title' => t('Minimum cache lifetime'),
+        '#description' => t('Enter the number of seconds to locally cache the block in the user\'s browser. This improves performance and prevents jumpiness.'),
+        '#field_suffix' => t('seconds'),
+        '#size' => 8,
+        '#default_value' => (isset($authcache_block[$block_id])) ? $authcache_block[$block_id] : 0,
+      );
+      $form['#submit'][] = 'authcache_block_submit';
+      break;
+  }
+}
+
+function _authcache_form_remove_build_id($form) {
+  unset($form['form_build_id']);
+  unset($form['#build_id']);
+  return $form;
+}
+
+/**
+ * Generic form submit handler.
+ *
+ * Set nid cookie for cache invalidation (e.g., poll node)
+ */
+function authcache_form_submit(&$form, &$form_state) {
+  $nid = FALSE;
+
+  if (isset($form['#node']) && $form['#node']->type == 'poll') {
+    $nid = $form['#node']->nid;
+  }
+
+  if (isset($form['#nid'])) {
+    $nid = $form['#nid'];
+  }
+
+  if ($nid) {
+    setcookie('nid' . $nid, REQUEST_TIME, 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+  }
+}
+
+/**
+ * Block submit handler.
+ */
+function authcache_block_submit(&$form, &$form_state) {
+  $module = $form_state['values']['module'];
+  $delta  = $form_state['values']['delta'];
+
+  // Adding block
+  if ($module == 'block' && !$delta) {
+    $delta = db_result(db_query("SELECT bid FROM {boxes} WHERE info = '%s' ORDER BY bid DESC", $form_state['values']['info']));
+  }
+
+  $block_id = "$module-$delta";
+
+  $authcache_block = variable_get('authcache_block', array());
+
+  if (!$form_state['values']['authcache']) {
+    unset($authcache_block[$block_id]);
+  }
+  else {
+    $lifetime = trim($form_state['values']['authcache_lifetime']);
+    $authcache_block[$block_id] = (is_numeric($lifetime)) ? $lifetime : 0;
+  }
+
+  variable_set('authcache_block', $authcache_block);
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter(),
+ */
+function authcache_form_comment_form_alter(&$form, &$form_state, $form_id) {
+  global $user, $_authcache_is_cacheable;
+
+  // Forms for logged-in users
+  if ($user->uid && $_authcache_is_cacheable) {
+    $form['author']['_author']['#markup'] = '<span class="authcache-user"></span>';
+  }
+}
+
+/**
+ * Implements hook_comment_view_alter().
+ */
+function authcache_comment_view_alter(&$build) {
+  global $user, $_authcache_is_cacheable;
+
+  // We only add/replace the authcache alterable edit link if:
+  // 1. There is a logged in user
+  // 2. The page can be cached
+  // 3. Comment is published
+  // 4. A user has the right to edit its own comments
+  // 5. The user does *not* have administer comments permission
+  //
+  // If the logged in user belongs to a role with admin-permission, there is no
+  // need to alter the link. If on the other hand, the user belongs to a role
+  // without 'edit own comments' permission, the link will not be added by
+  // comment_links anyway.
+  // see also (in comment.module):
+  // - comment_links
+  // - comment_access
+
+  $comment = $build['#comment'];
+  if (($user->uid && $_authcache_is_cacheable && $comment->status == COMMENT_PUBLISHED && user_access('edit own comments')) && !user_access('administer comments')) {
+    $build['links']['comment']['#links']['comment-edit'] = array(
+      'title' => t('edit'),
+      'attributes' => array(
+        'class' => array('authcache-comment-edit'),
+        'data-comment-uid' => $comment->uid,
+        'data-comment-href' => "comment/$comment->cid/edit",
+      ),
+      'html' => TRUE,
+    );
+  }
+}
+
+function authcache_node_view_alter(&$build) {
+  global $_authcache_is_cacheable;
+  $node = $build['#node'];
+
+  if ($node->type == 'poll' && $_authcache_is_cacheable) {
+    if (isset($build['poll_view_voting'])) {
+      $build['poll_view_voting'] = array(
+        '#markup' => '<span class="authcache-poll" data-nid="' . check_plain($node->nid) . '"></span>',
+      );
+    }
+    if (isset($build['poll_view_results'])) {
+      $build['poll_view_results'] = array(
+        '#markup' => '<span class="authcache-poll" data-nid="' . check_plain($node->nid) . '"></span>',
+      );
+    }
+  }
+
+  if(isset($build['links']['comment']['#links']['comment-comments'])) {
+    $build['links']['comment']['#links']['comment-new-comments'] = array(
+      'title' => t('Number of new comments unknown'),
+      'attributes' => array(
+        'class' => array('authcache-comment-num-new'),
+        'data-node-nid' => $node->nid,
+      ),
+    );
+  }
+}
+
+/**
+ * Implements hook_exit().
+ *
+ * Called on drupal_goto() redirect.
+ * Make sure status messages show up, if applicable.
+ */
+function authcache_exit($destination = NULL) {
+  global $_authcache_is_cacheable;
+
+  if ($destination !== NULL) {
+    $_authcache_is_cacheable = FALSE;
+
+    // Cookie will inform Authcache not to display cached page on next request
+    if (drupal_set_message()) {
+      setcookie('nocache', 1, 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+      setcookie('nocache_temp', 1, 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+    }
+  }
+  
+  //TODO:probably move _authcache_shutdown_save_page() code to here if this works
+  _authcache_shutdown_save_page();
+
+}
+
+//
+// Preprocess functions
+//
+
+/**
+ * Process all template variables
+ */
+function authcache_preprocess(&$variables, $hook) {
+  global $_authcache_is_cacheable;
+
+  // Define variables for templates files
+
+  $variables['authcache_is_cacheable'] = $_authcache_is_cacheable;
+
+  //&& is_object($variables['user']) is a temporary fix for issue reports here http://drupal.org/node/966152 #61 - may well be removed in release version
+  if (isset($variables['user']) && is_object($variables['user']) && $variables['user']->uid) {
+    $variables['user_name'] = ($_authcache_is_cacheable === true)
+      ? '<span class="authcache-user"></span>'
+      : $variables['user']->name;
+
+    $variables['user_link'] = ($_authcache_is_cacheable === true)
+      ? '<a href="" class="authcache-user-link">!username</a>'
+      : l($variables['user']->name, "user", array('alias' => TRUE));
+  }
+}
+
+/**
+ * Implements hook_process_HOOK().
+ *
+ * Prevent caching pages with status messages on them. Note that due to the
+ * fact the messages are only added in template_process_page, we also need to
+ * use the process-hook.
+ */
+function authcache_process_page(&$variables) {
+  global $_authcache_is_cacheable, $_authcache_info;
+
+  if (!empty($variables['messages']) && $_authcache_is_cacheable) {
+    $_authcache_is_cacheable = $variables['authcache_is_cacheable'] = FALSE;
+    $_authcache_info['no_cache_reason'] = 'Status message displayed.';
+  }
+}
+
+/**
+ * Process page template variables.
+ */
+function authcache_preprocess_page(&$variables) {
+  global $_authcache_is_cacheable;
+
+  if (user_is_logged_in() && $_authcache_is_cacheable) {
+    $variables['tabs']['#post_render'][] = 'authcache_wrap_tabs';
+    $variables['action_links']['#post_render'][] = 'authcache_wrap_local_actions';
+  }
+}
+
+/**
+ * Post-render callback for page-tabs. Wrap them into an authcache span, so we
+ * can find it again in JavaScript.
+ */
+function authcache_wrap_tabs($markup) {
+  return !empty($markup) ? '<span id="authcache-tabs">' . $markup . '</span>' : '';
+}
+
+/**
+ * Post-render callback for local actions. Wrap them into an authcache span, so
+ * we can find it again in JavaScript.
+ */
+function authcache_wrap_local_actions($markup) {
+  return !empty($markup) ? '<span id="authcache-local-actions">' . $markup . '</span>' : '';
+}
+
+/**
+ * Process block template variables
+ */
+function authcache_preprocess_block(&$variables) {
+  if ($variables['authcache_is_cacheable'] === true) {
+    global $user;
+    $block = $variables['block'];
+
+    // User navigation block; use cookie for displaying username.
+    if ($block->module == 'user' && $user->uid && $user->name == $block->subject) {
+      $variables['block']->subject = '<span class="authcache-user"></span>';
+    }
+
+    // Authcache Blocks
+    $authcache_block = variable_get('authcache_block', array());
+    $block_id = "{$block->module}-{$block->delta}";
+
+    if (isset($authcache_block[$block_id])) {
+      $data = array();
+
+      // Max-age (local caching)
+      if ($authcache_block[$block_id]) {
+        $data[] = 'data-block-cache="' . $authcache_block[$block_id] . '"';
+      }
+
+      $data[] = 'data-block-cid="' . _block_get_cache_id($block) . '"';
+
+      $variables['block']->subject = '<span id="authcache-block-subj-' . $block_id . '">' . $variables['block']->subject . '</span>';
+      $variables['content'] = '<div id="authcache-block-' . $block_id . '" class="authcache-block" ' . implode(' ', $data) . '></div>';
+    }
+  }
+}
+
+/**
+ * Process comment template variables
+ *
+ * @see comment.module
+ * Replace "new" marker with empty span containing timestamp info
+ * Add "edit" uid span for JS phase
+ */
+function authcache_preprocess_comment(&$variables) {
+  // Will use Ajax to determine whether to display "new" marker for user
+  if ($variables['authcache_is_cacheable'] === true) {
+    $variables['new'] = '<span class="authcache-comment-new" data-timestamp="' . $variables['comment']->changed . '"></span>';
+  }
+}
+
+
+/**
+ * Process forum template variables
+ *
+ * @see forum.module
+ * Remove "new" marker
+ */
+function authcache_preprocess_forum_list(&$variables) {
+
+  // Will use Ajax to determine whether to display "new" marker for user
+  if ($variables['authcache_is_cacheable'] === true) {
+    foreach ($variables['forums'] as $id => $forum) {
+      if ($variables['user']->uid) {
+        if ($forum->num_topics) {
+          $forum->num_topics .= '<span class="authcache-topic-new" data-forum-id="' . $id . '"></span>';
+        }
+      }
+      $variables['forums'][$id]->new_text = '';
+      $variables['forums'][$id]->new_url = '';
+    }
+  }
+}
+
+/**
+ * Process forum template variables
+ *
+ * @see forum.module
+ * Remove "new" marker
+ */
+function authcache_preprocess_forum_topic_list(&$variables) {
+  if ($variables['authcache_is_cacheable'] === true) {
+    if (!empty($variables['topics'])) {
+      foreach ($variables['topics'] as $id => $topic) {
+        $nid = $variables['topics'][$id]->nid;
+
+        // Replace "new" icons.  If you are using custom icons, make sure
+        // the filenames have the same format as Drupal core
+        $icon = str_replace('hot-new', 'hot', $variables['topics'][$id]->icon);
+        $icon = str_replace('new', 'default', $variables['topics'][$id]->icon);
+        $variables['topics'][$id]->icon =
+          '<span class="authcache-topic-icon" data-nid="' . $nid . '">' .
+          $icon .
+          '</span>';
+
+        $variables['topics'][$id]->title .= '<span class="authcache-topic-info" data-timestamp="' . $variables['topics'][$id]->last_comment_timestamp . '" data-nid="' . $nid . '"></span>';
+
+        // "New" reply count will be handle via Ajax
+        if ($topic->comment_count) {
+          $variables['topics'][$id]->comment_count .= '<span class="authcache-topic-replies" data-nid="' . $nid . '"></span>';
+          $variables['topics'][$id]->new_text = '';
+          $variables['topics'][$id]->new_url = '';
+        }
+      }
+    }
+  }
+}
+
+//
+// Authcache hooks
+//
+
+/**
+ * Implements hook_authcache_ajax().
+ *
+ * Modifies footer JSON for Ajax call.
+ */
+function authcache_authcache_ajax() {
+  global $user;
+
+  $authcache_ajax = array();
+
+  $node = (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') ? node_load(arg(1)) : FALSE;
+
+  // @see node.module
+  if ($user->uid && $node) {
+    $authcache_ajax['node_history'] = arg(1);
+  }
+
+  // @see contact.module
+  if ($user->uid && arg(0) == 'contact') {
+    $authcache_ajax['contact'] = 1;
+  }
+
+  // @see statistics.module
+  if (module_exists('statistics')) {
+    if ($node && variable_get('statistics_count_content_views', 0)) {
+      $authcache_ajax['statistics'] = 1;
+    }
+
+    if (variable_get('statistics_enable_access_log', 0) && (module_invoke('throttle', 'status') == 0)) {
+      $authcache_ajax['statistics'] = 1;
+    }
+  }
+
+  return $authcache_ajax;
+}
+
+/**
+ * Implements hook_authcache_info().
+ *
+ * Modifies footer JSON for JavaScript info.
+ */
+function authcache_authcache_info() {
+  global $user;
+
+  $authcache_info = array();
+
+  $node = (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') ? node_load(arg(1)) : FALSE;
+
+  if ($node) {
+    if ($user->uid) {
+      $authcache_info['node_author'] = $node->name;
+    }
+
+    // Comment functionality for users
+    if ($user->uid && isset($node->comment_count)) {
+      $authcache_info['t']['new'] = t('new');   // "new" marker
+      $authcache_info['t']['edit'] = t('edit'); // "edit" marker
+      $authcache_info['comment_usertime'] = node_last_viewed($node->nid); // For first page request and to inform JS phase that comments exist
+    }
+  }
+
+  // Debug mode by user only
+  if (!variable_get('authcache_debug_all', FALSE) && _authcache_debug_access()) {
+    $authcache_info['debug_users'] = $debug_users;
+  }
+
+  return $authcache_info;
+}
