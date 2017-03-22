@@ -60,7 +60,7 @@ Enter these commands from the command line to get started:
 
 ```shell
 # Clone the repo to your computer
-git clone git@github.com:art-institute-of-chicago/journeymaker-cms.git
+git clone https://github.com/art-institute-of-chicago/journeymaker-cms.git
 
 # Enter the folder that was created by the clone
 cd journeymaker-cms
@@ -124,7 +124,7 @@ We like to use [git-flow](https://github.com/nvie/gitflow) to make this process 
 
 ```bash
 # Clone the repo to your computer
-git clone git@github.com:your-github-account/journeymaker-cms.git
+git clone https://github.com/your-github-account/journeymaker-cms.git
 
 # Enter the folder that was created by the clone
 cd journeymaker-cms
