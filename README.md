@@ -1,4 +1,4 @@
-![Art Institute of Chicago](https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif)
+<img src=https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif alt="Art Institute of Chicago" width=20% />
 <img src=journeymaker-logo.png alt="JourneyMaker: Your Journey Begins Here" width=75% style="float: right"/>
 
 # JourneyMaker CMS
@@ -60,7 +60,7 @@ Enter these commands from the command line to get started:
 
 ```shell
 # Clone the repo to your computer
-git clone git@github.com:art-institute-of-chicago/journeymaker-cms.git
+git clone https://github.com/art-institute-of-chicago/journeymaker-cms.git
 
 # Enter the folder that was created by the clone
 cd journeymaker-cms
@@ -124,7 +124,7 @@ We like to use [git-flow](https://github.com/nvie/gitflow) to make this process 
 
 ```bash
 # Clone the repo to your computer
-git clone git@github.com:your-github-account/journeymaker-cms.git
+git clone https://github.com/your-github-account/journeymaker-cms.git
 
 # Enter the folder that was created by the clone
 cd journeymaker-cms
