@@ -19,6 +19,12 @@ Outside contributors can ignore Redmine references.
 
 1.2.0 - Multiple language support (in progress by Belle & Wissel Co.)
 
+1.1.1 - Tweaks to documentation
+
+* Update spacing of images in README
+* Make git commands more usable in README
+* Reformat CHANGELOG.md
+
 1.1.0 - Changes for open source release:
 
 * Remove unneeded warnings in install.sh [#1482]
