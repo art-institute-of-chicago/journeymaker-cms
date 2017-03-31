@@ -78,7 +78,7 @@ look for the Drupal admin password to log into your Drupal site. After the scrip
 document root of your web server to the `journeymaker-cms` folder and your admin site should be up and 
 running. 
 
-There is some addition content required in order for to get your CMS ready for the client. You'll need
+There is some additional content required in order for to get your CMS ready for the client. You'll need
 to add artworks and tie them to themes. You may see errors until you do this. Please follow the 
 [User Documentation](USER-DOCUMENTATION.md) for further instructions.
 
