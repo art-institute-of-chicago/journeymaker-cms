@@ -60,10 +60,10 @@ function api_gallery_update() {
       curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
 
       $request_method = 'GET';
-      $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+      $request_content_type = 'application/json';
 
       $headers = array(
-        'Content-Type: application/vnd.hi360.gateway.v1+json',
+        'Content-Type: application/json',
         "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
         "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
       );
@@ -87,10 +87,10 @@ function api_gallery_update() {
       curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
 
       $request_method = 'GET';
-      $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+      $request_content_type = 'application/json';
 
       $headers = array(
-        'Content-Type: application/vnd.hi360.gateway.v1+json',
+        'Content-Type: application/json',
         "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
         "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
       );
@@ -162,10 +162,10 @@ function api_query_theme($search_type, $search_term) {
     curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
 
     $request_method = 'GET';
-    $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+    $request_content_type = 'application/json';
 
     $headers = array(
-      'Content-Type: application/vnd.hi360.gateway.v1+json',
+      'Content-Type: application/json',
       "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
       "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
     );
@@ -181,7 +181,7 @@ function api_query_theme($search_type, $search_term) {
         if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
           $table = "<br /><br /><table>";
 
-          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title_s}'>{$doc->title_s}</td></tr>";
           $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
 
           $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
@@ -215,10 +215,10 @@ function api_query($search_type, $search_term) {
     curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
 
     $request_method = 'GET';
-    $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+    $request_content_type = 'application/json';
 
     $headers = array(
-      'Content-Type: application/vnd.hi360.gateway.v1+json',
+      'Content-Type: application/json',
       "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
       "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
     );
@@ -234,7 +234,7 @@ function api_query($search_type, $search_term) {
         $table = "<br /><br /><table>";
 
         $table .= "<tr><th width='25%'>ObjectID</th>  <td id='object_id_$k' data-value='{$doc->object_id}'>{$doc->object_id}</td></tr>";
-        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title_s}'>{$doc->title_s}</td></tr>";
         $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
 
         if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
@@ -258,10 +258,10 @@ function api_query($search_type, $search_term) {
           curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
 
           $request_method = 'GET';
-          $request_content_type = 'application/vnd.hi360.gateway.v1+json';
+          $request_content_type = 'application/json';
 
           $headers = array(
-            'Content-Type: application/vnd.hi360.gateway.v1+json',
+            'Content-Type: application/json',
             "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
             "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
           );
