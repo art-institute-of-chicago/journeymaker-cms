@@ -22,6 +22,28 @@ function aic_json_menu() {
     'page arguments' => array('json-off-display'),
     'access callback' => TRUE,
   );
+  
+  $items['json/%'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json', 1),
+    'access callback' => TRUE,
+  );
+
+  $items['json-on-display/%'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json-on-display', 1),
+    'access callback' => TRUE,
+  );
+
+  $items['json-off-display/%'] = array(
+    'title' => 'JSON',
+    'page callback' => 'aic_json_page',
+    'page arguments' => array('json-off-display', 1),
+    'access callback' => TRUE,
+  );
+
 
   $items['admin/publish-data'] = array(
     'title' => 'Publish Data',
@@ -32,36 +54,88 @@ function aic_json_menu() {
   return $items;
 }
 
-function aic_json_permission() {
-	return array(
-    		'publish json data' => array(
-      			'title' => t('Publish JSON Data'),
-      			'description' => t('Allow user to schedule JSON for publishing.'),
-    		),
-  	);
+function aic_json_file_create_url($uri, $domain_name_replacement = NULL) {
+
+  // Uncomment the line below and put the replacement domain name there. No protocol( http://), no tailing slash.
+  $domain_name_replacement = "aicweb13-test.artic.edu";
+
+  $url = file_create_url($uri);
+
+  if($domain_name_replacement !== NULL) {
+    $search = $_SERVER['HTTP_HOST'];
+    $url = str_replace($search, $domain_name_replacement, $url);
+  }
+  return $url;
 }
 
-function aic_json_publish() {
+/**
+ * Generate image properties: url, width, height.
+ *
+ * image_style_url does not generate files, causing getimagesize to fails.
+ * This function force-creates the style image file given the original
+ * uri and style name, and return the properties.
+ */
+function aic_json_styled_image($style ,$image_uri) {
 
-	$data = 'Boom!';
+  //First create image files if not exists.
+  $derivative_uri = image_style_path($style, $image_uri);
+  $success = file_exists($derivative_uri) || image_style_create_derivative(image_style_load($style), $image_uri, $derivative_uri);
 
-  file_unmanaged_save_data($data, 'public://file_sync_trigger.txt');
+  // Construct an array with key url, width, and height to return.
+  $result['url'] = aic_json_file_create_url($derivative_uri);
 
-	return 'JSON has been scheduled for publishing.';
+  list($result['width'], $result['height']) = getimagesize(
+    drupal_realpath($derivative_uri));
+
+  return $result;
 }
 
-function aic_json_page($type) {
+/**
+ * Gets the translated nid from given source nid and target language.
+ */
+function aic_json_nid_by_lang($nid_en, $target_lang) {
+  // Return origial nid if the target language is english.
+  if ($target_lang == "en") {
+    return $nid_en;
+  }
+
+  $target_nid = db_query("
+    SELECT nid FROM {node}
+    WHERE language = :tl
+    AND tnid = :nid_en",
+    array(":tl" => $target_lang, ":nid_en" => $nid_en));
+
+  // Return english version if no translation is found.
+  if ($target_nid->rowCount() == 0) {
+    return $nid_en;
+  }
+
+  // Return translated nid.
+  return $target_nid->fetchField();
+}
+
+function aic_json_page($type, $lang = 'en') {
+  // Check if language code exists. If not, use default.
+
+  $l = db_query("
+    SELECT language FROM {languages} WHERE language = :l",
+    array(':l' => $lang));
+
+  if ($l->rowCount() == 0) {
+    $lang = 'en';
+  }
 
   $data = array();
-
-  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'activity_template' ORDER BY title");
+  
+  // Select only the english version (assuming all sources are in English).
+  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'activity_template' AND language = 'en' ORDER BY title");
 
   foreach ($result as $r) {
-    $n = node_load($r->nid);
+    $n = node_load(aic_json_nid_by_lang($r->nid, $lang));
 
     if (isset($n->field_activity_image['und'][0]['uri'])) {
       $image = array(
-                'url'     =>  file_create_url($n->field_activity_image['und'][0]['uri']),
+                'url'     =>  aic_json_file_create_url($n->field_activity_image['und'][0]['uri']),
                 'width'   =>  (int) $n->field_activity_image['und'][0]['width'],
                 'height'  =>  (int) $n->field_activity_image['und'][0]['height'],
               );
@@ -75,19 +149,17 @@ function aic_json_page($type) {
                                     );
   }
 
-  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'aic_theme' ORDER BY title");
+  $result = db_query("SELECT nid FROM {node} WHERE status = 1 AND type = 'aic_theme' AND language = 'en' ORDER BY title");
 
   foreach ($result as $r) {
-    $n = node_load($r->nid);
+    $n = node_load(aic_json_nid_by_lang($r->nid, $lang));
 
     $backgrounds = array();
 
     if (isset($n->field_background['und'])) {
       foreach ($n->field_background['und'] as $b) {
         if (isset($b['uri'])) {
-          $bg['url'] = image_style_url('aic_background', $b['uri']);
-          global $base_url;
-          list($bg['width'], $bg['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_background', $b['uri'])))));
+          $bg = aic_json_styled_image('aic_background', $b['uri']);
         } else {
           $bg = null;
         }
@@ -105,7 +177,7 @@ function aic_json_page($type) {
       $artworks = array();
 
       foreach ($e->field_artwork['und'] as $aw) {
-        $a = node_load($aw['nid']);
+        $a = node_load(aic_json_nid_by_lang($aw['nid'], $lang));
 
         if (($type == 'json-off-display') and (isset($a->field_map_x['und']) and isset($a->field_map_x['und']))) {
           continue;
@@ -117,7 +189,7 @@ function aic_json_page($type) {
 
         if (isset($a->field_artwork_image['und'])) {
           $img = array(
-            'url'     =>  file_create_url($a->field_artwork_image['und'][0]['uri']),
+            'url'     =>  aic_json_file_create_url($a->field_artwork_image['und'][0]['uri']),
             'width'   =>  (int) $a->field_artwork_image['und'][0]['width'],
             'height'  =>  (int) $a->field_artwork_image['und'][0]['height'],
           );
@@ -127,8 +199,7 @@ function aic_json_page($type) {
 
         $img_small = array();
         if (isset($a->field_image_small['und'])) {
-          $img_small['url'] = image_style_url('aic_small', $a->field_image_small['und'][0]['uri']);
-	        list($img_small['width'], $img_small['height']) = getimagesize(image_style_url('aic_small', $a->field_image_small['und'][0]['uri']));
+          $img_small = aic_json_styled_image('aic_small', $a->field_image_small['und'][0]['uri']);
         } else {
           $img_small = null;
         }
@@ -136,18 +207,14 @@ function aic_json_page($type) {
 
 	$img_medium = array();
         if (isset($a->field_artwork_image['und'])) {
-          $img_medium['url'] = image_style_url('aic_medium', $b['uri']);
-          global $base_url;
-	   list($img_medium['width'] , $img_medium['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_medium', $b['uri'])))));
+          $img_medium = aic_json_styled_image('aic_medium', $a->field_artwork_image['und'][0]['uri']);
 		} else {
           $img_medium = null;
         }
 
 	$img_large = array();
         if (isset($a->field_artwork_image['und'])) {
-          $img_large['url'] = image_style_url('aic_large', $b['uri']);
-          global $base_url;
-	   list($img_large['width'], $img_large['height']) = getimagesize(urldecode(preg_replace('/\?itok.*/','',str_replace($base_url .'/sites/default/files/','public://',image_style_url('aic_large', $b['uri'])))));
+          $img_large = aic_json_styled_image('aic_large', $a->field_artwork_image['und'][0]['uri']);
 	        } else {
           $img_large = null;
         }
@@ -271,7 +338,7 @@ function aic_json_page($type) {
 
     if (isset($n->field_shape_face['und'])) {
       $shapeFace = array(
-        'url'     =>  file_create_url($n->field_shape_face['und'][0]['uri']),
+        'url'     =>  aic_json_file_create_url($n->field_shape_face['und'][0]['uri']),
         'width'   =>  (int) $n->field_shape_face['und'][0]['width'],
         'height'  =>  (int) $n->field_shape_face['und'][0]['height'],
       );
@@ -281,7 +348,7 @@ function aic_json_page($type) {
 
     if (isset($n->field_icon['und'])) {
       $icon = array(
-        'url'     =>  file_create_url($n->field_icon['und'][0]['uri']),
+        'url'     =>  aic_json_file_create_url($n->field_icon['und'][0]['uri']),
         'width'   =>  (int) $n->field_icon['und'][0]['width'],
         'height'  =>  (int) $n->field_icon['und'][0]['height'],
       );
@@ -291,7 +358,7 @@ function aic_json_page($type) {
 
     if (isset($n->field_guide_cover_art['und'])) {
       $coverArt = array(
-        'url'     =>  file_create_url($n->field_guide_cover_art['und'][0]['uri']),
+        'url'     =>  aic_json_file_create_url($n->field_guide_cover_art['und'][0]['uri']),
         'width'   =>  (int) $n->field_guide_cover_art['und'][0]['width'],
         'height'  =>  (int) $n->field_guide_cover_art['und'][0]['height'],
       );
@@ -301,7 +368,7 @@ function aic_json_page($type) {
 
     if (isset($n->field_guide_cover_art_home['und'])) {
       $coverArtHome = array(
-        'url'     =>  file_create_url($n->field_guide_cover_art_home['und'][0]['uri']),
+        'url'     =>  aic_json_file_create_url($n->field_guide_cover_art_home['und'][0]['uri']),
         'width'   =>  (int) $n->field_guide_cover_art_home['und'][0]['width'],
         'height'  =>  (int) $n->field_guide_cover_art_home['und'][0]['height'],
       );
@@ -323,11 +390,37 @@ function aic_json_page($type) {
     );
   }
 
-file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/sites/default/files/json/$type.json", drupal_json_encode($data));
-file_put_contents($_SERVER['DOCUMENT_ROOT'] . "/sites/default/files/json/$type." . date('Y-m-d')  . ".json", drupal_json_encode($data));
+  // $type: json, json-on-display, json-off-display.
+  // $lang = 'en'
+  // file name format: data-en.json, data-on-display-en.js, etc
+
+  $file_name = str_replace('json', 'data', $type) . '-' . $lang;
+
+  file_put_contents(
+    drupal_realpath('public://') . "/json/$file_name.json",
+    drupal_json_encode($data));
+
+  file_put_contents(
+    drupal_realpath('public://') . "/json/$file_name." . date('Y-m-d')  . ".json",
+    drupal_json_encode($data));
 
   // create sync trigger file
   aic_json_publish();
 
   drupal_json_output($data);
 }
+
+function aic_json_publish() {
+  file_put_contents( DRUPAL_ROOT . '/trigger/file_sync_trigger.txt', 'Boom!');
+  return 'JSON has been scheduled for publishing.';
+}
+
+function aic_json_permission() {
+	return array(
+    		'publish json data' => array(
+      			'title' => t('Publish JSON Data'),
+      			'description' => t('Allow user to schedule JSON for publishing.'),
+    		),
+  	);
+}
+

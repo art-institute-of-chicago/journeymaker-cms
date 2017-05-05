@@ -1,0 +1,426 @@
+<?php
+
+/**
+ * Hook_menu.
+ */
+function aic_i18n_tools_menu(){
+  $items['set-all-nodes-to-english'] = array(
+    'title' => "Set All Nodes to English",
+    'page callback' => 'aic_i18n_tools_set_nodes_to_english',
+    'access arguments' => array('access administration pages'),
+  );
+
+
+  $items['admin/config/regional/download-translation-template'] = array(
+    'title' => "Download Translation Template",
+    'page callback' => 'aic_i18n_tools_download_translation_template',
+    'access arguments' => array('access administration pages'),
+    );
+
+  $items['download-translation-template-csv-generate/%/%'] = array(
+    'title' => "Download Translation Template",
+    'page callback' => 'aic_i18n_tools_download_translation_generate_csv',
+    'access arguments' => array('access administration pages'),
+    'page arguments' => array(1,2),
+    );
+
+  $items['admin/config/regional/upload-translation-csv'] = array(
+    'title' => "Upload Translation CSV File",
+    'page callback' => 'aic_i18n_tools_upload_translation_csv',
+    'access arguments' => array('access administration pages'),
+    );
+
+
+  return $items;
+}
+
+function aic_i18n_tools_set_nodes_to_english(){
+  $nids = db_query("SELECT nid FROM {node}");
+  foreach($nids as $nid) { // go through ALL nodes
+    $node = node_load($nid->nid); // load the node
+    $node->language = 'en'; // set the node language to neutral
+    node_save($node); // commit changes
+  }
+
+    return "done";
+}
+
+function aic_i18n_tools_download_translation_template(){
+  $form = $form = drupal_get_form(
+      'aic_i18n_tools_translation_templateform');
+  return render($form);
+}
+
+
+function aic_i18n_tools_translation_templateform( $form, &$form_state) {
+  $form = array();
+  $langs = array();
+
+  $ls = db_query("SELECT * FROM {languages}");
+  foreach ($ls as $l) {
+    if ($l->language == 'en') continue;
+    $langs[$l->language] = $l->name . "/" . $l->native;
+  }
+
+  $form['language'] = array(
+    '#type' => 'select',
+    '#title' => t("Language"),
+    '#options' => $langs,
+  );
+
+  $form['content_type'] = array(
+    '#type' => 'select',
+    '#title' => t("Content Type"),
+    '#options' => array('artwork' => "Artwork", 'aic_theme' => "Theme"),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+
+
+/**
+ * Submit handler for the instructor edit course information form.
+ */
+function aic_i18n_tools_translation_templateform_submit(
+  $form, &$form_state) {
+  drupal_goto('download-translation-template-csv-generate/'. $form_state['values']['content_type'].'/'.$form_state['values']['language']);
+}
+
+
+function aic_i18n_tools_download_translation_generate_csv($content_type, $lang) {
+  if ($content_type == "artwork") aic_i18n_tools_generate_artwork_template($lang);
+  if ($content_type == "aic_theme") aic_i18n_tools_generate_theme_template($lang);
+}
+
+
+function aic_i18n_tools_generate_artwork_template($lang) {
+  header('Content-Type: text/csv; charset=utf-8');
+  header('Content-Disposition: attachment; filename=artwork_'.$lang.'.csv');
+
+  // create a file pointer connected to the output stream
+  $output = fopen('php://output', 'w');
+  $titles = array(
+    "English Artwork ID",
+    "Language Code",
+    "Title",
+    "Artist",
+    "Medium",
+    "Credit",
+    "Gallery Name",
+    "Closer Look Text",
+    "Detail Narrative",
+    "Viewing Description",
+    "Activities Instructions",
+    "Location Directions",
+  );
+
+  // output the column headings
+  fputcsv($output, $titles);
+
+  // fetch the data
+  $nids = db_query("
+    SELECT nid FROM {node}
+    WHERE type ='artwork' AND language='en'");
+  foreach($nids as $n) {
+    $node = node_load($n->nid);
+    $data = array(
+      $node->nid,
+      $lang,
+      "[". $lang ."] " . $node->title,
+      $node->field_artist['und'][0]['value'],
+      $node->field_medium['und'][0]['value'],
+      isset($node->field_artwork_credit['und']) ? $node->field_artwork_credit['und'][0]['value'] : "",
+      isset($node->field_gallery_name['und']) ?$node->field_gallery_name['und'][0]['value'] : "",
+      isset($node->field_closer_look_text['und']) ? $node->field_closer_look_text['und'][0]['value'] : "",
+      $node->field_detail_narrative['und'][0]['value'],
+      $node->field_viewing_description['und'][0]['value'],
+      $node->field_activity_instructions['und'][0]['value'],
+      isset($node->field_location_directions['und']) ? $node->field_location_directions['und'][0]['value'] : "",
+    );
+    fputcsv($output, $data);
+  }
+}
+
+
+function aic_i18n_tools_generate_theme_template($lang) {
+  header('Content-Type: text/csv; charset=utf-8');
+  header('Content-Disposition: attachment; filename=theme_'.$lang.'.csv');
+
+  // create a file pointer connected to the output stream
+  $output = fopen('php://output', 'w');
+  $titles = array(
+    "English Theme ID",
+    "Language Code",
+    "Title",
+    "Theme Intro",
+    "Prompt ID",
+    "Prompt Title",
+    "Prompt Subtitle",
+  );
+
+  // output the column headings
+  fputcsv($output, $titles);
+
+  // fetch the data
+  $nids = db_query("
+    SELECT nid FROM {node}
+    WHERE type ='aic_theme' AND language='en'");
+  foreach($nids as $n) {
+    $node = node_load($n->nid);
+    $data = array(
+      $node->nid,
+      $lang,
+      "[". $lang ."] " . $node->title,
+      $node->field_intro['und'][0]['value'],
+      );
+
+    foreach ($node->field_prompt['und'] as $e) {
+      $fc = entity_load("field_collection_item", array($e['value']));
+      $fc = array_shift($fc);
+      $data[] = $fc->item_id;
+      $data[] = "[". $lang ."] " . $fc->field_title['und'][0]['value'];
+      $data[] = "[". $lang ."] " . $fc->field_sub_title['und'][0]['value'];
+    }
+
+    fputcsv($output, $data);
+  }
+}
+
+
+
+function aic_i18n_tools_upload_translation_csv(){
+
+  $form = $form = drupal_get_form(
+      'aic_i18n_tools_upload_translation_csvform');
+  return render($form);
+}
+
+
+function aic_i18n_tools_upload_translation_csvform( $form, &$form_state) {
+  $form = array();
+
+
+  $form['file'] = array(
+    '#type' => 'file',
+    '#title' => t('File'),
+    '#description' => t('Upload a file, allowed extensions: csv'),
+    );
+
+  $form['force_upload'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Overwrite existing translation',
+    '#description' => "If there is a translated node found for certain row in the file, the node will be overwritten. If you leave this box unchecked, the website will show you an error mesage if existing translated node(s) are found."
+    );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+
+  return $form;
+}
+
+function aic_i18n_tools_upload_translation_csvform_validate( $form, &$form_state) {
+  // Check if file exists.
+  $file = file_save_upload('file', array('file_validate_extensions' => array('csv')));
+  if ($file) {
+    $form_state['values']['file'] = $file;
+  }
+  else {
+    form_set_error('file', t('No file was uploaded.'));
+  }
+
+  // If not force upload, read the file and check if translated node exist.
+  if ($form_state['values']['force_upload'] == 0) {
+    $handle = fopen(drupal_realpath($file->uri), "r");
+    while (($row = fgetcsv($handle)) !== FALSE) {
+      $existing_translation = db_query("
+        SELECT nid, title FROM {node}
+        WHERE language = :lang
+        AND tnid = :original",
+        array(":lang" => $row[1], ":original" => $row[0]));
+
+      if ($existing_translation->rowCount()) {
+        $e = $existing_translation->fetchObject();
+        if ($form_state['values']['force_upload'] == 0) {
+          form_set_error('force_upload', "Existing Translation of \"".$row[2]."\" found, nid = " . $e->nid);
+        }
+      }
+    }
+    fclose($handle);
+  }
+
+
+}
+
+
+function aic_i18n_tools_upload_translation_csvform_submit(
+  $form, &$form_state) {
+
+  $file = $form_state['values']['file'];
+
+  $handle = fopen(drupal_realpath($file->uri), "r");
+
+  while (($row = fgetcsv($handle)) !== FALSE) {
+    // skip the header row.
+    if (!is_numeric($row[0])) continue;
+
+    // First clean up existing translation.
+    $existing_translation = db_query("
+      SELECT nid, title FROM {node}
+      WHERE language = :lang
+      AND tnid = :original",
+      array(":lang" => $row[1], ":original" => $row[0]));
+
+    if ($existing_translation->rowCount()) {
+      $e = $existing_translation->fetchObject();
+      $all = translation_node_get_translations($row[0]);
+      foreach($all as $key => $del){
+        if ($key == $row[1]) {
+          translation_remove_from_set(node_load($del->nid));
+          node_delete($del->nid);
+        }
+      }
+    }
+
+    // Generate new node.
+
+    $type = db_query("
+      SELECT type FROM {node} WHERE nid=:nid",
+      array(":nid" => $row[0]))->fetchField();
+    if ($type == 'artwork') aic_i18n_tools_create_new_artwork_node($row);
+    else aic_i18n_tools_create_new_theme_node($row);
+
+  }
+  fclose($handle);
+  unlink(drupal_realpath($file->uri));
+
+}
+
+
+function aic_i18n_tools_create_new_artwork_node($row) {
+
+    // Save the node.
+  $original = node_load($row[0]);
+  $original->tnid = $original->nid;
+  node_save($original);
+
+  // Now create the translated node
+  $tnode = new StdClass();
+  $tnode->type = "artwork";
+  // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  node_object_prepare($tnode);
+  // Set the title of the node.
+  $tnode->title = $row[2]; // Use the translated node title
+  // This example sets the language to Japanese
+  $tnode->language = $row[1]; // Change this to the language code of the translated node
+  // Making user 1 as the author of the node.
+  $tnode->uid = 1;
+  // (1 or 0): published or not
+  $tnode->status = 1;
+  // (1 or 0): promoted to front page
+  $tnode->promote = 0;
+  // Set the source translation node.
+  $tnode->tnid = $original->nid;
+  // Save the node.
+
+  $tnode->field_artwork_image = $original->field_artwork_image;
+  $tnode->field_artist['und'][0]['value'] = $row[3];
+  $tnode->field_year = $original->field_year;
+  $tnode->field_medium['und'][0]['value'] = $row[4];
+  $tnode->field_artwork_credit['und'][0]['value'] = $row[5];
+  $tnode->field_gallery_name['und'][0]['value'] = $row[6];
+  $tnode->field_closer_look_text['und'][0]['value'] = $row[7];
+  $tnode->field_detail_narrative['und'][0]['value'] = $row[8];
+  $tnode->field_viewing_description['und'][0]['value'] = $row[9];
+  $tnode->field_activity_instructions['und'][0]['value'] = $row[10];
+  $tnode->field_location_directions['und'][0]['value'] = $row[11];
+
+  $tnode->field_activity_template = $original->field_activity_template;
+  $tnode->field_map_x = $original->field_map_x;
+  $tnode->field_map_y = $original->field_map_y;
+  $tnode->field_floor = $original->field_floor;
+  $tnode->field_year = $original->field_year;
+  $tnode->field_year = $original->field_year;
+
+  node_save($tnode);
+  drupal_set_message("New Node " . $tnode->title . " created.");
+}
+
+
+function aic_i18n_tools_create_new_theme_node($row) {
+
+    // Save the node.
+  $original = node_load($row[0]);
+  $original->tnid = $original->nid;
+  node_save($original);
+
+  // Now create the translated node
+  $tnode = new StdClass();
+  $tnode->type = "aic_theme";
+  // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  node_object_prepare($tnode);
+  // Set the title of the node.
+  $tnode->title = $row[2]; // Use the translated node title
+  // This example sets the language to Japanese
+  $tnode->language = $row[1]; // Change this to the language code of the translated node
+  // Making user 1 as the author of the node.
+  $tnode->uid = 1;
+  // (1 or 0): published or not
+  $tnode->status = 1;
+  // (1 or 0): promoted to front page
+  $tnode->promote = 0;
+  // Set the source translation node.
+  $tnode->tnid = $original->nid;
+  // Save the node.
+
+  $tnode->field_intro['und'][0]['value'] = $row[3];
+  $tnode->field_shape_face = $original->field_shape_face;
+  $tnode->field_guide_cover_art = $original->field_guide_cover_art;
+  $tnode->field_background = $original->field_background;
+  node_save($tnode);
+
+  $prompts = aic_i18n_tools_create_new_theme_node_helper_get_prompts($row);
+
+  foreach($prompts as $prompt) {
+    $original_eid = $prompt[0];
+    $original_fc = entity_load("field_collection_item", array($prompt[0]));
+    $original_fc = array_shift($original_fc);
+
+    $new_fc = entity_create(
+      'field_collection_item',
+      array('field_name' => 'field_prompt'));
+    $new_fc->setHostEntity('node', $tnode);
+
+    $new_fc->field_title['und'][0]['value'] = $prompt[1];
+    $new_fc->field_sub_title['und'][0]['value'] = $prompt [2];
+    $new_fc->field_artwork = $original_fc->field_artwork;
+    $new_fc->save();
+  }
+
+  node_save($tnode);
+  drupal_set_message("New Node " . $tnode->title . " created.");
+}
+
+
+function aic_i18n_tools_create_new_theme_node_helper_get_prompts($row) {
+  $row_size = count($row);
+  $index = 4;
+  $prompts = array();
+  while($index <= $row_size - 3) {
+    $prompts[] = array(
+      $row[$index],
+      $row[$index + 1],
+      $row[$index + 2],
+      );
+    $index += 3;
+  }
+
+  return $prompts;
+}
