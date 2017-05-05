@@ -22,6 +22,7 @@ function aic_api_menu() {
     'title' => 'AIC API module settings',
     'description' => 'Specify the URLs of your API',
     'page callback' => 'drupal_get_form',
+	'access callback' => TRUE,
     'page arguments' => array('aic_api_admin'),
     'access arguments' => array('administer aic api settings'),
     'type' => MENU_CALLBACK,
