@@ -332,7 +332,7 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
         <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title_s" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button-theme">Query API</a>
 
@@ -355,7 +355,7 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
         <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title_s" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button">Query API</a>
 
