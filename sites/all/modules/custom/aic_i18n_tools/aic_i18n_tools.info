@@ -1,0 +1,6 @@
+name = AIC Internationalization Tools
+description = Sets up functions for Internationalization.
+core = 7.x
+package = AIC
+
+version = 7.x-1.0
