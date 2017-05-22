@@ -119,34 +119,32 @@ function api_gallery_update() {
       $map_x = null;
       $map_y = null;
       $floor = null;
-      $isclosed = '<NOT Closed>';   							 // Ed Added
+      $CLOSED_STATUS = "<Closed>";
+      $is_closed = false;
 
-
-      if (isset($json2->response->docs[0]->closed)) {    // Ed Added
-        $isclosed = $json2->response->docs[0]->closed;   // Ed Added
-      }													 // Ed Added
-
+      if (isset($json2->response->docs[0]->closed)) {
+        $is_closed = ($json2->response->docs[0]->closed == $CLOSED_STATUS) ? true : false;
+      }
 
       if (isset($json2->response->docs[0]->gallery_id)) {
         $gallery_id = $json2->response->docs[0]->gallery_id;
       }
 
       if (isset($json2->response->docs[0]->latitude)) {
-       if ($isclosed == '<NOT Closed>') {							 // Ed Added
-       	  $map_x = $json2->response->docs[0]->latitude;;										 // Ed Added
-	   }
+        if (!$is_closed) {
+          $map_x = $json2->response->docs[0]->latitude;
+        }
       }
 
       if (isset($json2->response->docs[0]->longitude)) {
-      if ($isclosed == '<NOT Closed>') {						 // Ed Added
-       	   $map_y = $json2->response->docs[0]->longitude;							 // Ed Added
-	   }
+        if (!$is_closed) {
+          $map_y = $json2->response->docs[0]->longitude;
+        }
       }
 
       if (isset($json2->response->docs[0]->floor)) {
         $floor = $json2->response->docs[0]->floor;
       }
-
 
       $node->field_gallery_id['und'][0]['value'] = $gallery_id;
       $node->field_gallery_name['und'][0]['value'] = $gallery_name;

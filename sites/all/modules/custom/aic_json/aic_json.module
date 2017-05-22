@@ -57,7 +57,7 @@ function aic_json_menu() {
 function aic_json_file_create_url($uri, $domain_name_replacement = NULL) {
 
   // Uncomment the line below and put the replacement domain name there. No protocol( http://), no tailing slash.
-  $domain_name_replacement = "aicweb13-test.artic.edu";
+  $domain_name_replacement = "journeymaker-staging.artic.edu/";
 
   $url = file_create_url($uri);
 
