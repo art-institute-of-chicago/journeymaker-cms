@@ -237,12 +237,7 @@ function api_query($search_type, $search_term) {
 
   if (isset($general_query)) {
     $url = str_replace('{{type}}', $search_type, $general_query);
-  if ($search_type == 'title_s' || $search_type == 'artist_name') {
-    $search_term = str_replace(" ", "\ ", $search_term);
-    $url = str_replace('{{term}}', rawurlencode('*'.$search_term.'*'), $url);
-  } else {
     $url = str_replace('{{term}}', urlencode($search_term), $url);
-  }
     $curl = curl_init();
 
     curl_setopt($curl, CURLOPT_URL,"$url");
