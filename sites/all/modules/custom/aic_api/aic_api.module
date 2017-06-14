@@ -211,7 +211,7 @@ function api_query_theme($search_type, $search_term) {
         if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
           $table = "<br /><br /><table>";
 
-          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title_t}'>{$doc->title_t}</td></tr>";
           $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
 
           $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
@@ -265,7 +265,7 @@ function api_query($search_type, $search_term) {
         $table = "<br /><br /><table>";
 
         $table .= "<tr><th width='25%'>ObjectID</th>  <td id='object_id_$k' data-value='{$doc->object_id}'>{$doc->object_id}</td></tr>";
-        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title_t}'>{$doc->title_t}</td></tr>";
         $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
 
         if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
@@ -331,7 +331,7 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
         <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title_t" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button-theme">Query API</a>
 
@@ -354,7 +354,7 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
         <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title_t" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button">Query API</a>
 
