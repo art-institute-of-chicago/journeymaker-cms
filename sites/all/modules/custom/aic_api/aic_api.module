@@ -369,10 +369,9 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
 
 function aic_api_node_presave($node) {
   if (  $node->type == 'artwork') {
-
     if (isset($node->field_image_url['und']) && isset($node->field_image_url['und'][0]) && ($node->field_image_url['und'][0]['value'] <> '')) {
         $image = file_get_contents($node->field_image_url['und'][0]['value']);
-        $filename = preg_replace('/.*\//','',$node->field_image_url['und'][0]['value']);
+        $filename = $node->field_object_id['und'][0]['value'] . '.jpg';
         $file = file_save_data($image, 'public://' . $filename, FILE_EXISTS_REPLACE);
 
         $node->field_artwork_image['und'][0] = (array) $file;
@@ -384,7 +383,7 @@ function aic_api_node_presave($node) {
 
     if (isset($node->field_background_image_url['und']) && (isset($node->field_background_image_url['und'][0])) && ($node->field_background_image_url['und'][0]['value'] <> '')) {
         $image = file_get_contents($node->field_image_url['und'][0]['value']);
-        $filename = preg_replace('/.*\//','',$node->field_image_url['und'][0]['value']);
+        $filename = $node->field_object_id['und'][0]['value'] . '.jpg';
         $file = file_save_data($image, 'public://' . $filename, FILE_EXISTS_REPLACE);
 
         $node->field_background['und'][0] = (array) $file;
