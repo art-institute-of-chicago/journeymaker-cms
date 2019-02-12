@@ -234,82 +234,108 @@ function api_query($search_type, $search_term) {
 
   $general_query = variable_get('aicapi_general_query');
   $gallery_query = variable_get('aicapi_gallery_query');
+  $artwork_query = variable_get('aicapi_artwork_query');
 
-  if (isset($general_query)) {
-    $url = str_replace('{{type}}', $search_type, $general_query);
-    $url = str_replace('{{term}}', urlencode($search_term), $url);
-    
+  if (isset($general_query) || isset($artwork_query)) {
+    if ($search_type == 'title' || $search_type == 'artist_title') {
+      $dataQuery = array(
+        'resources' => 'artworks',
+        'from' => 0,
+        'size' => 10,
+        'fields' => array(
+          'id',
+          'title',
+          'artist_title',
+          'date_display',
+          'gallery_title',
+          'is_on_view',
+          'copyright_notice',
+          'image_id',
+          'gallery_id'
+        ),
+        'query' => array(
+          'match' => array(
+            $search_type => array(
+              'query' => $search_term,
+              'fuzziness' => 'AUTO',
+            ),
+          )
+        )
+      );
+      $url = $general_query;
+    } else {
+      //search type is id
+      $artwork_query = str_replace('{{pk}}', urlencode($search_term), $artwork_query);
+      $url = $artwork_query;
+    }
+
     $curl = curl_init();
-
-    curl_setopt($curl, CURLOPT_URL,"$url");
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_POST, 1);
+    //json encode dataQuery if it exists
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($dataQuery));
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
-
-    $request_method = 'GET';
-    $request_content_type = 'application/json';
-
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
     $headers = array(
       'Content-Type: application/json',
-      "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
       "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
     );
-
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
     $json = json_decode(curl_exec($curl));
 
+    $json_data = $json->data;
+
+    $json_array = is_array($json_data) ? $json_data : [$json_data];
+
     $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
 
-      foreach ($json->response->docs as $k => $doc) {
+    //construct image url
+    $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //should this be a field in settings?
+    $image_url2 = '/full/!800,800/0/default.jpg';
+
+    foreach ($json_array as $k => $doc) {
+
+        $image_url = $image_url1 . $doc->image_id . $image_url2;
 
         $table = "<br /><br /><table>";
+        $table .= "<tr><th width='25%'>ObjectID</th>  <td id='id_$k' data-value='{$doc->id}'>{$doc->id}</td></tr>";
+        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+        $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$image_url}'>";
 
-        $table .= "<tr><th width='25%'>ObjectID</th>  <td id='object_id_$k' data-value='{$doc->object_id}'>{$doc->object_id}</td></tr>";
-        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title_t}'>{$doc->title_t}</td></tr>";
-        $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
-
-        if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
-          $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
+        if (isset($image_url) && ($image_url != '')) {
+          $table .= "<img src='{$image_url}' width='200' />";
         }
 
-        $table .= "<br />{$doc->large_image_full_path}</td></tr>";
-        $table .= "<tr><th>Artist</th>            <td id='artist_name_$k'       data-value='{$doc->artist_name}'>{$doc->artist_name}</td></tr>";
+        $table .= "<br />{$image_url}</td></tr>";
+        $table .= "<tr><th>Artist</th>            <td id='artist_title_$k'       data-value='{$doc->artist_title}'>{$doc->artist_title}</td></tr>";
         $table .= "<tr><th>Year</th>              <td id='date_$k'              data-value='{$doc->date_display}'>{$doc->date_display}</td></tr>";
-        $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_location}'>{$doc->gallery_location}</td></tr>";
+        $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_title}'>{$doc->gallery_title}</td></tr>";
         $table .= "<tr><th>Copyright</th>         <td id='copy_$k'              data-value='{$doc->copyright_notice}'>{$doc->copyright_notice}</td></tr>";
 
-        if ($doc->gallery_location != 'Currently not on display' && isset($gallery_query)) {
+        if ($doc->gallery_title != 'Currently not on display' && isset($gallery_query)) {
 
-          $url = str_replace('{{name}}', urlencode($doc->gallery_location), $gallery_query);
+          $url = str_replace('{{name}}', urlencode($doc->gallery_id), $gallery_query);
 
           $curl = curl_init();
-
-          curl_setopt($curl, CURLOPT_URL,"$url");
+          curl_setopt($curl, CURLOPT_URL, $url);
           curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
           curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
-
-          $request_method = 'GET';
-          $request_content_type = 'application/json';
-
           $headers = array(
             'Content-Type: application/json',
-            "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
             "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
           );
-
           curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
           $json2 = json_decode(curl_exec($curl));
 
-          $table .= "<tr><th>Gallery ID</th>  <td id='gallery_id_$k'   data-value='{$json2->response->docs[0]->gallery_id}'> {$json2->response->docs[0]->gallery_id}</td></tr>";
-          $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->response->docs[0]->latitude}'> {$json2->response->docs[0]->latitude}</td></tr>";
-          $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->response->docs[0]->longitude}'>{$json2->response->docs[0]->longitude}</td></tr>";
-          $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->response->docs[0]->floor}'>    {$json2->response->docs[0]->floor}</td></tr>";
+          $table .= "<tr><th>Gallery ID</th>  <td id='id_$k'   data-value='{$json2->data->id}'> {$json2->data->id}</td></tr>";
+          $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->data->latitude}'> {$json2->data->latitude}</td></tr>";
+          $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->data->longitude}'>{$json2->data->longitude}</td></tr>";
+          $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->data->floor}'>    {$json2->data->floor}</td></tr>";
         }
 
         $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_artwork_form($k);'>Populate Form</a></td></tr>";
-
-
         $table .= "</table>";
 
         $output .= $table;
@@ -353,9 +379,9 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
 
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
-        <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title_t" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
+        <input type="radio" value="id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="artist_title" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button">Query API</a>
 
         <div id="api-query-results"></div>
@@ -445,11 +471,5 @@ function aic_api_admin_validate($form, &$form_state) {
   $general_query = $form_state['values']['aicapi_general_query'];
   if (substr($general_query, 0, 7) !== "http://" && substr($general_query, 0, 8) !== "https://") {
     form_set_error('aic_general_query', t('You must enter a URL.'));
-  }
-  if (strpos($general_query, '{{type}}') === false) {
-    form_set_error('aic_general_query', t('You must include {{type}} somewhere in your URL.'));
-  }
-  if (strpos($general_query, '{{term}}') === false) {
-    form_set_error('aic_general_query', t('You must include {{term}} somewhere in your URL.'));
   }
 }
