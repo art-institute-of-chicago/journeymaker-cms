@@ -286,7 +286,7 @@ function api_query($search_type, $search_term) {
 
     $json_data = $json->data;
 
-    $json_array = is_array($json_data) ? $json_data : [$json_data];
+    $json_array = is_array($json_data) ? $json_data : array($json_data);
 
     $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
 
