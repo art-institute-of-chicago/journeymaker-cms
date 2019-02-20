@@ -198,14 +198,18 @@ function api_query($search_type, $search_term) {
     $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_title}'>{$doc->gallery_title}</td></tr>";
     $table .= "<tr><th>Copyright</th>         <td id='copy_$k'              data-value='{$doc->copyright_notice}'>{$doc->copyright_notice}</td></tr>";
 
-    if ($doc->gallery_title != 'Currently not on display' && isset($gallery_query)) {
+    if ($doc->gallery_title != 'Currently not on display') {
 
       $json2 = fetch_api_data('gallery', $doc->gallery_id);
 
-      $table .= "<tr><th>Gallery ID</th>  <td id='id_$k'   data-value='{$json2->data->id}'> {$json2->data->id}</td></tr>";
-      $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->data->latitude}'> {$json2->data->latitude}</td></tr>";
-      $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->data->longitude}'>{$json2->data->longitude}</td></tr>";
-      $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->data->floor}'>    {$json2->data->floor}</td></tr>";
+      foreach ($json2 as $k => $doc2) {
+
+        $table .= "<tr><th>Gallery ID</th>  <td id='gallery_id_$k'   data-value='{$doc2->id}'> {$doc2->id}</td></tr>";
+        $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$doc2->latitude}'> {$doc2->latitude}</td></tr>";
+        $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$doc2->longitude}'>{$doc2->longitude}</td></tr>";
+        $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$doc2->floor}'>    {$doc2->floor}</td></tr>";
+        
+      }
     }
 
     $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_artwork_form($k);'>Populate Form</a></td></tr>";
