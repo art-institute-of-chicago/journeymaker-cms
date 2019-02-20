@@ -57,7 +57,7 @@ function api_gallery_update() {
   foreach($l as $lang) {
     $languages[] = $lang->language;
   }
-
+  //go through all artwork nodes
   foreach ($result as $r) {
     $node = node_load($r->nid);
 
@@ -66,95 +66,62 @@ function api_gallery_update() {
 
     if (isset($node->field_object_id['und']) && isset($artwork_query) && isset($gallery_query)) {
       $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($node->title, 'node/' . $node->nid) . "<br><br>";
-
-      $url = str_replace('{{pk}}', $node->field_object_id['und'][0]['value'], $artwork_query);
-
-      $curl = curl_init();
-
-      curl_setopt($curl, CURLOPT_URL,"$url");
-      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
-
-      $request_method = 'GET';
-      $request_content_type = 'application/json';
-
-      $headers = array(
-        'Content-Type: application/json',
-        "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
-        "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
-      );
-
-      curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-      $json = json_decode(curl_exec($curl));
-
-      $gllery_name = null;
-
-      if (isset($json->response->docs[0]->gallery_location)) {
-        $gallery_name = $json->response->docs[0]->gallery_location;
-      }
-
-      $url = str_replace('{{name}}', urlencode($gallery_name), $gallery_query);
-
-      $curl = curl_init();
-
-      curl_setopt($curl, CURLOPT_URL,"$url");
-      curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
-
-      $request_method = 'GET';
-      $request_content_type = 'application/json';
-
-      $headers = array(
-        'Content-Type: application/json',
-        "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
-        "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
-      );
-
-      curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-      $json2 = json_decode(curl_exec($curl));
+      //fetching artwork data
+      $json = fetch_api_data('id', $node->field_object_id['und'][0]['value']);
 
       $gallery_id = null;
-      $map_x = null;
-      $map_y = null;
-      $floor = null;
-      $CLOSED_STATUS = "<Closed>";
-      $is_closed = false;
 
-      if (isset($json2->response->docs[0]->closed)) {
-        $is_closed = ($json2->response->docs[0]->closed == $CLOSED_STATUS) ? true : false;
-      }
-
-      if (isset($json2->response->docs[0]->gallery_id)) {
-        $gallery_id = $json2->response->docs[0]->gallery_id;
-      }
-
-      if (isset($json2->response->docs[0]->latitude)) {
-        if (!$is_closed) {
-          $map_x = $json2->response->docs[0]->latitude;
+      foreach ($json as $k => $doc) {
+        //finding gallery of artwork
+        if (isset($doc->gallery_id)) {
+          $gallery_id = $doc->gallery_id;
         }
       }
 
-      if (isset($json2->response->docs[0]->longitude)) {
-        if (!$is_closed) {
-          $map_y = $json2->response->docs[0]->longitude;
+      //fetching gallery data
+      $json2 = fetch_api_data('gallery', $gallery_id);
+
+      foreach ($json2 as $k => $doc) {
+        $gallery_id = null;
+        $gallery_name = null;
+        $map_x = null;
+        $map_y = null;
+        $floor = null;
+        $is_closed = false;
+
+        if (isset($doc->is_closed)) {
+          $is_closed = $doc->is_closed;
         }
+        if (isset($doc->id)) {
+          $gallery_id = $doc->id;
+        }
+        if (isset($doc->title)) {
+          $gallery_name = $doc->title;
+        }
+        if (isset($doc->latitude)) {
+          if (!$is_closed) {
+            $map_x = $doc->latitude;
+          }
+        }
+        if (isset($doc->longitude)) {
+          if (!$is_closed) {
+            $map_y = $doc->longitude;
+          }
+        }
+        if (isset($doc->floor)) {
+          $floor = $doc->floor;
+        }
+        //setting values of artwork fields in CMS
+        $node->field_gallery_id['und'][0]['value'] = $gallery_id;
+        $node->field_gallery_name['und'][0]['value'] = $gallery_name;
+        $node->field_map_x['und'][0]['value'] = $map_x;
+        $node->field_map_y['und'][0]['value'] = $map_y;
+        $node->field_floor['und'][0]['value'] = $floor;
+
+        node_save($node);
       }
-
-      if (isset($json2->response->docs[0]->floor)) {
-        $floor = $json2->response->docs[0]->floor;
-      }
-
-      $node->field_gallery_id['und'][0]['value'] = $gallery_id;
-      $node->field_gallery_name['und'][0]['value'] = $gallery_name;
-      $node->field_map_x['und'][0]['value'] = $map_x;
-      $node->field_map_y['und'][0]['value'] = $map_y;
-      $node->field_floor['und'][0]['value'] = $floor;
-
-      node_save($node);
 	  
-	  // also update translated nodes.
+	    // also update translated nodes.
       foreach($languages as $lang) {
         $translated_nid = aic_json_nid_by_lang($node->nid, $lang);
         if ($translated_nid == $node->nid) continue;
@@ -168,181 +135,154 @@ function api_gallery_update() {
         node_save($trans_node);
         $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($trans_node->title, 'node/' . $trans_node->nid) . "<br><br>";
       }
-
     }
   }
-
   cache_clear_all();
-
   return $output;
 }
 
 function api_query_theme($search_type, $search_term) {
+  //fetch api data
+  $json = fetch_api_data($search_type, $search_term);
 
-  $general_query = variable_get('aicapi_general_query');
+  $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
 
-  if (isset($general_query)) {
-    $url = str_replace('{{type}}', $search_type, $general_query);
-    $url = str_replace('{{term}}', urlencode($search_term), $url);
+  //construct image url
+  $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //this should be a field set in settings
+  $image_url2 = '/full/!800,800/0/default.jpg';
 
-    $curl = curl_init();
+    foreach ($json as $k => $doc) {
 
-    curl_setopt($curl, CURLOPT_URL,"$url");
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
+      $image_url = $image_url1 . $doc->image_id . $image_url2;
 
-    $request_method = 'GET';
-    $request_content_type = 'application/json';
-
-    $headers = array(
-      'Content-Type: application/json',
-      "Authorization: Token b69d76a028b2147a9dacf35be20081d5568a9c64",
-      "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
-    );
-
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-    $json = json_decode(curl_exec($curl));
-
-    $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
-
-      foreach ($json->response->docs as $k => $doc) {
-
-        if (isset($doc->large_image_full_path) && ($doc->large_image_full_path != '')) {
-          $table = "<br /><br /><table>";
-
-          $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title_t}'>{$doc->title_t}</td></tr>";
-          $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$doc->large_image_full_path}'>";
-
-          $table .= "<img src='{$doc->large_image_full_path}' width='200' />";
-
-          $table .= "<br />{$doc->large_image_full_path}</td></tr>";
-
-          $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_theme_form($k);'>Populate Form</a></td></tr>";
-
-          $table .= "</table>";
-        }
-
-        $output .= $table;
+      if (isset($image_url) && ($image_url != '')) {
+        $table = "<br /><br /><table>";
+        $table .= "<tr><th style='width:25%''>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+        $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$image_url}'>";
+        $table .= "<img src='{$image_url}' width='200' />";
+        $table .= "<br />{$image_url}</td></tr>";
+        $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_theme_form($k);'>Populate Form</a></td></tr>";
+        $table .= "</table>";
       }
-
-    print $output;
-  }
+      $output .= $table;
+    }
+  print $output;
 }
 
 function api_query($search_type, $search_term) {
+  //fetch api data
+  $json_array = fetch_api_data($search_type, $search_term);
 
+  $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
+
+  //construct image url
+  $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //this should be a field set in settings
+  $image_url2 = '/full/!800,800/0/default.jpg';
+
+  foreach ($json_array as $k => $doc) {
+
+    $image_url = $image_url1 . $doc->image_id . $image_url2;
+
+    $table = "<br /><br /><table>";
+    $table .= "<tr><th width='25%'>ObjectID</th>  <td id='id_$k' data-value='{$doc->id}'>{$doc->id}</td></tr>";
+    $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
+    $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$image_url}'>";
+
+    if (isset($image_url) && ($image_url != '')) {
+      $table .= "<img src='{$image_url}' width='200' />";
+    }
+
+    $table .= "<br />{$image_url}</td></tr>";
+    $table .= "<tr><th>Artist</th>            <td id='artist_title_$k'       data-value='{$doc->artist_title}'>{$doc->artist_title}</td></tr>";
+    $table .= "<tr><th>Year</th>              <td id='date_$k'              data-value='{$doc->date_display}'>{$doc->date_display}</td></tr>";
+    $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_title}'>{$doc->gallery_title}</td></tr>";
+    $table .= "<tr><th>Copyright</th>         <td id='copy_$k'              data-value='{$doc->copyright_notice}'>{$doc->copyright_notice}</td></tr>";
+
+    if ($doc->gallery_title != 'Currently not on display' && isset($gallery_query)) {
+
+      $json2 = fetch_api_data('gallery', $doc->gallery_id);
+
+      $table .= "<tr><th>Gallery ID</th>  <td id='id_$k'   data-value='{$json2->data->id}'> {$json2->data->id}</td></tr>";
+      $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->data->latitude}'> {$json2->data->latitude}</td></tr>";
+      $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->data->longitude}'>{$json2->data->longitude}</td></tr>";
+      $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->data->floor}'>    {$json2->data->floor}</td></tr>";
+    }
+
+    $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_artwork_form($k);'>Populate Form</a></td></tr>";
+    $table .= "</table>";
+
+    $output .= $table;
+    }
+  print $output;
+}
+
+function fetch_api_data($search_type, $search_term) {
+  //get values set in admin/settings/aic-api
   $general_query = variable_get('aicapi_general_query');
   $gallery_query = variable_get('aicapi_gallery_query');
   $artwork_query = variable_get('aicapi_artwork_query');
 
-  if (isset($general_query) || isset($artwork_query)) {
-    if ($search_type == 'title' || $search_type == 'artist_title') {
-      $dataQuery = array(
-        'resources' => 'artworks',
-        'from' => 0,
-        'size' => 10,
-        'fields' => array(
-          'id',
-          'title',
-          'artist_title',
-          'date_display',
-          'gallery_title',
-          'is_on_view',
-          'copyright_notice',
-          'image_id',
-          'gallery_id'
-        ),
-        'query' => array(
-          'match' => array(
-            $search_type => array(
-              'query' => $search_term,
-              'fuzziness' => 'AUTO',
-            ),
-          )
+  if (($search_type == 'title' || $search_type == 'artist_title') && isset($general_query)) {
+    //searching by artwork title or artist name
+    $dataQuery = array(
+      'resources' => 'artworks',
+      'from' => 0,
+      'size' => 10,
+      'fields' => array(
+        'id',
+        'title',
+        'artist_title',
+        'date_display',
+        'gallery_title',
+        'is_on_view',
+        'copyright_notice',
+        'image_id',
+        'gallery_id'
+      ),
+      'query' => array(
+        'match' => array(
+          $search_type => array(
+            'query' => $search_term,
+            'fuzziness' => 'AUTO',
+          ),
         )
-      );
-      $url = $general_query;
-    } else {
-      //search type is id
-      $artwork_query = str_replace('{{pk}}', urlencode($search_term), $artwork_query);
-      $url = $artwork_query;
-    }
-
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_POST, 1);
-    //json encode dataQuery if it exists
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($dataQuery));
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
-    $headers = array(
-      'Content-Type: application/json',
-      "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
+      )
     );
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-    $json = json_decode(curl_exec($curl));
-
-    $json_data = $json->data;
-
-    $json_array = is_array($json_data) ? $json_data : array($json_data);
-
-    $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
-
-    //construct image url
-    $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //should this be a field in settings?
-    $image_url2 = '/full/!800,800/0/default.jpg';
-
-    foreach ($json_array as $k => $doc) {
-
-        $image_url = $image_url1 . $doc->image_id . $image_url2;
-
-        $table = "<br /><br /><table>";
-        $table .= "<tr><th width='25%'>ObjectID</th>  <td id='id_$k' data-value='{$doc->id}'>{$doc->id}</td></tr>";
-        $table .= "<tr><th>Title</th>                 <td id='title_$k'     data-value='{$doc->title}'>{$doc->title}</td></tr>";
-        $table .= "<tr><th>Image</th>                 <td id='image_$k'     data-value='{$image_url}'>";
-
-        if (isset($image_url) && ($image_url != '')) {
-          $table .= "<img src='{$image_url}' width='200' />";
-        }
-
-        $table .= "<br />{$image_url}</td></tr>";
-        $table .= "<tr><th>Artist</th>            <td id='artist_title_$k'       data-value='{$doc->artist_title}'>{$doc->artist_title}</td></tr>";
-        $table .= "<tr><th>Year</th>              <td id='date_$k'              data-value='{$doc->date_display}'>{$doc->date_display}</td></tr>";
-        $table .= "<tr><th>Gallery Location</th>  <td id='gallery_$k'           data-value='{$doc->gallery_title}'>{$doc->gallery_title}</td></tr>";
-        $table .= "<tr><th>Copyright</th>         <td id='copy_$k'              data-value='{$doc->copyright_notice}'>{$doc->copyright_notice}</td></tr>";
-
-        if ($doc->gallery_title != 'Currently not on display' && isset($gallery_query)) {
-
-          $url = str_replace('{{name}}', urlencode($doc->gallery_id), $gallery_query);
-
-          $curl = curl_init();
-          curl_setopt($curl, CURLOPT_URL, $url);
-          curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-          curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 0);
-          $headers = array(
-            'Content-Type: application/json',
-            "Date: ". gmdate("D, d M Y H:i:s") . " GMT"
-          );
-          curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-
-          $json2 = json_decode(curl_exec($curl));
-
-          $table .= "<tr><th>Gallery ID</th>  <td id='id_$k'   data-value='{$json2->data->id}'> {$json2->data->id}</td></tr>";
-          $table .= "<tr><th>Latitude</th>  <td id='lat_$k'   data-value='{$json2->data->latitude}'> {$json2->data->latitude}</td></tr>";
-          $table .= "<tr><th>Longitude</th> <td id='lon_$k'   data-value='{$json2->data->longitude}'>{$json2->data->longitude}</td></tr>";
-          $table .= "<tr><th>Floor</th>     <td id='floor_$k' data-value='{$json2->data->floor}'>    {$json2->data->floor}</td></tr>";
-        }
-
-        $table .= "<tr><td colspan='2' align='right'><a class='button' onclick='populate_artwork_form($k);'>Populate Form</a></td></tr>";
-        $table .= "</table>";
-
-        $output .= $table;
-      }
-
-    print $output;
+    $url = $general_query;
+  } else if ($search_type == 'id' && isset($artwork_query)) {
+    //searching by object id
+    $dataQuery = array(
+      'ids' => $search_term,
+      'limit' => 1,
+    );
+    $url = $artwork_query;
+  } else if ($search_type == 'gallery' && isset($gallery_query)) {
+    //searching for gallery
+    $dataQuery = array(
+      'ids' => $search_term,
+      'limit' => 1,
+    );
+    $url = $gallery_query;
+  } else {
+    drupal_set_message('There was an error in your query.');
   }
+  
+  $options = http_build_query($dataQuery);
+  $post_options = array(
+    'method' => 'POST',
+    'data' => $options,
+    'headers' => array('Content-Type' => 'application/json'),
+  );
+  //request for data
+  $json = drupal_http_request($url .'?'. $options, $post_options);
+  //filtering for correct data
+  $json = $json->data;
+  $json_data = json_decode($json);
+  $json_data = $json_data->data;
+  //array check
+  $json_array = is_array($json_data) ? $json_data : array($json_data);
+
+  return $json_array;
 }
 
 function aic_api_form_alter(&$form, &$form_state, $form_id) {
@@ -350,15 +290,14 @@ function aic_api_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'aic_theme_node_form') {
     $general_query = variable_get('aicapi_general_query');
     if (isset($general_query)) {
-
       drupal_add_js(drupal_get_path('module', 'aic_api') .'/aic_api.js', 'file');
 
       $form['field_background_image_url']['#prefix'] = '
         <strong>Query API:</strong><br /><br />
         <input type="text" id="api-text" name="api-text" style="width:250px; margin-right:10px; border:1px solid #999; font-size: 14px; padding: 3px 5px;" placeholder="Search Terms" /> <br /><br />
-        <input type="radio" value="object_id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="title_t" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" value="artist_name" id="search_type" name="search_type" /> Artist Name<br /><br />
+        <input type="radio" value="id" id="search_type" name="search_type"/> Object Id &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="title" id="search_type" name="search_type" /> Title &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" value="artist_title" id="search_type" name="search_type" /> Artist Name<br /><br />
         <a class="button" href="#" id="query-api-button-theme">Query API</a>
 
         <div id="api-query-results"></div>
@@ -456,16 +395,10 @@ function aic_api_admin_validate($form, &$form_state) {
   if (substr($artwork_query, 0, 7) !== "http://" && substr($artwork_query, 0, 8) !== "https://") {
     form_set_error('aic_artwork_query', t('You must enter a URL.'));
   }
-  if (strpos($artwork_query, '{{pk}}') === false) {
-    form_set_error('aic_artwork_query', t('You must include {{pk}} somewhere in your URL.'));
-  }
 
   $gallery_query = $form_state['values']['aicapi_gallery_query'];
   if (substr($gallery_query, 0, 7) !== "http://" && substr($gallery_query, 0, 8) !== "https://") {
     form_set_error('aic_gallery_query', t('You must enter a URL.'));
-  }
-  if (strpos($gallery_query, '{{name}}') === false) {
-    form_set_error('aic_gallery_query', t('You must include {{name}} somewhere in your URL.'));
   }
 
   $general_query = $form_state['values']['aicapi_general_query'];
