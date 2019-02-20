@@ -351,8 +351,9 @@ function aic_api_node_presave($node) {
   if (  $node->type == 'aic_theme') {
 
     if (isset($node->field_background_image_url['und']) && (isset($node->field_background_image_url['und'][0])) && ($node->field_background_image_url['und'][0]['value'] <> '')) {
-        $image = file_get_contents($node->field_image_url['und'][0]['value']);
-        $filename = $node->field_object_id['und'][0]['value'] . '.jpg';
+        $image = file_get_contents($node->field_background_image_url['und'][0]['value']);
+        //temporary fix for naming image. Perhaps we should just store the object id and use for filename
+        $filename = rand() . '.jpg';
         $file = file_save_data($image, 'public://' . $filename, FILE_EXISTS_REPLACE);
 
         $node->field_background['und'][0] = (array) $file;
