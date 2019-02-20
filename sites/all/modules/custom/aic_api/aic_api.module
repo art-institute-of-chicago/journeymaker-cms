@@ -148,12 +148,12 @@ function api_query_theme($search_type, $search_term) {
   $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
 
   //construct image url
-  $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //this should be a field set in settings
-  $image_url2 = '/full/!800,800/0/default.jpg';
+  $base_image_url = variable_get('iiif_image_url');
+  $image_specs = '/full/!800,800/0/default.jpg';
 
     foreach ($json as $k => $doc) {
 
-      $image_url = $image_url1 . $doc->image_id . $image_url2;
+      $image_url = $base_image_url . $doc->image_id . $image_specs;
 
       if (isset($image_url) && ($image_url != '')) {
         $table = "<br /><br /><table>";
@@ -176,12 +176,12 @@ function api_query($search_type, $search_term) {
   $output = "<br /><br /><a class='button' onclick='jQuery(\"#api-query-results\").html(\"\");'>Clear Results</a>";
 
   //construct image url
-  $image_url1 = 'https://lakeimagesweb.artic.edu/iiif/2/'; //this should be a field set in settings
-  $image_url2 = '/full/!800,800/0/default.jpg';
+  $base_image_url = variable_get('iiif_image_url');
+  $image_specs = '/full/!800,800/0/default.jpg';
 
   foreach ($json_array as $k => $doc) {
 
-    $image_url = $image_url1 . $doc->image_id . $image_url2;
+    $image_url = $base_image_url . $doc->image_id . $image_specs;
 
     $table = "<br /><br /><table>";
     $table .= "<tr><th width='25%'>ObjectID</th>  <td id='id_$k' data-value='{$doc->id}'>{$doc->id}</td></tr>";
@@ -362,29 +362,38 @@ function aic_api_admin() {
 
   $form['aicapi_artwork_query'] = array(
     '#type' => 'textfield',
-    '#title' => t('Artwork query by ID URL'),
+    '#title' => t('Artwork query URL'),
     '#default_value' => variable_get('aicapi_artwork_query', ''),
     '#size' => 60,
     '#maxlength' => 256,
-    '#description' => t("Use {{pk}} to note where the ID should be used."),
+    '#description' => t("Enter the artworks' endpoint URL."),
   );
 
   $form['aicapi_gallery_query'] = array(
     '#type' => 'textfield',
-    '#title' => t('Gallery query by name URL'),
+    '#title' => t('Gallery query URL'),
     '#default_value' => variable_get('aicapi_gallery_query', ''),
     '#size' => 60,
     '#maxlength' => 256,
-    '#description' => t("Use {{name}} to note where the name of the gallery should be used."),
+    '#description' => t("Enter the galleries' endpoint URL. "),
   );
 
   $form['aicapi_general_query'] = array(
     '#type' => 'textfield',
-    '#title' => t('General artwork query URL'),
+    '#title' => t('Search query URL'),
     '#default_value' => variable_get('aicapi_general_query', ''),
     '#size' => 60,
     '#maxlength' => 256,
-    '#description' => t("Use {{type}} to note the field to be searched, and {{term}} to note the query."),
+    '#description' => t("Enter the search endpoint URL."),
+  );
+
+  $form['iiif_image_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('IIIF Image Server URL'),
+    '#default_value' => variable_get('iiif_image_url', ''),
+    '#size' => 60,
+    '#maxlength' => 256,
+    '#description' => t("Enter base url to IIIF image server."),
   );
 
   return system_settings_form($form);
@@ -404,5 +413,10 @@ function aic_api_admin_validate($form, &$form_state) {
   $general_query = $form_state['values']['aicapi_general_query'];
   if (substr($general_query, 0, 7) !== "http://" && substr($general_query, 0, 8) !== "https://") {
     form_set_error('aic_general_query', t('You must enter a URL.'));
+  }
+
+  $base_image_url = $form_state['values']['iiif_image_url'];
+  if (substr($base_image_url, 0, 7) !== "http://" && substr($base_image_url, 0, 8) !== "https://") {
+    form_set_error('aic_image_url', t('You must enter a URL.'));
   }
 }
