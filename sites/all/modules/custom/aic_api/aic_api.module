@@ -69,47 +69,48 @@ function api_gallery_update() {
       //fetching artwork data
       $json = fetch_api_data('id', $node->field_object_id['und'][0]['value']);
 
+      //start variables off as null
       $gallery_id = null;
+      $gallery_name = null;
+      $map_x = null;
+      $map_y = null;
+      $floor = null;
+      $is_closed = false;
 
       foreach ($json as $k => $doc) {
-        //finding gallery of artwork
-        if (isset($doc->gallery_id)) {
-          $gallery_id = $doc->gallery_id;
-        }
-      }
-
-      //fetching gallery data
-      $json2 = fetch_api_data('gallery', $gallery_id);
-
-      foreach ($json2 as $k => $doc) {
-        $gallery_id = null;
-        $gallery_name = null;
-        $map_x = null;
-        $map_y = null;
-        $floor = null;
-        $is_closed = false;
-
-        if (isset($doc->is_closed)) {
-          $is_closed = $doc->is_closed;
-        }
-        if (isset($doc->id)) {
-          $gallery_id = $doc->id;
-        }
-        if (isset($doc->title)) {
-          $gallery_name = $doc->title;
-        }
-        if (isset($doc->latitude)) {
-          if (!$is_closed) {
-            $map_x = $doc->latitude;
+        //for each object, check if it's on view
+        if ($doc->is_on_view == true) {
+          //if it is, find its gallery info
+          if (isset($doc->gallery_id)) {
+            $gallery_id = $doc->gallery_id;
           }
-        }
-        if (isset($doc->longitude)) {
-          if (!$is_closed) {
-            $map_y = $doc->longitude;
+          //fetching gallery data
+          $json2 = fetch_api_data('gallery', $gallery_id);
+          foreach ($json2 as $k => $doc2) {
+            //assign values to variables
+            if (isset($doc2->is_closed)) {
+              $is_closed = $doc2->is_closed;
+            }
+            if (isset($doc2->id)) {
+              $gallery_id = $doc2->id;
+            }
+            if (isset($doc2->title)) {
+              $gallery_name = $doc2->title;
+            }
+            if (isset($doc2->latitude)) {
+              if (!$is_closed) {
+                $map_x = $doc2->latitude;
+              }
+            }
+            if (isset($doc2->longitude)) {
+              if (!$is_closed) {
+                $map_y = $doc2->longitude;
+              }
+            }
+            if (isset($doc2->floor)) {
+              $floor = $doc2->floor;
+            }
           }
-        }
-        if (isset($doc->floor)) {
-          $floor = $doc->floor;
         }
         //setting values of artwork fields in CMS
         $node->field_gallery_id['und'][0]['value'] = $gallery_id;
@@ -117,23 +118,23 @@ function api_gallery_update() {
         $node->field_map_x['und'][0]['value'] = $map_x;
         $node->field_map_y['und'][0]['value'] = $map_y;
         $node->field_floor['und'][0]['value'] = $floor;
-
+        
         node_save($node);
-      }
-	  
-	    // also update translated nodes.
-      foreach($languages as $lang) {
-        $translated_nid = aic_json_nid_by_lang($node->nid, $lang);
-        if ($translated_nid == $node->nid) continue;
-        $trans_node = node_load($translated_nid);
+        
+        // also update translated nodes.
+        foreach($languages as $lang) {
+          $translated_nid = aic_json_nid_by_lang($node->nid, $lang);
+          if ($translated_nid == $node->nid) continue;
+          $trans_node = node_load($translated_nid);
 
-        $trans_node->field_gallery_id['und'][0]['value'] = $gallery_id;
-        $trans_node->field_gallery_name['und'][0]['value'] = $gallery_name;
-        $trans_node->field_map_x['und'][0]['value'] = $map_x;
-        $trans_node->field_map_y['und'][0]['value'] = $map_y;
-        $trans_node->field_floor['und'][0]['value'] = $floor;
-        node_save($trans_node);
-        $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($trans_node->title, 'node/' . $trans_node->nid) . "<br><br>";
+          $trans_node->field_gallery_id['und'][0]['value'] = $gallery_id;
+          $trans_node->field_gallery_name['und'][0]['value'] = $gallery_name;
+          $trans_node->field_map_x['und'][0]['value'] = $map_x;
+          $trans_node->field_map_y['und'][0]['value'] = $map_y;
+          $trans_node->field_floor['und'][0]['value'] = $floor;
+          node_save($trans_node);
+          $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($trans_node->title, 'node/' . $trans_node->nid) . "<br><br>";
+        }
       }
     }
   }
