@@ -1,0 +1,10 @@
+name = cURL HTTP Request
+description = Alternative implementation of drupal_http_request() with proxy support using cURL.
+core = 7.x
+
+configure = admin/config/services/chr
+; Information added by Drupal.org packaging script on 2019-01-16
+version = "7.x-1.9"
+core = "7.x"
+project = "chr"
+datestamp = "1547651584"

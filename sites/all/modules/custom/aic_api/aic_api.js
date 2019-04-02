@@ -4,7 +4,7 @@
     $("#query-api-button").click(function() {
 
       var url_to_fetch = '/?q=api-query/' + jQuery('#search_type:checked').val()  + '/' + encodeURIComponent(jQuery('#api-text').val());
-
+      
       $.get(url_to_fetch, function(data) {
         $("#api-query-results").html('');
         $("#api-query-results").append(data);
@@ -117,9 +117,9 @@
 function populate_artwork_form(id) {
 
   jQuery("#edit-title").val(jQuery('#title_' + id).data('value'));
-  jQuery("#edit-field-object-id-und-0-value").val(jQuery('#object_id_' + id).data('value'));
+  jQuery("#edit-field-object-id-und-0-value").val(jQuery('#id_' + id).data('value'));
   jQuery("#edit-field-image-url-und-0-value").val(jQuery('#image_' + id).data('value'));
-  jQuery("#edit-field-artist-und-0-value").val(jQuery('#artist_name_' + id).data('value'));
+  jQuery("#edit-field-artist-und-0-value").val(jQuery('#artist_title_' + id).data('value'));
   jQuery("#edit-field-year-und-0-value").val(jQuery('#date_' + id).data('value'));
   jQuery("#edit-field-gallery-name-und-0-value").val(jQuery('#gallery_' + id).data('value'));
   jQuery("#edit-field-gallery-id-und-0-value").val(jQuery('#gallery_id_' + id).data('value'));
