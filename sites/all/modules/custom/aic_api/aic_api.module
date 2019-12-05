@@ -280,13 +280,14 @@ function fetch_api_data($search_type, $search_term) {
   );
   //request for data
   $json = drupal_http_request($url .'?'. $options, $post_options);
+  drupal_set_message(print_r($json, TRUE));
   //filtering for correct data
   $json = $json->data;
   $json_data = json_decode($json);
   $json_data = $json_data->data;
   //array check
   $json_array = is_array($json_data) ? $json_data : array($json_data);
-
+  drupal_set_message(count($json_array));
   return $json_array;
 }
 

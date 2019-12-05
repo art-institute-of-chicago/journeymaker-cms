@@ -1,11 +1,10 @@
 name = Require Login
-description = "Requires anonymous users to login before using the site."
+description = "Require user authentication (login) on ALL pages."
 core = 7.x
-configure = admin/config/system/require-login
+configure = admin/config/people/require-login
 
-; Information added by Drupal.org packaging script on 2016-04-15
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2018-12-27
+version = "7.x-2.9"
 core = "7.x"
 project = "require_login"
-datestamp = "1460733549"
-
+datestamp = "1545944888"
