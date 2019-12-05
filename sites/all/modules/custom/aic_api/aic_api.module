@@ -79,13 +79,24 @@ function api_gallery_update() {
     }, array_values(array_filter($nodes, function($node) {
       return isset($node->field_object_id['und']);
     })));
-    $artworks = fetch_api_data('id', implode(',', $object_ids));
+    $artworks = fetch_api_data('id', implode(',', $object_ids), [
+      'id',
+      'is_on_view',
+      'gallery_id',
+    ]);
     $gallery_ids = array_map(function($artwork) {
       return $artwork->gallery_id;
     }, array_values(array_filter($artworks, function($artwork) {
       return isset($artwork->gallery_id);
     })));
-    $galleries = fetch_api_data('gallery', implode(',', $gallery_ids));
+    $galleries = fetch_api_data('gallery', implode(',', $gallery_ids), [
+      'id',
+      'title',
+      'is_closed',
+      'latitude',
+      'longitude',
+      'floor',
+    ]);
     foreach ($nodes as $node) {
 
       if (!isset($node->field_object_id['und'])) {
@@ -253,7 +264,7 @@ function api_query($search_type, $search_term) {
   print $output;
 }
 
-function fetch_api_data($search_type, $search_term) {
+function fetch_api_data($search_type, $search_term, $fields = null) {
   //get values set in admin/settings/aic-api
   $general_query = variable_get('aicapi_general_query');
   $gallery_query = variable_get('aicapi_gallery_query');
@@ -292,6 +303,11 @@ function fetch_api_data($search_type, $search_term) {
       'ids' => $search_term,
       'limit' => 1,
     );
+    if (isset($fields)) {
+      $dataQuery = array_merge($dataQuery, [
+        'fields' => implode(',', $fields)
+      ]);
+    }
     $url = $artwork_query;
   } else if ($search_type == 'gallery' && isset($gallery_query)) {
     //searching for gallery
@@ -299,6 +315,11 @@ function fetch_api_data($search_type, $search_term) {
       'ids' => $search_term,
       'limit' => 1,
     );
+    if (isset($fields)) {
+      $dataQuery = array_merge($dataQuery, [
+        'fields' => implode(',', $fields)
+      ]);
+    }
     $url = $gallery_query;
   } else {
     drupal_set_message('There was an error in your query.');
