@@ -41,7 +41,6 @@ function aic_api_cron() {
     aic_json_page('json-on-display', $l);
     aic_json_page('json-off-display', $l);
   }
-
 }
 
 function api_gallery_update() {
@@ -57,17 +56,43 @@ function api_gallery_update() {
   foreach($l as $lang) {
     $languages[] = $lang->language;
   }
+
   //go through all artwork nodes
-  foreach ($result as $r) {
-    $node = node_load($r->nid);
+  $nids = [];
+  foreach ($result as $id) {
+    $nids[] = $id->nid;
+  }
+  $artwork_query = variable_get('aicapi_artwork_query');
+  $gallery_query = variable_get('aicapi_gallery_query');
+  if (!isset($artwork_query) || !isset($gallery_query)) {
+    return; // exit early
+  }
+  // chunk the nids into size pieces
+  foreach(array_chunk($nids, 20) as $subnids) {
+    $nodes = array_map(function($nid) {
+      return node_load($nid);
+    }, $subnids);
+    //drupal_set_message(print_r($nodes, TRUE));
+    // extract `object_id` only from nodes where `object_id` is defined
+    $object_ids = array_map(function($node) {
+      return $node->field_object_id['und'][0]['value'];
+    }, array_values(array_filter($nodes, function($node) {
+      return isset($node->field_object_id['und']);
+    })));
+    $artworks = fetch_api_data('id', implode(',', $object_ids));
+    $gallery_ids = array_map(function($artwork) {
+      return $artwork->gallery_id;
+    }, array_values(array_filter($artworks, function($artwork) {
+      return isset($artwork->gallery_id);
+    })));
+    $galleries = fetch_api_data('gallery', implode(',', $gallery_ids));
+    foreach ($nodes as $node) {
 
-    $artwork_query = variable_get('aicapi_artwork_query');
-    $gallery_query = variable_get('aicapi_gallery_query');
-
-    if (isset($node->field_object_id['und']) && isset($artwork_query) && isset($gallery_query)) {
-      $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($node->title, 'node/' . $node->nid) . "<br><br>";
-      //fetching artwork data
-      $json = fetch_api_data('id', $node->field_object_id['und'][0]['value']);
+      if (!isset($node->field_object_id['und'])) {
+        //drupal_set_message(print('skipping node'));
+        drupal_set_message(print($node->nid));
+        continue;
+      }
 
       //start variables off as null
       $gallery_id = null;
@@ -77,64 +102,71 @@ function api_gallery_update() {
       $floor = null;
       $is_closed = false;
 
-      foreach ($json as $k => $doc) {
-        //for each object, check if it's on view
-        if ($doc->is_on_view == true) {
-          //if it is, find its gallery info
-          if (isset($doc->gallery_id)) {
-            $gallery_id = $doc->gallery_id;
-          }
-          //fetching gallery data
-          $json2 = fetch_api_data('gallery', $gallery_id);
-          foreach ($json2 as $k => $doc2) {
+      $artwork_docs = array_values(array_filter($artworks, function($datum) use ($node) {
+        return $datum->id == $node->field_object_id['und'][0]['value'];
+      }));
+      // TODO: What if artwork is not found in API results?
+      if (count($artwork_docs) === 1) {
+        $artwork_doc = $artwork_docs[0];
+        $gallery_docs = array_values(array_filter($galleries, function($datum) use ($artwork_doc) {
+          return $datum->id == $artwork_doc->gallery_id;
+        }));
+        // TODO: What if galleru is not found in API results?
+        if (count($gallery_docs) === 1) {
+          $gallery_doc = $gallery_docs[0];
+          //for each object, check if it's on view
+          if ($artwork_doc->is_on_view == true) {
+            //if it is, find its gallery info
+            if (isset($artwork_doc->gallery_id)) {
+              $gallery_id = $artwork_doc->gallery_id;
+            }
             //assign values to variables
-            if (isset($doc2->is_closed)) {
-              $is_closed = $doc2->is_closed;
+            if (isset($gallery_doc->is_closed)) {
+              $is_closed = $gallery_doc->is_closed;
             }
-            if (isset($doc2->id)) {
-              $gallery_id = $doc2->id;
+            if (isset($gallery_doc->id)) {
+              $gallery_id = $gallery_doc->id;
             }
-            if (isset($doc2->title)) {
-              $gallery_name = $doc2->title;
+            if (isset($gallery_doc->title)) {
+              $gallery_name = $gallery_doc->title;
             }
-            if (isset($doc2->latitude)) {
+            if (isset($gallery_doc->latitude)) {
               if (!$is_closed) {
-                $map_x = $doc2->latitude;
+                $map_x = $gallery_doc->latitude;
               }
             }
-            if (isset($doc2->longitude)) {
+            if (isset($gallery_doc->longitude)) {
               if (!$is_closed) {
-                $map_y = $doc2->longitude;
+                $map_y = $gallery_doc->longitude;
               }
             }
-            if (isset($doc2->floor)) {
-              $floor = $doc2->floor;
+            if (isset($gallery_doc->floor)) {
+              $floor = $gallery_doc->floor;
             }
           }
         }
-        //setting values of artwork fields in CMS
-        $node->field_gallery_id['und'][0]['value'] = $gallery_id;
-        $node->field_gallery_name['und'][0]['value'] = $gallery_name;
-        $node->field_map_x['und'][0]['value'] = $map_x;
-        $node->field_map_y['und'][0]['value'] = $map_y;
-        $node->field_floor['und'][0]['value'] = $floor;
-        
-        node_save($node);
-        
-        // also update translated nodes.
-        foreach($languages as $lang) {
-          $translated_nid = aic_json_nid_by_lang($node->nid, $lang);
-          if ($translated_nid == $node->nid) continue;
-          $trans_node = node_load($translated_nid);
+      }
+      //setting values of artwork fields in CMS
+      $node->field_gallery_id['und'][0]['value'] = $gallery_id;
+      $node->field_gallery_name['und'][0]['value'] = $gallery_name;
+      $node->field_map_x['und'][0]['value'] = $map_x;
+      $node->field_map_y['und'][0]['value'] = $map_y;
+      $node->field_floor['und'][0]['value'] = $floor;
+      node_save($node);
 
-          $trans_node->field_gallery_id['und'][0]['value'] = $gallery_id;
-          $trans_node->field_gallery_name['und'][0]['value'] = $gallery_name;
-          $trans_node->field_map_x['und'][0]['value'] = $map_x;
-          $trans_node->field_map_y['und'][0]['value'] = $map_y;
-          $trans_node->field_floor['und'][0]['value'] = $floor;
-          node_save($trans_node);
-          $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($trans_node->title, 'node/' . $trans_node->nid) . "<br><br>";
-        }
+      // also update translated nodes.
+      foreach($languages as $lang) {
+        $translated_nid = aic_json_nid_by_lang($node->nid, $lang);
+        if ($translated_nid == $node->nid) continue;
+        $trans_node = node_load($translated_nid);
+
+        $trans_node->field_gallery_id['und'][0]['value'] = $gallery_id;
+        $trans_node->field_gallery_name['und'][0]['value'] = $gallery_name;
+        $trans_node->field_map_x['und'][0]['value'] = $map_x;
+        $trans_node->field_map_y['und'][0]['value'] = $map_y;
+        $trans_node->field_floor['und'][0]['value'] = $floor;
+        node_save($trans_node);
+        $output .= "<strong>Updating:</strong> ({$node->field_object_id['und'][0]['value']}) " . l($trans_node->title, 'node/' . $trans_node->nid) . "<br><br>";
       }
     }
   }
@@ -280,14 +312,14 @@ function fetch_api_data($search_type, $search_term) {
   );
   //request for data
   $json = drupal_http_request($url .'?'. $options, $post_options);
-  drupal_set_message(print_r($json, TRUE));
   //filtering for correct data
   $json = $json->data;
   $json_data = json_decode($json);
+  //drupal_set_message(print_r($json_data, TRUE));
   $json_data = $json_data->data;
   //array check
   $json_array = is_array($json_data) ? $json_data : array($json_data);
-  drupal_set_message(count($json_array));
+  //drupal_set_message(count($json_array));
   return $json_array;
 }
 
