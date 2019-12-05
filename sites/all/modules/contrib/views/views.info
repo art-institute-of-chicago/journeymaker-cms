@@ -2,7 +2,6 @@ name = Views
 description = Create customized lists and queries from your database.
 package = Views
 core = 7.x
-php = 5.2
 
 ; Always available CSS
 stylesheets[all][] = css/views.css
@@ -286,6 +285,7 @@ files[] = tests/handlers/views_handler_filter_equality.test
 files[] = tests/handlers/views_handler_filter_in_operator.test
 files[] = tests/handlers/views_handler_filter_numeric.test
 files[] = tests/handlers/views_handler_filter_string.test
+files[] = tests/handlers/views_handler_manytoone.test
 files[] = tests/handlers/views_handler_sort_random.test
 files[] = tests/handlers/views_handler_sort_date.test
 files[] = tests/handlers/views_handler_sort.test
@@ -302,12 +302,14 @@ files[] = tests/styles/views_plugin_style_unformatted.test
 files[] = tests/views_access.test
 files[] = tests/views_analyze.test
 files[] = tests/views_basic.test
+files[] = tests/views_ajax.test
 files[] = tests/views_argument_default.test
 files[] = tests/views_argument_validator.test
 files[] = tests/views_exposed_form.test
 files[] = tests/field/views_fieldapi.test
 files[] = tests/views_glossary.test
 files[] = tests/views_groupby.test
+files[] = tests/views_handler_filter.test
 files[] = tests/views_handlers.test
 files[] = tests/views_module.test
 files[] = tests/views_pager.test
@@ -325,12 +327,12 @@ files[] = tests/user/views_user_argument_default.test
 files[] = tests/user/views_user_argument_validate.test
 files[] = tests/user/views_user.test
 files[] = tests/views_cache.test
+files[] = tests/views_clone.test
 files[] = tests/views_view.test
 files[] = tests/views_ui.test
 
-; Information added by Drupal.org packaging script on 2016-06-15
-version = "7.x-3.14"
+; Information added by Drupal.org packaging script on 2019-05-10
+version = "7.x-3.23"
 core = "7.x"
 project = "views"
-datestamp = "1466019588"
-
+datestamp = "1557505389"

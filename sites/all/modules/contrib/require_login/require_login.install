@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * require_login.install
@@ -25,7 +26,7 @@ function require_login_uninstall() {
 }
 
 /**
- * Implements hook_update_N().
+ * Update access denied message and system weight.
  */
 function require_login_update_7100() {
   variable_set('require_login_deny_message', REQUIRE_LOGIN_DEFAULT_MESSAGE);

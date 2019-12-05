@@ -3,7 +3,7 @@
   $(document).ready( function() {
     $("#query-api-button").click(function() {
 
-      var url_to_fetch = '/?q=api-query/' + jQuery('#search_type:checked').val()  + '/' + encodeURIComponent(jQuery('#api-text').val());
+      var url_to_fetch = 'http://localhost/journeymaker-cms/?q=api-query/' + jQuery('#search_type:checked').val()  + '/' + encodeURIComponent(jQuery('#api-text').val());
       
       $.get(url_to_fetch, function(data) {
         $("#api-query-results").html('');
@@ -14,7 +14,7 @@
 
     $("#query-api-button-theme").click(function() {
 
-      var url_to_fetch = '/?q=api-query-theme/' + jQuery('#search_type:checked').val()  + '/' + encodeURIComponent(jQuery('#api-text').val());
+      var url_to_fetch = 'http://localhost/journeymaker-cms/?q=api-query-theme/' + jQuery('#search_type:checked').val()  + '/' + encodeURIComponent(jQuery('#api-text').val());
 
       $.get(url_to_fetch, function(data) {
         $("#api-query-results").html('');
