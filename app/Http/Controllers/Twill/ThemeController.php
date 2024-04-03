@@ -41,14 +41,10 @@ class ThemeController extends BaseModuleController
             ->withFieldSets(new Fieldsets([
                 Fieldset::make()->title('Content')->id('content')->fields([
                     Input::make()
+                        ->type('textarea')
                         ->name('intro')
                         ->label('Intro')
                         ->maxLength(225)
-                        ->translatable(),
-
-                    Input::make()
-                        ->name('journey_guide')
-                        ->label('Journey Guide')
                         ->translatable(),
                 ]),
                 Fieldset::make()->title('Media')->id('media')->fields([
