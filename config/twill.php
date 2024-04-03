@@ -1,6 +1,19 @@
 <?php
 
 return [
+    'dashboard' => [
+        'modules' => [
+            'theme' => [
+                'name' => 'themes',
+                'count' => true,
+                'create' => true,
+                'activity' => true,
+                'draft' => true,
+                'search' => true,
+                'search_fields' => ['title', 'intro'],
+            ],
+        ],
+    ],
     'enabled' => [
         'users-management' => true,
         'media-library' => true,
