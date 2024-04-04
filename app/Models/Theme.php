@@ -63,7 +63,7 @@ class Theme extends Model implements Sortable
                 ],
             ],
         ],
-        'bgs' => [
+        'backgrounds' => [
             'default' => [
                 [
                     'name' => 'default',

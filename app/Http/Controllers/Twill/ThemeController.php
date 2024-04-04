@@ -69,7 +69,7 @@ class ThemeController extends BaseModuleController
                         ->fieldNote('Appears on the printed Journey Guide.'),
 
                     Medias::make()
-                        ->name('bgs')
+                        ->name('backgrounds')
                         ->label('Backgrounds')
                         ->fieldNote('Appears behind the Theme on the Theme selector page.')
                         ->max(10),

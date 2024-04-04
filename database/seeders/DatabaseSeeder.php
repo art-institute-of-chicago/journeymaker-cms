@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
             $this->addThemeImage($theme, $english['icon']['url'], 'icon');
             $this->addThemeImage($theme, $english['guideCoverArt']['url'], 'cover');
             $this->addThemeImage($theme, $english['guideCoverArtHome']['url'], 'cover_home');
-            collect($english['bgs'])->each(fn ($bg) => $this->addThemeImage($theme, $bg['url'], 'bgs'));
+            collect($english['bgs'])->each(fn ($bg) => $this->addThemeImage($theme, $bg['url'], 'backgrounds'));
         });
     }
 
