@@ -18,12 +18,6 @@ use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    private array $localeSources = [
-        'en' => 'http://journeymaker.artic.edu/sites/default/files/json/data-en.json',
-        'es' => 'http://journeymaker.artic.edu/sites/default/files/json/data-es.json',
-        'zh' => 'http://journeymaker.artic.edu/sites/default/files/json/data-zh-hans.json',
-    ];
-
     public function run(): void
     {
         $userModel = twillModel('user');
@@ -66,16 +60,21 @@ class DatabaseSeeder extends Seeder
      */
     private function getThemesByLocale(): Collection
     {
-        $themeLocales = collect($this->localeSources)
+        $themeLocales = collect(config('journeymaker.locale_sources'))
+            ->filter()
             ->map(fn ($source) => $this->getJsonFromSource($source))
             ->map(fn ($source) => collect($source['themes']));
+
+        if ($themeLocales->isEmpty()) {
+            return collect();
+        }
 
         $themeLocales = array_map(
             fn (...$themeLocales) => $themeLocales,
             ...$themeLocales->values()->toArray()
         );
 
-        $locales = collect($this->localeSources)->keys();
+        $locales = collect(config('journeymaker.locale_sources'))->keys();
 
         return collect($themeLocales)
             ->map(fn ($translations) => $locales->combine($translations));
