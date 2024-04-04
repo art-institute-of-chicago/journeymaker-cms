@@ -33,8 +33,8 @@ class Theme extends Model implements Sortable
                     'name' => 'default',
                     'ratio' => 1,
                     'minValues' => [
-                        'width' => 76,
-                        'height' => 76,
+                        'width' => 75,
+                        'height' => 75,
                     ],
                 ],
             ],
