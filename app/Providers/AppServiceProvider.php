@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use A17\Twill\Facades\TwillNavigation;
+use A17\Twill\View\Components\Navigation\NavigationLink;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Relation::requireMorphMap();
+
+        Relation::enforceMorphMap([
+            'theme' => 'App\Models\Theme',
+        ]);
+
+        TwillNavigation::addLink(
+            NavigationLink::make()->forModule('themes')
+        );
     }
 }
