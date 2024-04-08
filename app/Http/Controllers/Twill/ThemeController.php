@@ -10,6 +10,7 @@ use A17\Twill\Services\Forms\Fieldset;
 use A17\Twill\Services\Forms\Fieldsets;
 use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Listings\Columns\Image;
+use A17\Twill\Services\Listings\Columns\NestedData;
 use A17\Twill\Services\Listings\TableColumns;
 
 class ThemeController extends BaseModuleController
@@ -85,6 +86,17 @@ class ThemeController extends BaseModuleController
         $table->splice(1, 0, [
             Image::make()->field('icon'),
         ]);
+
+        return $table;
+    }
+
+    protected function additionalIndexTableColumns(): TableColumns
+    {
+        $table = parent::additionalIndexTableColumns();
+
+        $table->add(
+            NestedData::make()->field('prompts')
+        );
 
         return $table;
     }

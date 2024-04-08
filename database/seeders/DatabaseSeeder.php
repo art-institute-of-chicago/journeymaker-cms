@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use A17\Twill\Http\Controllers\Admin\MediaLibraryController;
 use A17\Twill\Models\Media;
 use App\Models\Theme;
+use App\Models\ThemePrompt;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\Request;
@@ -34,18 +35,37 @@ class DatabaseSeeder extends Seeder
         $this->getThemesByLocale()->each(function ($locales) {
             $english = $locales->pull('en');
 
-            $translatable = ['title', 'intro'];
+            $themeTranslatable = ['title', 'intro'];
+            $promptTranslatable = ['title', 'subtitle'];
 
             $theme = Theme::factory()->create([
-                ...Arr::only($english, $translatable),
+                ...Arr::only($english, $themeTranslatable),
                 'published' => true,
             ]);
 
             $locales->each(
-                fn ($translation, $locale) => $this->addTranslation($theme, Arr::only($translation, $translatable), $locale)
+                fn ($translation, $locale) => $this->addTranslation($theme, Arr::only($translation, $themeTranslatable), $locale)
             );
 
             $theme->translations()->update(['active' => true]);
+
+            collect($english['prompts'])->each(function($prompt) use ($theme, $promptTranslatable, $locales) {
+                $prompt = ThemePrompt::factory()->create([
+                    ...Arr::only($prompt, $promptTranslatable),
+                    'theme_id' => $theme->id,
+                    'published' => true,
+                ]);
+
+                $locales->each(
+                    fn ($translation, $locale) =>
+                        collect($translation['prompts'])->each(
+                            fn ($promptTranslation) =>
+                                $this->addTranslation($prompt, Arr::only($promptTranslation, $promptTranslatable), $locale)
+                        )
+                    );
+
+                $prompt->translations()->update(['active' => true]);
+            });
 
             $this->addThemeImage($theme, $english['icon']['url'], 'icon');
             $this->addThemeImage($theme, $english['guideCoverArt']['url'], 'cover');

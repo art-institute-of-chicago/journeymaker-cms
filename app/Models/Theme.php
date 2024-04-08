@@ -76,4 +76,9 @@ class Theme extends Model implements Sortable
             ],
         ],
     ];
+
+    public function prompts()
+    {
+        return $this->hasMany(ThemePrompt::class);
+    }
 }
