@@ -59,7 +59,17 @@ class ArtworkController extends BaseModuleController
     {
         $query = $request->get('search');
 
-        $artwork = ApiArtwork::search($query)->get(['id', 'title', 'artist_display', 'image_id', 'thumbnail'])->map(function ($artwork) {
+        $params = [
+            'bool' => [
+                'should' => [
+                    ['terms' => ['main_reference_number' => [$query]]],
+                    ['terms' => ['id' => [$query]]],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
+
+        $artwork = ApiArtwork::rawSearch($params)->get(['id', 'title', 'artist_display', 'image_id', 'thumbnail'])->map(function ($artwork) {
             $artwork->thumbnail = $artwork->image_id ? $artwork->image('iiif', 'thumbnail') : null;
             return $artwork;
         });
