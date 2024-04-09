@@ -64,8 +64,6 @@ class ArtworkController extends BaseModuleController
             return $artwork;
         });
 
-        ray($artwork);
-
         return response()->json($artwork);
     }
 
