@@ -6,6 +6,7 @@ class StringHelpers
 {
     /**
      * Get Unicode slug
+     *
      * @see HasSlug::getUtf8Slug()
      */
     public static function getUtf8Slug($str, $options = [])
@@ -111,7 +112,7 @@ class StringHelpers
         $str = preg_replace('/[^\p{L}\p{Nd}]+/u', $options['delimiter'], $str);
 
         // Remove duplicate delimiters
-        $str = preg_replace('/(' . preg_quote($options['delimiter'], '/') . '){2,}/', '$1', $str);
+        $str = preg_replace('/('.preg_quote($options['delimiter'], '/').'){2,}/', '$1', $str);
 
         // Truncate slug to max. characters
         $str = mb_substr($str, 0, ($options['limit'] ? $options['limit'] : mb_strlen($str, 'UTF-8')), 'UTF-8');
@@ -152,8 +153,8 @@ class StringHelpers
         $openedTags = array_reverse($openedTags);
 
         for ($i = 0; $i < $openedLength; $i++) {
-            if (!in_array($openedTags[$i], $closedTags)) {
-                $string .= '</' . $openedTags[$i] . '>';
+            if (! in_array($openedTags[$i], $closedTags)) {
+                $string .= '</'.$openedTags[$i].'>';
             } else {
                 unset($closedTags[array_search($openedTags[$i], $closedTags)]);
             }
@@ -182,9 +183,9 @@ class StringHelpers
 
         foreach ($codes as $index => $code) {
             if (isset($code['name']) && ($code['name'] == 'ref')) {
-                $_collectedReferences[] = ['id' => sizeof($_collectedReferences) + 1, 'reference' => $code['content']];
-                $pos = sizeof($_collectedReferences);
-                $ref = '<sup id="ref_cite-' . $pos . '"><a href="#ref_note-' . $pos . '">[' . $pos . ']</a></sup>';
+                $_collectedReferences[] = ['id' => count($_collectedReferences) + 1, 'reference' => $code['content']];
+                $pos = count($_collectedReferences);
+                $ref = '<sup id="ref_cite-'.$pos.'"><a href="#ref_note-'.$pos.'">['.$pos.']</a></sup>';
 
                 $refPos = strpos($text, $code['shortcode']);
                 $beforeRef = substr($text, 0, $refPos);
@@ -193,12 +194,12 @@ class StringHelpers
                 [$beforeRefStart, $beforeRefEnd] = self::getLastWord($beforeRef);
 
                 $text = ''
-                    . $beforeRefStart
-                    . '<span class="u-nowrap">'
-                    . $beforeRefEnd
-                    . $ref
-                    . '</span>'
-                    . $afterRef;
+                    .$beforeRefStart
+                    .'<span class="u-nowrap">'
+                    .$beforeRefEnd
+                    .$ref
+                    .'</span>'
+                    .$afterRef;
             }
         }
 
@@ -284,7 +285,7 @@ class StringHelpers
             default:
                 $last = array_pop($array);
 
-                return implode(', ', $array) . ', and ' . $last;
+                return implode(', ', $array).', and '.$last;
         }
     }
 }

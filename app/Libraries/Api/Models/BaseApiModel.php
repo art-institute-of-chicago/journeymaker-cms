@@ -30,13 +30,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use JsonSerializable;
 
-abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayable, Jsonable, JsonSerializable, UrlRoutable
+abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, TwillModelContract, UrlRoutable
 {
     use HasApiCalls;
     use HasApiRelations;
     use HasAugmentedModel;
-    use HasRelationships;
     use HasPresenter;
+    use HasRelationships;
     use IsTranslatable;
 
     protected array $attributes = [];
@@ -165,7 +165,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
 
             $authorizedItemsIds = $allModelPermissions->moduleItem()->pluck('permissionable_id');
 
-            return $query->whereIn($this->getTable() . '.id', $authorizedItemsIds);
+            return $query->whereIn($this->getTable().'.id', $authorizedItemsIds);
         }
 
         return $query;
@@ -229,7 +229,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     protected function fillableFromArray(array $attributes): array
     {
-        if (count($this->fillable) > 0 && !static::$unguarded) {
+        if (count($this->fillable) > 0 && ! static::$unguarded) {
             return array_intersect_key($attributes, array_flip($this->fillable));
         }
 
@@ -494,7 +494,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
         // the mutator for the attribute. We cache off every mutated attributes so
         // we don't have to constantly check on attributes that actually change.
         foreach ($mutatedAttributes as $key) {
-            if (!array_key_exists($key, $attributes)) {
+            if (! array_key_exists($key, $attributes)) {
                 continue;
             }
 
@@ -509,7 +509,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
         // will not perform the cast on those attributes to avoid any confusion.
         foreach ($this->casts as $key => $value) {
             if (
-                !array_key_exists($key, $attributes) ||
+                ! array_key_exists($key, $attributes) ||
                 in_array($key, $mutatedAttributes)
             ) {
                 continue;
@@ -544,7 +544,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     protected function getArrayableAppends(): array
     {
-        if (!count($this->appends)) {
+        if (! count($this->appends)) {
             return [];
         }
 
@@ -619,7 +619,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     public function hasGetMutator(string $key): bool
     {
-        return method_exists($this, 'get' . Str::studly($key) . 'Attribute');
+        return method_exists($this, 'get'.Str::studly($key).'Attribute');
     }
 
     /**
@@ -627,7 +627,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     protected function mutateAttribute(string $key, mixed $value): mixed
     {
-        return $this->{'get' . Str::studly($key) . 'Attribute'}($value);
+        return $this->{'get'.Str::studly($key).'Attribute'}($value);
     }
 
     /**
@@ -712,12 +712,12 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
         // which simply lets the developers tweak the attribute as it is set on
         // the model, such as "json_encoding" an listing of data for storage.
         if ($this->hasSetMutator($key)) {
-            $method = 'set' . Str::studly($key) . 'Attribute';
+            $method = 'set'.Str::studly($key).'Attribute';
 
             return $this->{$method}($value);
         }
 
-        if ($this->isJsonCastable($key) && !is_null($value)) {
+        if ($this->isJsonCastable($key) && ! is_null($value)) {
             $value = $this->asJson($value);
         }
 
@@ -731,7 +731,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     public function hasSetMutator(string $key): bool
     {
-        return method_exists($this, 'set' . Str::studly($key) . 'Attribute');
+        return method_exists($this, 'set'.Str::studly($key).'Attribute');
     }
 
     /**
@@ -787,7 +787,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
      */
     public function fromJson(string $value, bool $asObject = false): mixed
     {
-        return json_decode($value, !$asObject);
+        return json_decode($value, ! $asObject);
     }
 
     /**
@@ -817,7 +817,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
     {
         $class = get_class($this);
 
-        if (!isset(static::$mutatorCache[$class])) {
+        if (! isset(static::$mutatorCache[$class])) {
             static::cacheMutatedAttributes($class);
         }
 
@@ -871,6 +871,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
         if ($key !== 'id' && method_exists($this, 'getAugmentedModel') && $this->getAugmentedModel()) {
             $value = $this->getAugmentedModel()->{$key};
         }
+
         return $value ?? $this->getAttribute($key);
     }
 
@@ -951,9 +952,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
 
     /**
      * Implement Basic URLRoutable functions
-     *
      */
-
     public function getRouteKey()
     {
         return $this->getAttribute($this->getRouteKeyName());
@@ -984,7 +983,7 @@ abstract class BaseApiModel implements TwillModelContract, ArrayAccess, Arrayabl
     public function __isset(string $key): bool
     {
         return (isset($this->attributes[$key]) || isset($this->relations[$key])) ||
-            ($this->hasGetMutator($key) && !is_null($this->getAttributeValue($key)));
+            ($this->hasGetMutator($key) && ! is_null($this->getAttributeValue($key)));
     }
 
     /**

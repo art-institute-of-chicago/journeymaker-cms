@@ -2,9 +2,9 @@
 
 namespace App\Libraries\Api\Models\Behaviors;
 
-use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Libraries\Api\Builders\ApiModelBuilder;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Libraries\Api\Builders\Connection\AicConnection;
 
 trait HasApiCalls
 {
@@ -16,7 +16,7 @@ trait HasApiCalls
     /**
      * Begin querying a model with eager loading.
      *
-     * @param  array|string $relations
+     * @param  array|string  $relations
      * @return App\Libraries\Api\Builders\ApiModelBuilder
      */
     public static function with($relations)
@@ -53,6 +53,7 @@ trait HasApiCalls
     {
         return (new static())->newQuery()->rawSearch($value);
     }
+
     /**
      * Get a new query builder for the model's table.
      *
@@ -66,7 +67,7 @@ trait HasApiCalls
     /**
      * Register the global scopes for this builder instance.
      *
-     * @param  App\Libraries\Api\Builders\ApiModelBuilder $builder
+     * @param  App\Libraries\Api\Builders\ApiModelBuilder  $builder
      * @return App\Libraries\Api\Builders\ApiModelBuilder
      */
     public function registerDefaultScopes($builder)

@@ -58,7 +58,7 @@ trait HasRelationships
     /**
      * Instantiate a new HasMany relationship.
      *
-     * @param  App\Libraries\Api\Builders\ApiQueryBuilder $query
+     * @param  App\Libraries\Api\Builders\ApiQueryBuilder  $query
      * @param  App\Libraries\Api\Models\BaseApiModel; $parent
      * @param  string  $localKey
      * @return App\Libraries\Api\Builders\Relations\HasMany
@@ -71,7 +71,7 @@ trait HasRelationships
     /**
      * Get a relationship.
      *
-     * @param  string $key
+     * @param  string  $key
      * @return mixed
      */
     public function getRelationValue($key)
@@ -92,7 +92,7 @@ trait HasRelationships
     {
         $relation = $this->{$method}();
 
-        if (!$relation) { // Empty relationships return null to avoid calling the API
+        if (! $relation) { // Empty relationships return null to avoid calling the API
             return null;
         }
 
@@ -116,7 +116,7 @@ trait HasRelationships
     {
         $morphMap = Relation::morphMap();
 
-        if (!empty($morphMap) && in_array(static::class, $morphMap)) {
+        if (! empty($morphMap) && in_array(static::class, $morphMap)) {
             return array_search(static::class, $morphMap, true);
         }
 

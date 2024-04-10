@@ -2,12 +2,12 @@
 
 namespace App\Libraries\Api\Builders;
 
-use Illuminate\Support\Str;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Helpers\CollectionHelpers;
 use App\Libraries\Api\Builders\Grammar\MsearchGrammar;
 use App\Libraries\Api\Builders\Grammar\SearchGrammar;
-use App\Helpers\CollectionHelpers;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Str;
 
 class ApiQueryBuilder
 {
@@ -17,7 +17,7 @@ class ApiQueryBuilder
      * @var array
      */
     public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>'
+        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
     ];
 
     /**
@@ -44,7 +44,7 @@ class ApiQueryBuilder
     /**
      * Whether to apply boosting or not
      *
-     * @var boolean
+     * @var bool
      */
     public $boost = true;
 
@@ -155,7 +155,6 @@ class ApiQueryBuilder
 
     /**
      * Bypass whereNotIn function until it's implemented on the API
-     *
      */
     public function whereNotIn($column, $values, $boolean = 'and')
     {
@@ -178,7 +177,7 @@ class ApiQueryBuilder
      *
      * @param  string|array|\Closure  $column
      * @param  string|null  $operator
-     * @param  mixed   $value
+     * @param  mixed  $value
      * @param  string  $boolean
      * @return $this
      */
@@ -224,7 +223,7 @@ class ApiQueryBuilder
     public function orderBy($column, $direction = 'asc')
     {
         $this->orders[] = [
-            $column => ['order' => strtolower($direction) == 'asc' ? 'asc' : 'desc']
+            $column => ['order' => strtolower($direction) == 'asc' ? 'asc' : 'desc'],
         ];
 
         return $this;
@@ -237,7 +236,7 @@ class ApiQueryBuilder
      */
     public function ids($ids = [])
     {
-        if (!empty($ids)) {
+        if (! empty($ids)) {
             $this->ids = $ids;
         }
 
@@ -251,7 +250,7 @@ class ApiQueryBuilder
      */
     public function include($inclusions = [])
     {
-        if (!empty($inclusions)) {
+        if (! empty($inclusions)) {
             $this->include = $inclusions;
         }
 
@@ -372,7 +371,7 @@ class ApiQueryBuilder
     /**
      * Set the "boost" value of the query.
      *
-     * @param  boolean  $value
+     * @param  bool  $value
      * @return $this
      */
     public function boost($value = true)
@@ -410,7 +409,7 @@ class ApiQueryBuilder
     /**
      * Perform a raw ES search
      *
-     * @param  array $search
+     * @param  array  $search
      * @return $this
      */
     public function rawSearch($search)
@@ -423,7 +422,7 @@ class ApiQueryBuilder
     /**
      * Perform a completely raw ES query
      *
-     * @param  array $search
+     * @param  array  $search
      * @return $this
      */
     public function rawQuery($search)
@@ -436,7 +435,7 @@ class ApiQueryBuilder
     /**
      * Add aggregations to the raw ES search
      *
-     * @param  array $aggregations
+     * @param  array  $aggregations
      * @return $this
      */
     public function aggregations($aggregations)
@@ -449,7 +448,7 @@ class ApiQueryBuilder
     /**
      * Execute a get query and setup pagination data
      *
-     * @param array $columns
+     * @param  array  $columns
      * @return \Illuminate\Support\Collection
      */
     public function get($columns = [], $endpoint = null)
@@ -488,7 +487,7 @@ class ApiQueryBuilder
         $collection->setMetadata([
             'pagination' => $results->body->pagination ?? null,
             'aggregations' => $results->body->aggregations ?? null,
-            'suggestions' => $results->body->suggest ?? null
+            'suggestions' => $results->body->suggest ?? null,
         ]);
 
         return $collection;
@@ -497,7 +496,7 @@ class ApiQueryBuilder
     /**
      * Execute a get query and return a raw response
      *
-     * @param array $columns
+     * @param  array  $columns
      * @return \Illuminate\Support\Collection
      */
     public function getRaw($columns = [], $endpoint = null)
@@ -521,7 +520,7 @@ class ApiQueryBuilder
         $collection->setMetadata([
             'pagination' => $results->body->pagination ?? null,
             'aggregations' => $results->body->aggregations ?? null,
-            'suggestions' => $results->body->suggest ?? null
+            'suggestions' => $results->body->suggest ?? null,
         ]);
 
         return $collection;
@@ -593,7 +592,7 @@ class ApiQueryBuilder
      */
     protected function invalidOperator($operator)
     {
-        return !in_array(strtolower($operator), $this->operators, true);
+        return ! in_array(strtolower($operator), $this->operators, true);
     }
 
     /**
@@ -605,8 +604,8 @@ class ApiQueryBuilder
             return $collection;
         }
 
-        return $collection->sort(function ($a, $b) use ($collection) {
-            if (!isset($a->id) || !isset($b->id)) {
+        return $collection->sort(function ($a, $b) {
+            if (! isset($a->id) || ! isset($b->id)) {
                 return 0;
             }
 

@@ -20,7 +20,7 @@ class AicGrammar
         'searchParameters',
         'searchResources',
         'aggregationParameters',
-        'rawQuery'
+        'rawQuery',
     ];
 
     /**
@@ -45,7 +45,7 @@ class AicGrammar
     /**
      * Compile the components necessary for a select clause.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileComponents($query)
@@ -56,8 +56,8 @@ class AicGrammar
             // To compile the query, we'll spin through each component of the query and
             // see if that component exists. If it does we'll just call the compiler
             // function for the component which is responsible for making the parameter/s.
-            if (!is_null($query->{$component})) {
-                $method = 'compile' . ucfirst($component);
+            if (! is_null($query->{$component})) {
+                $method = 'compile'.ucfirst($component);
 
                 $parameters = array_merge($parameters, $this->{$method}($query, $query->{$component}));
             }
@@ -69,7 +69,7 @@ class AicGrammar
     /**
      * Compile the "where" portions of the query.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return string
      */
     protected function compileWheres($query)
@@ -81,39 +81,39 @@ class AicGrammar
      * Compile the "columns" portions of the query. This translates to 'fields'
      * which are the columns the API will return.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileColumns($query, $columns)
     {
-        return empty($columns) ? [] : ['fields' => join(',', $columns)];
+        return empty($columns) ? [] : ['fields' => implode(',', $columns)];
     }
 
     /**
      * Compile the "include" portions of the query.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileInclude($query, $columns)
     {
-        return empty($columns) ? [] : ['include' => join(',', $columns)];
+        return empty($columns) ? [] : ['include' => implode(',', $columns)];
     }
 
     /**
      * Compile the "ids" portions of the query. This will filter by an IDs array
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileIds($query, $ids)
     {
-        return empty($ids) ? [] : ['ids' => join(',', $ids)];
+        return empty($ids) ? [] : ['ids' => implode(',', $ids)];
     }
 
     protected function compileSearchResources($query, $resources)
     {
-        return empty($resources) ? [] : ['resources' => join(',', $resources)];
+        return empty($resources) ? [] : ['resources' => implode(',', $resources)];
     }
 
     protected function compileSearchText($query, $text)
@@ -149,7 +149,7 @@ class AicGrammar
     {
         return [
             'limit' => $limit,
-            'size' => $limit // Elasticsearch search parameter for limiting
+            'size' => $limit, // Elasticsearch search parameter for limiting
         ];
     }
 
@@ -157,7 +157,7 @@ class AicGrammar
     {
         return [
             'offset' => $offset,
-            'from' => $offset // Elasticsearch search parameter for offset
+            'from' => $offset, // Elasticsearch search parameter for offset
         ];
     }
 

@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>#madewithtwill website</title>
-</head>
-<body>
-<div>
-    @yield('content')
-</div>
-</body>
+    <head>
+        <title>#madewithtwill website</title>
+    </head>
+    <body>
+        <div>
+            @yield('content')
+        </div>
+    </body>
 </html>

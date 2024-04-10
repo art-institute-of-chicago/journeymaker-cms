@@ -29,6 +29,6 @@ class NullRelation extends Relation
 
     public function getResults()
     {
-        return;
+
     }
 }

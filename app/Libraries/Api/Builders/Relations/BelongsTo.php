@@ -31,6 +31,7 @@ class BelongsTo extends BaseBelongsTo
         if ($id) {
             return $this->query->find($id);
         }
+
         return null;
     }
 }

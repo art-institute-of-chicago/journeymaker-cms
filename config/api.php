@@ -52,5 +52,5 @@ return [
 
     'logger' => (bool) env('API_LOGGER', false),
 
-    'token' => env('API_TOKEN', null)
+    'token' => env('API_TOKEN', null),
 ];

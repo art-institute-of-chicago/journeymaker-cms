@@ -14,23 +14,38 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Artwork extends Model implements Sortable
 {
-    use HasTranslation, HasMedias, HasRevisions, HasPosition, HasFactory;
     use HasApiModel;
     use HasApiRelations;
+    use HasFactory;
+    use HasMedias;
+    use HasPosition;
+    use HasRevisions;
+    use HasTranslation;
 
     protected $apiModelClass = \App\Models\Api\Artwork::class;
 
     protected $fillable = [
         'published',
-        'title',
-        'description',
-        'image_id',
         'position',
+        'datahub_id',
+        'title',
+        'artist_display',
+        'is_on_view',
+        'credit_line',
+        'copyright_notice',
+        'latitude',
+        'longitude',
+        'image_id',
+        'gallery_id',
+    ];
+
+    protected $casts = [
+        'latitude' => 'decimal:13',
+        'longitude' => 'decimal:13',
     ];
 
     public $translatedAttributes = [
         'title',
-        'description',
+        'artist_display',
     ];
-
 }

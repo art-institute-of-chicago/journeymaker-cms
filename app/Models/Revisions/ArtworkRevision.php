@@ -6,5 +6,5 @@ use A17\Twill\Models\Revision;
 
 class ArtworkRevision extends Revision
 {
-    protected $table = "artwork_revisions";
+    protected $table = 'artwork_revisions';
 }

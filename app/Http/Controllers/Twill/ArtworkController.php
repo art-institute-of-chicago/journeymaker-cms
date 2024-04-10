@@ -10,9 +10,9 @@ use A17\Twill\Services\Listings\Columns\Text;
 use A17\Twill\Services\Listings\TableColumns;
 use App\Libraries\Api\Models\Behaviors\HasApiCalls;
 use App\Models\Api\Artwork as ApiArtwork;
-use App\Models\Artwork;
 use App\Support\Forms\Fields\QueryArtwork;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ArtworkController extends BaseModuleController
@@ -29,7 +29,18 @@ class ArtworkController extends BaseModuleController
     public function getCreateForm(): Form
     {
         return Form::make([
-            QueryArtwork::make()->name('artwork'),
+            QueryArtwork::make()->name('artwork')
+                ->updateFormField(
+                    formField: 'title',
+                    artworkField: 'title',
+                    locale: 'en'
+                )
+                ->updateFormField(
+                    formField: 'datahub_id',
+                    artworkField: 'id'
+                ),
+            Input::make()->name('title')->translatable(),
+            Input::make()->name('datahub_id')->readOnly(),
         ]);
     }
 
@@ -55,26 +66,16 @@ class ArtworkController extends BaseModuleController
         return $table;
     }
 
-    public function queryArtwork(Request $request)
+    public function queryArtwork(Request $request): JsonResponse
     {
-        $query = $request->get('search');
+        try {
+            $artworks = ApiArtwork::query()->byId($request->get('search'))
+                ->get(['id', 'title', 'artist_display', 'image_id'])
+                ->map(fn ($artwork) => $artwork->loadThumbnail());
 
-        $params = [
-            'bool' => [
-                'should' => [
-                    ['terms' => ['main_reference_number' => [$query]]],
-                    ['terms' => ['id' => [$query]]],
-                ],
-                'minimum_should_match' => 1,
-            ],
-        ];
-
-        $artwork = ApiArtwork::rawSearch($params)->get(['id', 'title', 'artist_display', 'image_id', 'thumbnail'])->map(function ($artwork) {
-            $artwork->thumbnail = $artwork->image_id ? $artwork->image('iiif', 'thumbnail') : null;
-            return $artwork;
-        });
-
-        return response()->json($artwork);
+            return response()->json($artworks);
+        } catch (Exception $th) {
+            return response()->json([], 404);
+        }
     }
-
 }

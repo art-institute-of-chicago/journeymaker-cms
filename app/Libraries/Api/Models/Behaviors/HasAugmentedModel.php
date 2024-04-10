@@ -5,6 +5,7 @@ namespace App\Libraries\Api\Models\Behaviors;
 trait HasAugmentedModel
 {
     protected $augmentedModel = null;
+
     protected $augmentedModelClass;
 
     public function setAugmentedModel($model)
@@ -23,13 +24,16 @@ trait HasAugmentedModel
         $this->setAttribute('is_augmented', false);
         if ($this->augmentedModel) {
             $this->setAttribute('is_augmented', true);
+
             return $this->augmentedModel;
         }
         if ($this->augmentedModel = $this->augmentedModelClass::where('datahub_id', $this->id)->first()) {
             $this->setAttribute('is_augmented', true);
             $this->augmentedModel->setApiModel($this);
+
             return $this->augmentedModel;
         }
+
         return $this->augmentedModel;
     }
 
@@ -45,7 +49,6 @@ trait HasAugmentedModel
 
     /**
      * Bypass missed methods to the augmented model if existent
-     *
      */
     public function __call($method, $parameters): mixed
     {

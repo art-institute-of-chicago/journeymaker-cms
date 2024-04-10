@@ -22,14 +22,16 @@ trait HasApiModel
     {
         $this->getApiModel();
         $this->augmentWithApiModel();
+
         return $this;
     }
 
     public function getApiModel()
     {
-        if (!$this->apiModel) {
+        if (! $this->apiModel) {
             $this->setApiModel($this->apiModelClass::query()->find($this->datahub_id));
         }
+
         return $this->apiModel;
     }
 
@@ -62,7 +64,7 @@ trait HasApiModel
 
     public function hasAttribute($attr): bool
     {
-        return array_key_exists($attr, $this->attributes) && !is_null($this->attributes[$attr]);
+        return array_key_exists($attr, $this->attributes) && ! is_null($this->attributes[$attr]);
     }
 
     public function getApiField($field)

@@ -15,7 +15,6 @@ class GuzzleApiConsumer implements ApiConsumerInterface
 
     /**
      * Intercept the Guzzle request and return a cleaner object
-     *
      */
     public function request($method, $uri = '', array $options = [])
     {
@@ -27,20 +26,20 @@ class GuzzleApiConsumer implements ApiConsumerInterface
         $body = json_decode($contents);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON: ' . $contents);
+            throw new \Exception('Invalid JSON: '.$contents);
         }
 
         if (is_object($body) && isset($body->error) && $body->status !== 404) {
-            throw new \Exception('API error: ' . $contents);
+            throw new \Exception('API error: '.$contents);
         }
 
-        if (!in_array($response->getStatusCode(), [200, 404])) {
-            throw new \Exception('API invalid response: ' . $contents);
+        if (! in_array($response->getStatusCode(), [200, 404])) {
+            throw new \Exception('API invalid response: '.$contents);
         }
 
         return (object) [
             'body' => $body,
-            'status' => $response->getStatusCode()
+            'status' => $response->getStatusCode(),
         ];
     }
 
@@ -48,7 +47,6 @@ class GuzzleApiConsumer implements ApiConsumerInterface
      * Adapt raw parameters to be implemented correctly by the client library.
      * You can send parameters directly, or adapt them manually.
      * This method should be defined for each consumer to ease configuration.
-     *
      */
     public function adaptParameters($params)
     {
@@ -57,7 +55,6 @@ class GuzzleApiConsumer implements ApiConsumerInterface
 
     /**
      * Add a default header and merge with headers coming from the parameters
-     *
      */
     public function headers($params)
     {
@@ -68,7 +65,7 @@ class GuzzleApiConsumer implements ApiConsumerInterface
 
         if (config('api.token')) {
             $headers = array_merge($headers, [
-                'Authorization' => 'Bearer ' . config('api.token'),
+                'Authorization' => 'Bearer '.config('api.token'),
             ]);
         }
 
@@ -82,7 +79,6 @@ class GuzzleApiConsumer implements ApiConsumerInterface
     /**
      * Captures all method calls, and bypass them to the client in case they don't
      * exists locally. This way it's easier to extend/
-     *
      */
     public function __call($name, $args): mixed
     {

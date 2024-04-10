@@ -4,15 +4,16 @@ namespace App\Libraries;
 
 use A17\Twill\Services\MediaLibrary\ImageServiceDefaults;
 use A17\Twill\Services\MediaLibrary\ImageServiceInterface;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
 use App\Helpers\StringHelpers;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class DamsImageService implements ImageServiceInterface
 {
     use ImageServiceDefaults;
 
     protected $base_url;
+
     protected $version;
 
     protected $cacheVersion = '1';
@@ -38,12 +39,12 @@ class DamsImageService implements ImageServiceInterface
         $credit = null;
         $creditUrl = null;
         $shareTitle = null;
-        $downloadName = $object->main_reference_number . ' - ' . StringHelpers::truncateStr($object->title, 50) . '.jpg';
+        $downloadName = $object->main_reference_number.' - '.StringHelpers::truncateStr($object->title, 50).'.jpg';
 
         $preLoadedInfo = $this->getInfo($object, $imageField);
 
         $src = $this->getUrl($object->{$imageField}, ['width' => $width, 'height' => $height]);
-        $srcset = $this->getUrl($object->{$imageField}, ['width' => $width, 'height' => $height]) . ' 300w';
+        $srcset = $this->getUrl($object->{$imageField}, ['width' => $width, 'height' => $height]).' 300w';
 
         $image = [
             'type' => 'dams',
@@ -57,14 +58,14 @@ class DamsImageService implements ImageServiceInterface
             'downloadName' => $downloadName,
             'credit' => $credit,
             'creditUrl' => $creditUrl,
-            'iiifId' => $this->base_url . $this->version . '/' . $object->{$imageField},
+            'iiifId' => $this->base_url.$this->version.'/'.$object->{$imageField},
         ];
 
-        if (isset($preLoadedInfo['lqip']) && !empty($preLoadedInfo['lqip'])) {
+        if (isset($preLoadedInfo['lqip']) && ! empty($preLoadedInfo['lqip'])) {
             $image['lqip'] = $preLoadedInfo['lqip'];
         }
 
-        if (isset($preLoadedInfo['alt']) && !empty($preLoadedInfo['alt'])) {
+        if (isset($preLoadedInfo['alt']) && ! empty($preLoadedInfo['alt'])) {
             $image['alt'] = $preLoadedInfo['alt'];
         }
 
@@ -80,10 +81,10 @@ class DamsImageService implements ImageServiceInterface
         $dimensions = '!3000,3000';
 
         if ($width != '' || $height != '') {
-            $dimensions = '!' . $width . ',' . $height;
+            $dimensions = '!'.$width.','.$height;
         }
 
-        return $this->base_url . $this->version . '/' . $id . '/' . $size . '/' . $dimensions . '/0/default.jpg';
+        return $this->base_url.$this->version.'/'.$id.'/'.$size.'/'.$dimensions.'/0/default.jpg';
     }
 
     public function getUrlWithCrop($id, array $crop_params, array $params = [])
@@ -121,7 +122,7 @@ class DamsImageService implements ImageServiceInterface
         $info = [];
 
         // Try returning already loaded information
-        if (!empty($object->thumbnail)) {
+        if (! empty($object->thumbnail)) {
             if ($object->thumbnail->width && $object->thumbnail->height) {
                 $info['width'] = $object->thumbnail->width;
                 $info['height'] = $object->thumbnail->height;
@@ -139,6 +140,7 @@ class DamsImageService implements ImageServiceInterface
 
             return $info;
         }
+
         // Hit the server to get the info if not available
         return $this->getDimensions($object->{$imageField});
     }
@@ -163,10 +165,10 @@ class DamsImageService implements ImageServiceInterface
 
     protected function fetchImageInfo($id)
     {
-        $json = Cache::remember('dams-image-' . $id . $this->cacheVersion, 24 * 60 * 60, function () use ($id) {
+        $json = Cache::remember('dams-image-'.$id.$this->cacheVersion, 24 * 60 * 60, function () use ($id) {
             try {
                 // WEB-1883: Use aggresive curl timeouts to prevent gateway timeout
-                $url = $this->base_url . $this->version . '/' . $id . '/info.json';
+                $url = $this->base_url.$this->version.'/'.$id.'/info.json';
 
                 $ch = curl_init();
 

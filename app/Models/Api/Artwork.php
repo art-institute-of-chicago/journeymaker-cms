@@ -50,7 +50,21 @@ class Artwork extends BaseApiModel
                     'must' => [
                         ['term' => ['is_on_view' => true]],
                     ],
-                ]
+                ],
+            ]);
+    }
+
+    public function scopeById(Builder $query, string $id): Builder
+    {
+        return $query
+            ->rawSearch([
+                'bool' => [
+                    'should' => [
+                        ['terms' => ['main_reference_number' => [$id]]],
+                        ['terms' => ['id' => [$id]]],
+                    ],
+                    'minimum_should_match' => 1,
+                ],
             ]);
     }
 
@@ -60,11 +74,12 @@ class Artwork extends BaseApiModel
         foreach ($soundIds as $soundId) {
             $matches['match'] = ['sound_ids' => $soundId];
         }
+
         return $query
             ->rawSearch([
                 'bool' => [
                     'must' => $matches,
-                ]
+                ],
             ]);
     }
 
@@ -80,6 +95,13 @@ class Artwork extends BaseApiModel
             ])
             ->orderBy('pageviews', 'desc')
             ->limit(8);
+    }
+
+    public function loadThumbnail(): self
+    {
+        $this->thumbnail = $this->image_id ? $this->image('iiif', 'thumbnail') : null;
+
+        return $this;
     }
 
     public function __toString(): string

@@ -2,13 +2,15 @@
 
 namespace App\Libraries\Api\Builders\Connection;
 
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Request;
 
 class AicConnection implements ApiConnectionInterface
 {
     protected $client;
+
     protected $defaultGrammar = 'App\Libraries\Api\Builders\Grammar\AicGrammar';
+
     protected $cacheKeyName = 'Aic-cache-key';
 
     /**
@@ -45,7 +47,7 @@ class AicConnection implements ApiConnectionInterface
     /**
      * Define a custom TTL for this connection instance
      *
-     * @param  integer  $ttl
+     * @param  int  $ttl
      * @return object
      */
     public function ttl($ttl = null)
@@ -90,18 +92,18 @@ class AicConnection implements ApiConnectionInterface
         }
 
         if ($verb === 'GET') {
-            if (!empty($params)) {
+            if (! empty($params)) {
                 // WEB-979: See DecodeParams middleware in data-aggregator
-                $endpoint = $endpoint . '?params=' . urlencode(json_encode($params));
+                $endpoint = $endpoint.'?params='.urlencode(json_encode($params));
             }
         } else {
-            if (!empty($bodyParams)) {
+            if (! empty($bodyParams)) {
                 $adaptedParameters = $this->client->adaptParameters($params);
                 $options = array_merge($adaptedParameters, $headers);
             }
         }
         if (config('api.logger')) {
-            \Log::info($verb . ' ' . $endpoint);
+            \Log::info($verb.' '.$endpoint);
             \Log::info(print_r($options, true));
             $responseTimerStart = microtime(true);
         }
@@ -124,23 +126,26 @@ class AicConnection implements ApiConnectionInterface
                 // WEB-2259: Error handling is done in the ApiConsumer
                 $response = $this->client->request($verb, $endpoint, $options);
                 if (config('api.logger')) {
-                    \Log::info('cache ttl = ' . $ttl . ' seconds');
+                    \Log::info('cache ttl = '.$ttl.' seconds');
                 }
+
                 return $response;
             });
             if (config('api.logger')) {
-                \Log::info('response time = ' . microtime(true) - $responseTimerStart . ' seconds');
+                \Log::info('response time = '.microtime(true) - $responseTimerStart.' seconds');
             }
             if (isset($response->status) && $response->status != 200) {
                 \Cache::forget($cacheKey);
             }
+
             return $response;
         }
         $response = $this->client->request($verb, $endpoint, $options);
         if (config('api.logger')) {
-            \Log::info('response time = ' . microtime(true) - $responseTimerStart . ' seconds');
+            \Log::info('response time = '.microtime(true) - $responseTimerStart.' seconds');
             \Log::info((array) $response->body);
         }
+
         return $response;
     }
 

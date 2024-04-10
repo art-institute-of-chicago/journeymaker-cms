@@ -35,6 +35,7 @@ trait HasMediasApi
     {
         $cropParams = $this->getMediasParams()[$role][$crop][0];
         $imageField = $cropParams['field'] ?? 'image_id';
+
         return DamsImageService::getUrl($this->{$imageField}, $cropParams + $params);
     }
 
@@ -63,7 +64,7 @@ trait HasMediasApi
         }
 
         if (isset($this->mediasParams[$role])) {
-            if ($crop && !empty($this->{$this->getImageField($role, $crop)})) {
+            if ($crop && ! empty($this->{$this->getImageField($role, $crop)})) {
                 $image = DamsImageService::getImage($this, $this->getImageField($role, $crop));
                 $image['width'] = $this->getWidth($role, $crop, $image);
                 $image['height'] = $this->getHeight($role, $crop, $image);
@@ -71,7 +72,7 @@ trait HasMediasApi
                 return $image;
             }
 
-            if (!empty($this->{$this->getImageField($role, 'default')})) {
+            if (! empty($this->{$this->getImageField($role, 'default')})) {
                 $image = DamsImageService::getImage($this, $this->getImageField($role, 'default'));
 
                 return $image;

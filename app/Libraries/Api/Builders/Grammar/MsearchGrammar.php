@@ -9,7 +9,7 @@ class MsearchGrammar extends SearchGrammar
     /**
      * Compile the components necessary for a select clause.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileComponents($query)
@@ -21,7 +21,7 @@ class MsearchGrammar extends SearchGrammar
      * Compile the "columns" portions of the query. This translates to 'fields'
      * which are the columns the API will return.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return array
      */
     protected function compileColumns($query, $columns)

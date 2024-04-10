@@ -31,7 +31,7 @@ class ApiModelBuilder extends Builder
     /**
      * Temporary variable to save explicit TTL queries
      *
-     * @var integer
+     * @var int
      */
     protected $ttl;
 
@@ -81,7 +81,7 @@ class ApiModelBuilder extends Builder
     /**
      * Create a new Eloquent query builder instance.
      *
-     * @param  ApiQueryBuilder $query
+     * @param  ApiQueryBuilder  $query
      * @return void
      */
     public function __construct($query)
@@ -160,7 +160,7 @@ class ApiModelBuilder extends Builder
     /**
      * Perform a raw ES search
      *
-     * @param  array $search
+     * @param  array  $search
      * @return $this
      */
     public function rawSearch($search)
@@ -174,7 +174,7 @@ class ApiModelBuilder extends Builder
     /**
      * Perform a raw ES query
      *
-     * @param  array $params
+     * @param  array  $params
      * @return $this
      */
     public function rawQuery($params)
@@ -188,7 +188,7 @@ class ApiModelBuilder extends Builder
     /**
      * Add aggregations to the raw ES search
      *
-     * @param  array $aggregations
+     * @param  array  $aggregations
      * @return $this
      */
     public function aggregations($aggregations)
@@ -213,7 +213,7 @@ class ApiModelBuilder extends Builder
     /**
      * Setup a TTL for this specific query call
      *
-     * @param  integer $ttl
+     * @param  int  $ttl
      * @return $this
      */
     public function ttl($ttl)
@@ -281,7 +281,7 @@ class ApiModelBuilder extends Builder
             if (count($result) == count(array_unique($id))) {
                 return $result;
             }
-        } elseif (!is_null($result)) {
+        } elseif (! is_null($result)) {
             return $result;
         }
 
@@ -477,7 +477,7 @@ class ApiModelBuilder extends Builder
      * @param  string  $name
      * @return array
      */
-    protected function eagerLoadRelation($models, $name, Closure $constraints = null)
+    protected function eagerLoadRelation($models, $name, ?Closure $constraints = null)
     {
         foreach ($models as $model) {
             if ($model instanceof BaseApiModel) {
@@ -664,7 +664,7 @@ class ApiModelBuilder extends Builder
      */
     public function __call($method, $parameters): mixed
     {
-        if (method_exists($this->model, $scope = 'scope' . ucfirst($method))) {
+        if (method_exists($this->model, $scope = 'scope'.ucfirst($method))) {
             return $this->callScope([$this->model, $scope], $parameters);
         }
 

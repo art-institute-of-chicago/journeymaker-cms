@@ -2,15 +2,14 @@
 
 namespace App\Libraries\Api\Builders;
 
+use App\Helpers\CollectionHelpers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Arr;
-use App\Helpers\CollectionHelpers;
 
 class ApiModelBuilderSearch extends ApiModelBuilder
 {
     /**
      * Defines a map of [types => API class, ...]
-     *
      */
     protected $typeMap = [];
 
@@ -28,7 +27,7 @@ class ApiModelBuilderSearch extends ApiModelBuilder
 
         if ($columns) {
             $columns = array_merge(
-                ['thumbnail','image_id', 'api_model', 'is_boosted', 'api_link', 'id', 'title', 'timestamp'],
+                ['thumbnail', 'image_id', 'api_model', 'is_boosted', 'api_link', 'id', 'title', 'timestamp'],
                 $columns
             );
         }
@@ -135,14 +134,14 @@ class ApiModelBuilderSearch extends ApiModelBuilder
                 return $elements->get();
             }
 
-            if (!$class) {
+            if (! $class) {
                 return $collection; // e.g. static-pages
             }
         });
 
         // Remove empty categories
         $filtered = $segregatedResults->filter(function ($value, $key) {
-            return !empty($value);
+            return ! empty($value);
         });
 
         return $filtered;
@@ -195,14 +194,14 @@ class ApiModelBuilderSearch extends ApiModelBuilder
                 return $elements;
             }
 
-            if (!$class) {
+            if (! $class) {
                 return $collection; // e.g. static-pages
             }
         });
 
         // Remove empty categories
         $filtered = $segregatedResults->filter(function ($value, $key) {
-            return !empty($value);
+            return ! empty($value);
         });
 
         return $filtered;

@@ -20,6 +20,7 @@ trait HasApiRelations
     public function belongsToApi($modelClass, $foreignKey = null): BelongsTo
     {
         $callingFunction = debug_backtrace()[1]['function'];
+
         return new BelongsTo(
             $modelClass::query(),
             $this,
@@ -32,7 +33,7 @@ trait HasApiRelations
     public function apiModels($relation, $model, $ttl = null)
     {
         // Obtain the API class
-        $modelClass = '\\App\\Models\\Api\\' . ucfirst($model);
+        $modelClass = '\\App\\Models\\Api\\'.ucfirst($model);
 
         // Get all Ids
         $ids = $this->{$relation}->pluck('datahub_id')->toArray();
@@ -55,7 +56,7 @@ trait HasApiRelations
 
     public function getRelatedWithApiModels($browser_name, $apiModelsDefinitions, $typeUsesApi)
     {
-        if (!isset($this->relatedCache[$browser_name])) {
+        if (! isset($this->relatedCache[$browser_name])) {
             $this->loadRelatedWithApiModels($browser_name, $apiModelsDefinitions, $typeUsesApi);
         }
 
@@ -69,9 +70,9 @@ trait HasApiRelations
         return $this->relatedCache[$browser_name] = $this->relatedItems
             ->where('browser_name', $browser_name)
             ->groupBy('related_type')
-            ->map(function ($items, $type) use ($apiModelsDefinitions, $browser_name, $typeUsesApi) {
-                if (!isset($typeUsesApi[$type])) {
-                    throw new \Exception('Cannot tell if type uses API: ' . $type);
+            ->map(function ($items, $type) use ($apiModelsDefinitions, $typeUsesApi) {
+                if (! isset($typeUsesApi[$type])) {
+                    throw new \Exception('Cannot tell if type uses API: '.$type);
                 }
 
                 if ($typeUsesApi[$type]) {
