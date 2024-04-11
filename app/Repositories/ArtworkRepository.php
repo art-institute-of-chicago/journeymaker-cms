@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Repositories\Behaviors\HandleMedias;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
 use A17\Twill\Repositories\Behaviors\HandleTranslations;
@@ -34,7 +33,7 @@ class ArtworkRepository extends ModuleRepository
                 'image_id',
                 'gallery_id',
             ]
-        )->toArray();
+            )->toArray();
 
         $translatedFields = [
             'artist_display' => [
