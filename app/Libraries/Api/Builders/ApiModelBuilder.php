@@ -277,6 +277,18 @@ class ApiModelBuilder extends Builder
         );
     }
 
+    public function findSingle($id, $columns = [])
+    {
+        $builder = clone $this;
+
+        // Eager load relationships
+        if ($result = $builder->getSingle($id, $columns)) {
+            $result = $builder->eagerLoadRelations([$result]);
+        }
+
+        return $builder->getModel()->newCollection($result)->first();
+    }
+
     /**
      * Execute the query and return a collection of results
      *
