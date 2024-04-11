@@ -15,8 +15,6 @@ use A17\Twill\Models\Permission;
 use App\Libraries\Api\Models\ApiCollection as BaseCollection;
 use App\Libraries\Api\Models\Behaviors\HasApiCalls;
 use App\Libraries\Api\Models\Behaviors\HasAugmentedModel;
-use App\Libraries\Api\Models\Behaviors\HasRelationships;
-use App\Models\Behaviors\HasApiRelations;
 use ArrayAccess;
 use DateTimeInterface;
 use Illuminate\Contracts\Routing\UrlRoutable;
@@ -33,10 +31,8 @@ use JsonSerializable;
 abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, TwillModelContract, UrlRoutable
 {
     use HasApiCalls;
-    use HasApiRelations;
     use HasAugmentedModel;
     use HasPresenter;
-    use HasRelationships;
     use IsTranslatable;
 
     protected array $attributes = [];
@@ -104,11 +100,6 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
         'resource' => '',
         'search' => '',
     ];
-
-    /**
-     * The number of entities to return for pagination.
-     */
-    protected int $perPage = 15;
 
     /**
      * Create a new Eloquent model instance.
@@ -917,24 +908,6 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     public function offsetUnset(mixed $offset): void
     {
         unset($this->{$offset});
-    }
-
-    /**
-     * Get the number of models to return per page.
-     */
-    public function getPerPage(): int
-    {
-        return $this->perPage;
-    }
-
-    /**
-     * Set the number of models to return per page.
-     */
-    public function setPerPage(int $perPage): self
-    {
-        $this->perPage = $perPage;
-
-        return $this;
     }
 
     /**

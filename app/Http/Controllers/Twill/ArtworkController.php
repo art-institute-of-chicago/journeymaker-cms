@@ -74,7 +74,7 @@ class ArtworkController extends BaseModuleController
                 ->map(fn ($artwork) => $artwork->loadThumbnail());
 
             return response()->json($artworks);
-        } catch (Exception $th) {
+        } catch (Exception $ex) {
             return response()->json([], 404);
         }
     }

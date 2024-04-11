@@ -11,7 +11,6 @@ class AicGrammar
         'limit',
         'offset',
         'boost',
-        'page',
         'orders',
         'ids',
         'columns',
@@ -164,10 +163,5 @@ class AicGrammar
     protected function compileBoost($query, $boost)
     {
         return [];
-    }
-
-    protected function compilePage($query, $page)
-    {
-        return ['page' => $page];
     }
 }

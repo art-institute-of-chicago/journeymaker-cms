@@ -9,13 +9,11 @@ use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
 use App\Models\Behaviors\HasApiModel;
-use App\Models\Behaviors\HasApiRelations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Artwork extends Model implements Sortable
 {
     use HasApiModel;
-    use HasApiRelations;
     use HasFactory;
     use HasMedias;
     use HasPosition;

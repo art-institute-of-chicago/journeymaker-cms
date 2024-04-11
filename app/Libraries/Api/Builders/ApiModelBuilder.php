@@ -9,8 +9,6 @@ use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 
 class ApiModelBuilder extends Builder
 {
@@ -112,18 +110,6 @@ class ApiModelBuilder extends Builder
     {
         $this->eagerLoad = array_merge($this->eagerLoad, $relations);
 
-        return $this;
-    }
-
-    /**
-     * Return counting data from the request.
-     * TODO: Implement it for the API. Bypassing for the moment.
-     *
-     * @param  mixed  $relations
-     * @return $this
-     */
-    public function withCount($relations)
-    {
         return $this;
     }
 
@@ -291,27 +277,6 @@ class ApiModelBuilder extends Builder
         );
     }
 
-    public function findSingle($id, $columns = [])
-    {
-        $builder = clone $this;
-
-        // Eager load relationships
-        if ($result = $builder->getSingle($id, $columns)) {
-            $result = $builder->eagerLoadRelations([$result]);
-        }
-
-        return $builder->getModel()->newCollection($result)->first();
-    }
-
-    public function findMany($ids, $columns = [])
-    {
-        if (empty($ids)) {
-            return $this->model->newCollection();
-        }
-
-        return $this->ids($ids)->get($columns);
-    }
-
     /**
      * Execute the query and return a collection of results
      *
@@ -340,8 +305,6 @@ class ApiModelBuilder extends Builder
      */
     public function getRaw($columns = [])
     {
-        $builder = clone $this;
-
         return $this->query->getRaw($columns, $this->getEndpoint($this->resolveCollectionEndpoint()))->all();
     }
 
@@ -373,79 +336,6 @@ class ApiModelBuilder extends Builder
 
         // Preserve metadata after hydrating the collection
         return CollectionHelpers::collectApi($models)->setMetadata($results->getMetadata());
-    }
-
-    /**
-     * Get a plain search request
-     *
-     * @param  array  $columns
-     */
-    public function getSearch($perPage = null, $columns = [], $pageName = 'page', $page = null)
-    {
-        $builder = clone $this;
-
-        $page = is_null($page) ? Paginator::resolveCurrentPage($pageName) : $page;
-        $perPage = is_null($perPage) ? $this->model->getPerPage() : $perPage;
-
-        $results = $this->forPage($page, $perPage)->get($columns);
-
-        $paginationData = $results->getMetadata('pagination');
-        $total = $paginationData ? $paginationData->total : $results->count();
-
-        // Extract IDS
-        $ids = $results->pluck('id')->toArray();
-
-        // Load the actual models using the IDS returned by search
-        if (empty($ids)) {
-            $models = CollectionHelpers::collectApi();
-        } else {
-            $models = $this->model->newQuery()->ttl($this->ttl)->ids($ids)->get();
-        }
-
-        // Sort them by the original ids listing
-        $sorted = $models->sortBy(function ($model, $key) use ($ids) {
-            return CollectionHelpers::collectApi($ids)->search(function ($id, $key) use ($model) {
-                return $id == $model->id;
-            });
-        })->values();
-
-        // Preserve original metadata
-        $sorted->setMetadata($results->getMetadata());
-
-        return $this->paginator($sorted, $total, $perPage ?: 1, $page, [
-            'path' => Paginator::resolveCurrentPath(),
-            'pageName' => $pageName,
-        ]);
-    }
-
-    /**
-     * Paginate the given query and transform the Search results to the API models
-     *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getPaginatedModel($perPage = null, $columns = [], $pageName = 'page', $page = null)
-    {
-        $results = $this->getPaginated($perPage, $columns, $pageName, $page);
-
-        $paginationData = $results->getMetadata('pagination');
-        $total = $paginationData ? $paginationData->total : $results->count();
-
-        // Transform each Search model to the correct instance using typeMap
-        $hydratedModels = $results->transform(function ($item, $key) {
-            return $this->model::hydrate([$item->toArray()])[0];
-        });
-
-        // Rebuild the paginator
-        return $this->paginator($hydratedModels, $total, $perPage ?: 1, $page, [
-            'path' => Paginator::resolveCurrentPath(),
-            'pageName' => $pageName,
-        ]);
     }
 
     /**
@@ -504,7 +394,6 @@ class ApiModelBuilder extends Builder
      */
     public function getSingle($id, $columns = [])
     {
-        $builder = clone $this;
         $endpoint = $this->getEndpoint($this->resolveResourceEndpoint(), ['id' => $id]);
 
         $results = $this->query->get($columns, $endpoint);
@@ -514,67 +403,9 @@ class ApiModelBuilder extends Builder
             return $results;
         }
 
-        $models = $result = $this->model->hydrate($results->all());
+        $models = $this->model->hydrate($results->all());
 
         return collect($models)->first();
-    }
-
-    /**
-     * Paginate the given query.
-     *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getPaginated($perPage = null, $columns = [], $pageName = 'page', $page = null)
-    {
-        $page = $page ?: Paginator::resolveCurrentPage($pageName);
-
-        $perPage = $perPage ?: $this->model->getPerPage();
-
-        $results = $this->forPage($page, $perPage)->get($columns);
-        $paginationData = $results->getMetadata('pagination');
-        $total = $paginationData ? $paginationData->total : $results->count();
-
-        return $this->paginator($results, $total, $perPage, $page, [
-            'path' => Paginator::resolveCurrentPath(),
-            'pageName' => $pageName,
-        ]);
-    }
-
-    /**
-     * Paginate the given query.
-     *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function paginate($perPage = null, $columns = [], $pageName = 'page', $page = null)
-    {
-        if ($this->performSearch) {
-            return $this->getSearch($perPage, $columns, $pageName, $page);
-        }
-
-        return $this->getPaginated($perPage, $columns, $pageName, $page);
-    }
-
-    protected function paginator($items, $total, $perPage, $currentPage, $options)
-    {
-        return new LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $currentPage,
-            $options
-        );
     }
 
     /**

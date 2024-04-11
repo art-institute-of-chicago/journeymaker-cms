@@ -3,43 +3,32 @@
 namespace App\Libraries\Api\Builders;
 
 use App\Helpers\CollectionHelpers;
+use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Libraries\Api\Builders\Grammar\MsearchGrammar;
 use App\Libraries\Api\Builders\Grammar\SearchGrammar;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Str;
 
 class ApiQueryBuilder
 {
     /**
-     * All of the available clause operators.
-     *
-     * @var array
+     * The API connection instance.
      */
-    public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
-    ];
+    public AicConnection $connection;
 
     /**
      * The orderings for the query.
-     *
-     * @var array
      */
-    public $orders;
+    public ?array $orders = null;
 
     /**
      * The maximum number of records to return.
-     *
-     * @var int
      */
-    public $limit;
+    public ?int $limit = null;
 
     /**
      * The number of records to skip.
-     *
-     * @var int
      */
-    public $offset;
+    public ?int $offset = null;
 
     /**
      * Whether to apply boosting or not
@@ -47,13 +36,6 @@ class ApiQueryBuilder
      * @var bool
      */
     public $boost = true;
-
-    /**
-     * The current page number
-     *
-     * @var int
-     */
-    public $page;
 
     /**
      * The database query grammar instance.
@@ -147,70 +129,10 @@ class ApiQueryBuilder
      */
     public $suggestionsData;
 
-    public function __construct($connection, $grammar = null)
+    public function __construct(AicConnection $connection, $grammar = null)
     {
         $this->connection = $connection;
         $this->grammar = $grammar ?: $connection->getQueryGrammar();
-    }
-
-    /**
-     * Bypass whereNotIn function until it's implemented on the API
-     */
-    public function whereNotIn($column, $values, $boolean = 'and')
-    {
-        return $this;
-    }
-
-    public function whereIn($column, $values, $boolean = 'and', $not = false)
-    {
-        if ($column == 'id') {
-            $this->ids($values);
-
-            return $this;
-        }
-
-        throw new \Exception('whereIn function has been defined only for IDS at the API Query Builder');
-    }
-
-    /**
-     * Add a basic where clause to the query.
-     *
-     * @param  string|array|\Closure  $column
-     * @param  string|null  $operator
-     * @param  mixed  $value
-     * @param  string  $boolean
-     * @return $this
-     */
-    public function where($column, $operator = null, $value = null, $boolean = 'and')
-    {
-        // If the column is an array, we will assume it is an array of key-value pairs
-        // and can add them each as a where clause. We will maintain the boolean we
-        // received when the method was called and pass it into the nested where.
-        if (is_array($column)) {
-            throw new \Exception('where function should be called with 1 level of nesting. No arrays.');
-        }
-
-        // If the given operator is not found in the list of valid operators we will
-        // assume that the developer is just short-cutting the '=' operators and
-        // we will set the operators to '=' and set the values appropriately.
-        if ($this->invalidOperator($operator)) {
-            [$value, $operator] = [$operator, '='];
-        }
-
-        // Now that we are working with just a simple query we can put the elements
-        // in our array and add the query binding to our array of bindings that
-        // will be bound to each SQL statements when it is finally executed.
-        $type = 'Basic';
-
-        $this->wheres[] = compact(
-            'type',
-            'column',
-            'operator',
-            'value',
-            'boolean'
-        );
-
-        return $this;
     }
 
     /**
@@ -255,67 +177,6 @@ class ApiQueryBuilder
         }
 
         return $this;
-    }
-
-    /**
-     * Paginate the given query into a simple paginator.
-     *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function paginate($perPage = 15, $columns = [], $pageName = 'page', $page = null)
-    {
-        $page = $page ?: Paginator::resolveCurrentPage($pageName);
-
-        $results = $this->forPage($page, $perPage)->get($columns);
-
-        $paginationData = $this->getPaginationData();
-        $total = $paginationData ? $paginationData->total : $results->count();
-
-        $data = $results['body']->data;
-
-        return $this->paginator($data, $total, $perPage, $page, [
-            'path' => Paginator::resolveCurrentPath(),
-            'pageName' => $pageName,
-        ]);
-    }
-
-    /**
-     * Create a new length-aware paginator instance.
-     *
-     * @param  \Illuminate\Support\Collection  $items
-     * @param  int  $total
-     * @param  int  $perPage
-     * @param  int  $currentPage
-     * @param  array  $options
-     * @return \Illuminate\Pagination\LengthAwarePaginator
-     */
-    protected function paginator($items, $total, $perPage, $currentPage, $options)
-    {
-        return new LengthAwarePaginator(
-            $items,
-            $total,
-            $perPage,
-            $currentPage,
-            $options
-        );
-    }
-
-    /**
-     * Set the limit and offset for a given page.
-     *
-     * @param  int  $page
-     * @param  int  $perPage
-     * @return \Illuminate\Database\Query\Builder|static
-     */
-    public function forPage($page, $perPage = 15)
-    {
-        $this->page = $page;
-
-        return $this->skip(($page - 1) * $perPage)->take($perPage);
     }
 
     /**
@@ -535,11 +396,6 @@ class ApiQueryBuilder
         return $this->limit(0)->get([], $endpoint)->getMetadata('pagination')->total;
     }
 
-    public function getPaginationData()
-    {
-        return $this->paginationData;
-    }
-
     /**
      * Build and execute against the API connection a GET call
      *
@@ -582,17 +438,6 @@ class ApiQueryBuilder
         $this->ttl = $ttl;
 
         return $this;
-    }
-
-    /**
-     * Determine if the given operator is supported.
-     *
-     * @param  string  $operator
-     * @return bool
-     */
-    protected function invalidOperator($operator)
-    {
-        return ! in_array(strtolower($operator), $this->operators, true);
     }
 
     /**
