@@ -25,11 +25,12 @@ class ApiCollection extends Collection
         }
     }
 
-    public function setMetadata(array|Collection $data): self
+    public function setMetadata(array|Collection $data): static
     {
         if (! ($data instanceof Collection)) {
             $data = collect($data);
         }
+
         if ($this->metadata) {
             $this->metadata = $this->metadata->merge($data);
         } else {

@@ -4,17 +4,14 @@ namespace App\Libraries\Api\Builders;
 
 use App\Helpers\CollectionHelpers;
 use App\Libraries\Api\Builders\Connection\AicConnection;
-use App\Libraries\Api\Builders\Grammar\MsearchGrammar;
 use App\Libraries\Api\Builders\Grammar\SearchGrammar;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use stdClass;
 
 class ApiQueryBuilder
 {
-    /**
-     * The API connection instance.
-     */
-    public AicConnection $connection;
-
     /**
      * The orderings for the query.
      */
@@ -32,10 +29,8 @@ class ApiQueryBuilder
 
     /**
      * Whether to apply boosting or not
-     *
-     * @var bool
      */
-    public $boost = true;
+    public bool $boost = true;
 
     /**
      * The database query grammar instance.
@@ -45,104 +40,60 @@ class ApiQueryBuilder
     public $grammar;
 
     /**
-     * The Cache TTL for this specific query builder
-     *
-     * @var array
-     */
-    public $ttl;
-
-    /**
      * The columns that should be returned.
-     *
-     * @var array
      */
-    public $columns;
+    public array $columns = [];
 
     /**
      * The ids of the records that should be returned.
-     *
-     * @var array
      */
-    public $ids = [];
+    public array $ids = [];
 
     /**
      * The list of extra fields to be included
-     *
-     * @var array
      */
-    public $include = [];
+    public array $include = [];
 
     /**
      * The where constraints for the query.
-     *
-     * @var array
      */
-    public $wheres = [];
+    public array $wheres = [];
 
     /**
      * Search constraints for the query.
-     *
-     * @var string
      */
-    public $searchText;
+    public string $searchText = '';
 
     /**
      * Search parameters for a raw ES query.
-     *
-     * @var array
      */
-    public $searchParameters = [];
+    public array $searchParameters = [];
 
     /**
      * Completely raw ES query.
-     *
-     * @var array
      */
-    public $rawQuery = [];
+    public array $rawQuery = [];
 
     /**
      * Aggregations parameters for a raw ES query.
-     *
-     * @var array
      */
-    public $aggregationParameters = [];
+    public array $aggregationParameters = [];
 
     /**
      * Search specific resources. Useful only for general searches
-     *
-     * @var array
      */
-    public $searchResources = [];
+    public array $searchResources = [];
 
-    /**
-     * Pagination data saved after a request
-     */
-    public $paginationData;
-
-    /**
-     * Aggregation data saved after a request
-     */
-    public $aggregationsData;
-
-    /**
-     * Suggestion data saved after a request
-     */
-    public $suggestionsData;
-
-    public function __construct(AicConnection $connection, $grammar = null)
+    public function __construct(public AicConnection $connection, $grammar = null)
     {
         $this->connection = $connection;
         $this->grammar = $grammar ?: $connection->getQueryGrammar();
     }
 
     /**
-     * Add an "order by" clause to the query.
-     *
-     * @param  string  $column
-     * @param  string  $direction
-     * @return $this
+     * Add an "order by" clause to the query
      */
-    public function orderBy($column, $direction = 'asc')
+    public function orderBy(string $column, string $direction = 'asc'): static
     {
         $this->orders[] = [
             $column => ['order' => strtolower($direction) == 'asc' ? 'asc' : 'desc'],
@@ -153,10 +104,8 @@ class ApiQueryBuilder
 
     /**
      * Add an "ids" clause to the query. This will bring only records with these ids
-     *
-     * @return $this
      */
-    public function ids($ids = [])
+    public function ids(array $ids = []): static
     {
         if (! empty($ids)) {
             $this->ids = $ids;
@@ -167,10 +116,8 @@ class ApiQueryBuilder
 
     /**
      * Add an "includes" clause to the query. This will add those attributes
-     *
-     * @return $this
      */
-    public function include($inclusions = [])
+    public function include(array $inclusions = []): static
     {
         if (! empty($inclusions)) {
             $this->include = $inclusions;
@@ -181,22 +128,16 @@ class ApiQueryBuilder
 
     /**
      * Alias to set the "offset" value of the query.
-     *
-     * @param  int  $value
-     * @return \Illuminate\Database\Query\Builder|static
      */
-    public function skip($value)
+    public function skip(int $value): Builder|static
     {
         return $this->offset($value);
     }
 
     /**
      * Set the "offset" value of the query.
-     *
-     * @param  int  $value
-     * @return $this
      */
-    public function offset($value)
+    public function offset(int $value): static
     {
         $this->offset = max(0, $value);
 
@@ -205,22 +146,16 @@ class ApiQueryBuilder
 
     /**
      * Alias to set the "limit" value of the query.
-     *
-     * @param  int  $value
-     * @return \Illuminate\Database\Query\Builder|static
      */
-    public function take($value)
+    public function take(int $value): Builder|static
     {
         return $this->limit($value);
     }
 
     /**
      * Set the "limit" value of the query.
-     *
-     * @param  int  $value
-     * @return $this
      */
-    public function limit($value)
+    public function limit(int $value): static
     {
         if ($value >= 0) {
             $this->limit = $value;
@@ -231,11 +166,8 @@ class ApiQueryBuilder
 
     /**
      * Set the "boost" value of the query.
-     *
-     * @param  bool  $value
-     * @return $this
      */
-    public function boost($value = true)
+    public function boost(bool $value = true): static
     {
         $this->boost = $value;
 
@@ -244,10 +176,8 @@ class ApiQueryBuilder
 
     /**
      * Search for specific resources
-     *
-     * @return $this
      */
-    public function resources($resources)
+    public function resources($resources): static
     {
         $this->searchResources = $resources;
 
@@ -256,11 +186,8 @@ class ApiQueryBuilder
 
     /**
      * Perform a search
-     *
-     * @param  string  $search
-     * @return $this
      */
-    public function search($search)
+    public function search(string $search): static
     {
         $this->searchText = empty($search) ? null : $search;
 
@@ -269,11 +196,8 @@ class ApiQueryBuilder
 
     /**
      * Perform a raw ES search
-     *
-     * @param  array  $search
-     * @return $this
      */
-    public function rawSearch($search)
+    public function rawSearch(array $search): static
     {
         $this->searchParameters = array_merge_recursive($this->searchParameters, $search);
 
@@ -282,11 +206,8 @@ class ApiQueryBuilder
 
     /**
      * Perform a completely raw ES query
-     *
-     * @param  array  $search
-     * @return $this
      */
-    public function rawQuery($search)
+    public function rawQuery(array $search): static
     {
         $this->rawQuery = $search;
 
@@ -295,11 +216,8 @@ class ApiQueryBuilder
 
     /**
      * Add aggregations to the raw ES search
-     *
-     * @param  array  $aggregations
-     * @return $this
      */
-    public function aggregations($aggregations)
+    public function aggregations(array $aggregations): static
     {
         $this->aggregationParameters = array_merge_recursive($this->aggregationParameters, $aggregations);
 
@@ -308,35 +226,20 @@ class ApiQueryBuilder
 
     /**
      * Execute a get query and setup pagination data
-     *
-     * @param  array  $columns
-     * @return \Illuminate\Support\Collection
      */
-    public function get($columns = [], $endpoint = null)
+    public function get(array $columns = [], ?string $endpoint = null): Collection
     {
         $original = $this->columns;
 
-        if (is_null($original)) {
+        if (empty($this->columns)) {
             $this->columns = $columns;
         }
 
         $results = $this->runGet($endpoint);
 
-        // If we got anything different than a HIT return the body
-        if (isset($results->status) && $results->status != 200) {
-            if (isset($results->body)) {
-                return $results->body;
-            }
-
-            return $results;
-        }
-
         $this->columns = $original;
 
-        if (is_array($results->body)) {
-            // If it's an msearch result return first element
-            $collection = CollectionHelpers::collectApi($results->body[0]->data);
-        } elseif (is_array($results->body->data)) {
+        if (is_array($results->body->data)) {
             // If it's a single element return as a collection with 1 element
             $collection = CollectionHelpers::collectApi($results->body->data);
         } else {
@@ -356,11 +259,8 @@ class ApiQueryBuilder
 
     /**
      * Execute a get query and return a raw response
-     *
-     * @param  array  $columns
-     * @return \Illuminate\Support\Collection
      */
-    public function getRaw($columns = [], $endpoint = null)
+    public function getRaw(array $columns = [], ?string $endpoint = null): Collection
     {
         $original = $this->columns;
 
@@ -391,35 +291,29 @@ class ApiQueryBuilder
      * Execute a GET query and return the total number of results noted in the
      * pagination data.
      */
-    public function count($endpoint = null): int
+    public function count(?string $endpoint = null): int
     {
         return $this->limit(0)->get([], $endpoint)->getMetadata('pagination')->total;
     }
 
     /**
      * Build and execute against the API connection a GET call
-     *
-     * @return array
      */
-    public function runGet($endpoint)
+    public function runGet(string $endpoint): stdClass
     {
         $grammar = null;
 
-        if (Str::endsWith($endpoint, '/msearch')) {
-            $grammar = new MsearchGrammar();
-        } elseif (Str::endsWith($endpoint, '/search')) {
+        if (Str::endsWith($endpoint, '/search')) {
             $grammar = new SearchGrammar();
         }
 
-        return $this->connection->ttl($this->ttl)->get($endpoint, $this->resolveParameters($grammar));
+        return $this->connection->get($endpoint, $this->resolveParameters($grammar));
     }
 
     /**
      * Use grammar to generate all parameters from the scopes as an array
-     *
-     * @return string
      */
-    public function resolveParameters($grammar = null)
+    public function resolveParameters($grammar = null): array
     {
         if ($grammar) {
             return $grammar->compileParameters($this);
@@ -429,21 +323,9 @@ class ApiQueryBuilder
     }
 
     /**
-     * Set a specific Caching TTL for this request
-     *
-     * @return array
-     */
-    public function ttl($ttl = null)
-    {
-        $this->ttl = $ttl;
-
-        return $this;
-    }
-
-    /**
      * WEB-1626: If this was an `ids` query, reorder results to match `ids`.
      */
-    private function getSortedCollection($collection)
+    private function getSortedCollection(Collection $collection): Collection
     {
         if (empty($this->ids)) {
             return $collection;

@@ -3,9 +3,7 @@
 namespace App\Libraries\Api\Builders;
 
 use App\Helpers\CollectionHelpers;
-use App\Libraries\Api\Models\ApiCollection;
 use App\Libraries\Api\Models\BaseApiModel;
-use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,7 +13,7 @@ class ApiModelBuilder extends Builder
     /**
      * The base query builder instance.
      *
-     * @var App\Libraries\Api\Builders\ApiQueryBuilder;
+     * @var \App\Libraries\Api\Builders\ApiQueryBuilder;
      */
     protected $query;
 
@@ -25,20 +23,6 @@ class ApiModelBuilder extends Builder
      * @var \App\Libraries\Api\Models\BaseApiModel
      */
     protected $model;
-
-    /**
-     * Temporary variable to save explicit TTL queries
-     *
-     * @var int
-     */
-    protected $ttl;
-
-    /**
-     * The relationships that should be eager loaded.
-     *
-     * @var array
-     */
-    protected $eagerLoad = [];
 
     /**
      * The methods that should be returned from query builder.
@@ -96,19 +80,6 @@ class ApiModelBuilder extends Builder
     public function setModel($model)
     {
         $this->model = $model;
-
-        return $this;
-    }
-
-    /**
-     * Set the relationships that should be included.
-     *
-     * @param  mixed  $relations
-     * @return $this
-     */
-    public function with($relations, $callback = null)
-    {
-        $this->eagerLoad = array_merge($this->eagerLoad, $relations);
 
         return $this;
     }
@@ -197,20 +168,6 @@ class ApiModelBuilder extends Builder
     }
 
     /**
-     * Setup a TTL for this specific query call
-     *
-     * @param  int  $ttl
-     * @return $this
-     */
-    public function ttl($ttl)
-    {
-        $this->ttl = $ttl;
-        $this->query->ttl($ttl);
-
-        return $this;
-    }
-
-    /**
      * Filter elements by specific ID's
      *
      * @return $this
@@ -281,12 +238,7 @@ class ApiModelBuilder extends Builder
     {
         $builder = clone $this;
 
-        // Eager load relationships
-        if ($result = $builder->getSingle($id, $columns)) {
-            $result = $builder->eagerLoadRelations([$result]);
-        }
-
-        return $builder->getModel()->newCollection($result)->first();
+        return $builder->getSingle($id, $columns);
     }
 
     /**
@@ -298,14 +250,7 @@ class ApiModelBuilder extends Builder
     {
         $builder = clone $this;
 
-        if (count($models = $builder->getModels($columns)) > 0) {
-            $models = $builder->eagerLoadRelations($models);
-        }
-
-        // Return direct body if status is different than a HIT
-        if (isset($models->status) && $models->status != 200) {
-            return $models;
-        }
+        $models = $builder->getModels($columns);
 
         return $builder->getModel()->newCollection($models);
     }
@@ -339,11 +284,6 @@ class ApiModelBuilder extends Builder
     {
         $results = $this->query->get($columns, $this->getEndpoint($this->resolveCollectionEndpoint()));
 
-        // Return direct body if status is different than a HIT
-        if (isset($results->status) && $results->status != 200) {
-            return $results;
-        }
-
         $models = $this->model->hydrate($results->all());
 
         // Preserve metadata after hydrating the collection
@@ -351,69 +291,13 @@ class ApiModelBuilder extends Builder
     }
 
     /**
-     * Eager load the relationships for the models.
-     * On this case just a flat include, not nested queries because
-     * we get all id's to be loaded on the first request to the parent model
-     *
-     * @param  array  $models
-     * @return array
-     */
-    public function eagerLoadRelations($models)
-    {
-        // Preserve metadata when loading relationships
-        if ($models instanceof ApiCollection) {
-            $metadata = $models->getMetadata();
-        }
-
-        foreach ($this->eagerLoad as $name) {
-            $models = $this->eagerLoadRelation($models, $name);
-        }
-
-        return isset($metadata) ? $models->setMetadata($metadata) : $models;
-    }
-
-    /**
-     * Eagerly load the relationship on a set of models.
-     *
-     * @param  array  $models
-     * @param  string  $name
-     * @return array
-     */
-    protected function eagerLoadRelation($models, $name, ?Closure $constraints = null)
-    {
-        foreach ($models as $model) {
-            if ($model instanceof BaseApiModel) {
-                // For each model get the relationship
-                $relation = $model->{$name}();
-
-                // Set the relationship loading the data from the API
-                // this will generate N + 1 calls in total
-                // improve later using real eager loading to
-                // reduce the number of calls to 1 + relationships_number
-                if ($relation) {
-                    $model->setRelation($name, $relation->getEager());
-                }
-            }
-        }
-
-        return $models;
-    }
-
-    /**
      * Execute the query and return a single element
-     *
-     * @param  array  $columns
      */
-    public function getSingle($id, $columns = [])
+    public function getSingle($id, array $columns = []): BaseApiModel
     {
         $endpoint = $this->getEndpoint($this->resolveResourceEndpoint(), ['id' => $id]);
 
         $results = $this->query->get($columns, $endpoint);
-
-        // Return direct body if status is different than a HIT
-        if (isset($results->status) && $results->status != 200) {
-            return $results;
-        }
 
         $models = $this->model->hydrate($results->all());
 

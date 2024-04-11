@@ -6,7 +6,7 @@ use App\Libraries\Api\Builders\ApiQueryBuilder;
 
 class AicGrammar
 {
-    protected $selectComponents = [
+    protected array $selectComponents = [
         'wheres',
         'limit',
         'offset',
@@ -24,10 +24,8 @@ class AicGrammar
 
     /**
      * Compile all components into API parameters.
-     *
-     * @return string
      */
-    public function compileParameters(ApiQueryBuilder $query)
+    public function compileParameters(ApiQueryBuilder $query): array
     {
         $original = $query->columns;
 
@@ -43,11 +41,8 @@ class AicGrammar
 
     /**
      * Compile the components necessary for a select clause.
-     *
-     * @param  ApiQueryBuilder  $query
-     * @return array
      */
-    protected function compileComponents($query)
+    protected function compileComponents(ApiQueryBuilder $query): array
     {
         $parameters = [];
 
@@ -65,57 +60,32 @@ class AicGrammar
         return $parameters;
     }
 
-    /**
-     * Compile the "where" portions of the query.
-     *
-     * @param  ApiQueryBuilder  $query
-     * @return string
-     */
-    protected function compileWheres($query)
+    protected function compileWheres(ApiQueryBuilder $query): array
     {
         return [];
     }
 
-    /**
-     * Compile the "columns" portions of the query. This translates to 'fields'
-     * which are the columns the API will return.
-     *
-     * @param  ApiQueryBuilder  $query
-     * @return array
-     */
-    protected function compileColumns($query, $columns)
+    protected function compileColumns(ApiQueryBuilder $query, array $columns): array
     {
         return empty($columns) ? [] : ['fields' => implode(',', $columns)];
     }
 
-    /**
-     * Compile the "include" portions of the query.
-     *
-     * @param  ApiQueryBuilder  $query
-     * @return array
-     */
-    protected function compileInclude($query, $columns)
+    protected function compileInclude(ApiQueryBuilder $query, $columns): array
     {
         return empty($columns) ? [] : ['include' => implode(',', $columns)];
     }
 
-    /**
-     * Compile the "ids" portions of the query. This will filter by an IDs array
-     *
-     * @param  ApiQueryBuilder  $query
-     * @return array
-     */
-    protected function compileIds($query, $ids)
+    protected function compileIds(ApiQueryBuilder $query, $ids): array
     {
         return empty($ids) ? [] : ['ids' => implode(',', $ids)];
     }
 
-    protected function compileSearchResources($query, $resources)
+    protected function compileSearchResources(ApiQueryBuilder $query, $resources): array
     {
         return empty($resources) ? [] : ['resources' => implode(',', $resources)];
     }
 
-    protected function compileSearchText($query, $text)
+    protected function compileSearchText(ApiQueryBuilder $query, $text): array
     {
         if ($text) {
             return ['q' => $text];
@@ -124,27 +94,27 @@ class AicGrammar
         return [];
     }
 
-    protected function compileSearchParameters($query, array $elasticParameters)
+    protected function compileSearchParameters(ApiQueryBuilder $query, array $elasticParameters): array
     {
         return empty($elasticParameters) ? [] : ['query' => $elasticParameters];
     }
 
-    protected function compileRawQuery($query, array $rawQuery)
+    protected function compileRawQuery(ApiQueryBuilder $query, array $rawQuery): array
     {
         return empty($rawQuery) ? [] : $rawQuery;
     }
 
-    protected function compileAggregationParameters($query, array $aggregations)
+    protected function compileAggregationParameters(ApiQueryBuilder $query, array $aggregations): array
     {
         return empty($aggregations) ? [] : ['aggregations' => $aggregations];
     }
 
-    protected function compileOrders($query, $order)
+    protected function compileOrders(ApiQueryBuilder $query, $order): array
     {
         return empty($order) ? [] : ['sort' => $order];
     }
 
-    protected function compileLimit($query, $limit)
+    protected function compileLimit(ApiQueryBuilder $query, $limit): array
     {
         return [
             'limit' => $limit,
@@ -152,7 +122,7 @@ class AicGrammar
         ];
     }
 
-    protected function compileOffset($query, $offset)
+    protected function compileOffset(ApiQueryBuilder $query, $offset): array
     {
         return [
             'offset' => $offset,
@@ -160,7 +130,7 @@ class AicGrammar
         ];
     }
 
-    protected function compileBoost($query, $boost)
+    protected function compileBoost(ApiQueryBuilder $query, bool $boost): array
     {
         return [];
     }

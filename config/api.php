@@ -25,32 +25,5 @@ return [
 
     'public_uri' => env('API_PUBLIC_URI', 'https://api-test.artic.edu'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Force API requests to use POST
-    |--------------------------------------------------------------------------
-    |
-    | Force API calls to use a specific verb.
-    |
-    | Possible options: 'GET' or 'POST'; anything else will have no effect
-    |
-    */
-
-    'force_verb' => env('API_FORCE_VERB', false),
-
-    /*
-    |--------------------------------------------------------------------------
-    | API caching
-    |--------------------------------------------------------------------------
-    |
-    */
-
-    'cache_enabled' => (bool) env('API_CACHE_ENABLED', false),
-    'cache_ttl' => env('API_CACHE_TTL', 30 * 60), //Half an hour default
-    'cache_version' => env('API_CACHE_VERSION', 1),
-    'cache_buster' => env('API_CACHE_BUSTER'),
-
-    'logger' => (bool) env('API_LOGGER', false),
-
     'token' => env('API_TOKEN', null),
 ];

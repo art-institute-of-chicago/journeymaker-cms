@@ -2,45 +2,23 @@
 
 namespace App\Libraries\Api\Builders\Relations;
 
+use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Libraries\Api\Models\BaseApiModel;
+use Illuminate\Database\Eloquent\Collection;
+
 class HasMany
 {
-    /**
-     * The local key of the parent model.
-     *
-     * @var string
-     */
-    protected $localKey;
-
-    /**
-     * The ApiQueryBuilder instance.
-     *
-     * @var App\Libraries\Api\Builders\ApiQueryBuilder;
-     */
-    protected $query;
-
-    /**
-     * The parent model instance.
-     *
-     * @var App\Libraries\Api\Models\BaseApiModel;
-     */
-    protected $parent;
-
-    /**
-     * Limit the number of related models by this amount. -1 means no limit.
-     */
-    protected $limit;
-
-    public function __construct($query, $parent, $localKey, $limit = -1)
-    {
-        $this->query = $query;
-        $this->parent = $parent;
-        $this->localKey = $localKey;
-        $this->limit = $limit;
-
+    public function __construct(
+        protected ApiQueryBuilder $query,
+        protected BaseApiModel $parent,
+        protected string $localKey,
+        // Limit the number of related models by this amount. -1 means no limit.
+        protected int $limit = -1
+    ) {
         $this->addConstraints();
     }
 
-    public function addConstraints()
+    public function addConstraints(): void
     {
         // On this case we just save the Id's array coming from the API
         // And pass it to the query to filter by ID.
@@ -57,22 +35,17 @@ class HasMany
     }
 
     /**
-     * Execute eager loading.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Execute eager loading
      */
-    public function getEager()
+    public function getEager(): Collection
     {
         return $this->get();
     }
 
     /**
      * Execute the query
-     *
-     * @param  array  $columns
-     * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function get($columns = [])
+    public function get(array $columns = []): Collection
     {
         return $this->query->get($columns);
     }

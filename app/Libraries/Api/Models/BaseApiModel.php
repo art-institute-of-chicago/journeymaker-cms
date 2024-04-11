@@ -182,7 +182,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      *
      * @throws MassAssignmentException
      */
-    public function fill(array $attributes): self
+    public function fill(array $attributes): static
     {
         $totallyGuarded = $this->totallyGuarded();
 
@@ -203,7 +203,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Fill the model with an array of attributes. Force mass assignment.
      */
-    public function forceFill(array $attributes): self
+    public function forceFill(array $attributes): static
     {
         // Since some versions of PHP have a bug that prevents it from properly
         // binding the late static context in a closure, we will first store
@@ -230,7 +230,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Create a new instance of the given model.
      */
-    public function newInstance($attributes = []): self
+    public function newInstance($attributes = []): static
     {
         $model = new static((array) $attributes);
 
@@ -262,7 +262,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set the hidden attributes for the model.
      */
-    public function setHidden(array $hidden): self
+    public function setHidden(array $hidden): static
     {
         $this->hidden = $hidden;
 
@@ -272,7 +272,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Make the given, typically visible, attributes hidden.
      */
-    public function makeHidden(mixed $attributes = null): self
+    public function makeHidden(mixed $attributes = null): static
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
@@ -284,7 +284,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Make the given, typically hidden, attributes visible.
      */
-    public function withHidden(mixed $attributes): self
+    public function withHidden(mixed $attributes): static
     {
         $this->hidden = array_diff($this->hidden, (array) $attributes);
 
@@ -302,7 +302,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set the visible attributes for the model.
      */
-    public function setVisible(array $visible): self
+    public function setVisible(array $visible): static
     {
         $this->visible = $visible;
 
@@ -312,7 +312,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Make the given, typically hidden, attributes visible.
      */
-    public function makeVisible(mixed $attributes = null): self
+    public function makeVisible(mixed $attributes = null): static
     {
         $attributes = is_array($attributes) ? $attributes : func_get_args();
 
@@ -324,7 +324,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set the accessors to append to model arrays.
      */
-    public function setAppends(array $appends): self
+    public function setAppends(array $appends): static
     {
         $this->appends = $appends;
 
@@ -342,7 +342,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set the fillable attributes for the model.
      */
-    public function fillable(array $fillable): self
+    public function fillable(array $fillable): static
     {
         $this->fillable = $fillable;
 
@@ -360,7 +360,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set the guarded attributes for the model.
      */
-    public function guard(array $guarded): self
+    public function guard(array $guarded): static
     {
         $this->guarded = $guarded;
 
@@ -697,7 +697,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Set a given attribute on the model.
      */
-    public function setAttribute(string $key, mixed $value): self
+    public function setAttribute(string $key, mixed $value): static
     {
         // First we will check for the presence of a mutator for the set operation
         // which simply lets the developers tweak the attribute as it is set on
@@ -784,7 +784,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     /**
      * Clone the model into a new, non-existing instance.
      */
-    public function replicate(mixed $except = null): self
+    public function replicate(mixed $except = null): static
     {
         $except = $except ?: [];
 

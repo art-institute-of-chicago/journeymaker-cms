@@ -6,7 +6,7 @@ interface ApiConnectionInterface
 {
     public function __construct();
 
-    public function get($endpoint, $params);
+    public function get(string $endpoint, array $params);
 
-    public function execute($endpoint = null, $params = []);
+    public function execute(?string $endpoint = null, array $params = []);
 }

@@ -3,6 +3,7 @@
 namespace App\Libraries\Api\Builders\Relations;
 
 use A17\Twill\Models\Contracts\TwillModelContract;
+use App\Models\Behaviors\HasApiModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo as BaseBelongsTo;
 
@@ -22,7 +23,7 @@ class BelongsTo extends BaseBelongsTo
 
     public function getResults()
     {
-        if (in_array(\App\Models\Behaviors\HasApiModel::class, class_uses_recursive($this->child::class))) {
+        if (in_array(HasApiModel::class, class_uses_recursive($this->child::class))) {
             $this->child->refreshApi();
             $id = $this->child->getApiModel()->{$this->foreignKey};
         } else {
