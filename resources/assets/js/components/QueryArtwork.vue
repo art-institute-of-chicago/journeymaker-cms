@@ -1,7 +1,7 @@
 <template>
     <!-- eslint-disable -->
     <a17-inputframe :error="error" :note="note" :label="label" :name="name" :required="required">
-        <label class="mb-2 block text-gray-700" for="query-artwork">
+        <label class="block mb-2 text-gray-700" for="query-artwork">
             Query Artwork by Object or Reference Number
         </label>
         <div :class="['form__field', textfieldClasses]">
@@ -23,26 +23,26 @@
         </div>
         <transition name="fade_search-overlay">
             <div
-                class="relative mt-2 max-h-96 overflow-y-scroll rounded-md border border-gray-300 bg-white shadow-sm"
+                class="relative mt-2 overflow-y-scroll bg-white border border-gray-300 rounded-md shadow-sm max-h-96"
                 v-show="readyToShowResult"
             >
                 <ul role="list" class="divide-y divide-gray-100">
                     <li
                         v-for="artwork in queryResults"
                         :key="artwork.id"
-                        class="flex cursor-pointer gap-x-4 px-5 py-5 hover:bg-slate-200"
+                        class="flex px-5 py-5 cursor-pointer gap-x-4 hover:bg-slate-200"
                         @click="selectArtwork(artwork)"
                     >
-                        <div class="h-12 w-12 flex-none">
-                            <img v-if="artwork.thumbnail" :src="artwork.thumbnail" class="h-full w-full bg-gray-50" />
+                        <div class="flex-none w-12 h-12">
+                            <img v-if="artwork.thumbnail" :src="artwork.thumbnail" class="w-full h-full bg-gray-50" alt="{{ artwork.title }}" />
                         </div>
                         <div class="min-w-0">
                             <p class="text-sm font-semibold leading-6 text-gray-900">{{ artwork.title }}</p>
-                            <p class="mt-1 truncate text-xs leading-5 text-gray-500">{{ artwork.artist_display }}</p>
+                            <p class="mt-1 text-xs leading-5 text-gray-500 truncate">{{ artwork.artist_display }}</p>
                         </div>
                     </li>
-                    <li class="bg-slate-100 px-5 py-5" v-show="loading">Loading...</li>
-                    <li class="bg-slate-100 px-5 py-5" v-show="readyToShowResult && !queryResults.length && !loading">
+                    <li class="px-5 py-5 bg-slate-100" v-show="loading">Loading...</li>
+                    <li class="px-5 py-5 bg-slate-100" v-show="readyToShowResult && !queryResults.length && !loading">
                         No results found
                     </li>
                 </ul>

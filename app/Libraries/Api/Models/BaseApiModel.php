@@ -156,7 +156,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
 
             $authorizedItemsIds = $allModelPermissions->moduleItem()->pluck('permissionable_id');
 
-            return $query->whereIn($this->getTable().'.id', $authorizedItemsIds);
+            return $query->whereIn('id', $authorizedItemsIds);
         }
 
         return $query;
@@ -169,7 +169,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
 
     public function scopeDraft(Builder $query): Builder
     {
-        return $query->where("{$this->getTable()}.published", false);
+        return $query->where('published', false);
     }
 
     public function getTranslatedAttributes(): array
@@ -912,11 +912,6 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     public function getEndpoint($type): string
     {
         return $this->endpoints[$type];
-    }
-
-    public function getTable()
-    {
-        // Is this a no-op on purpose?
     }
 
     /**
