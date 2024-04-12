@@ -9,6 +9,4 @@ interface ApiConsumerInterface
     public function adaptParameters($params);
 
     public function headers($params);
-
-    public function __call($name, $args): mixed;
 }

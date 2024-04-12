@@ -10,7 +10,7 @@ class GuzzleApiConsumer implements ApiConsumerInterface
 
     public function __construct($options = [])
     {
-        $this->client = new \GuzzleHttp\Client($options);
+        $this->client = new Client($options);
     }
 
     /**
@@ -70,23 +70,9 @@ class GuzzleApiConsumer implements ApiConsumerInterface
         }
 
         if (isset($params['headers'])) {
-            $headers = array_merge($default, $params['headers']);
+            $headers = array_merge($headers, $params['headers']);
         }
 
         return ['headers' => $headers];
-    }
-
-    /**
-     * Captures all method calls, and bypass them to the client in case they don't
-     * exists locally. This way it's easier to extend/
-     */
-    public function __call($name, $args): mixed
-    {
-        if (isset($this->__classMethods[$name]) && $this->__classMethods[$name] instanceof \Closure) {
-            return call_user_func_array($this->__classMethods[$name], $args);
-        }
-
-        // If it doesn't exists locally push the call to the API client.
-        return $this->client->{$name}(...$args);
     }
 }
