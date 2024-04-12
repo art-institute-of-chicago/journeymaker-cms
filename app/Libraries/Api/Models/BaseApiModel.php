@@ -232,9 +232,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     public function newInstance($attributes = []): static
     {
-        $model = new static((array) $attributes);
-
-        return $model;
+        return new static((array) $attributes);
     }
 
     /**
@@ -414,22 +412,15 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     public function isFillable(string $key): bool
     {
-        if (static::$unguarded) {
-            return true;
-        }
-
-        // If the key is in the "fillable" array, we can of course assume that it's
-        // a fillable attribute. Otherwise, we will check the guarded array when
-        // we need to determine if the attribute is black-listed on the model.
-        if (in_array($key, $this->fillable)) {
-            return true;
-        }
-
-        if ($this->isGuarded($key)) {
-            return false;
-        }
-
-        return empty($this->fillable);
+        return match (true) {
+            static::$unguarded => true,
+            // If the key is in the "fillable" array, we can of course assume that it's
+            // a fillable attribute. Otherwise, we will check the guarded array when
+            // we need to determine if the attribute is black-listed on the model.
+            in_array($key, $this->fillable) => true,
+            $this->isGuarded($key) => false,
+            default => empty($this->fillable),
+        };
     }
 
     /**
@@ -665,33 +656,18 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
             return $value;
         }
 
-        switch ($this->getCastType($key)) {
-            case 'int':
-            case 'integer':
-                return (int) $value;
-            case 'real':
-            case 'float':
-            case 'double':
-                return (float) $value;
-            case 'string':
-                return (string) $value;
-            case 'bool':
-            case 'boolean':
-                return (bool) $value;
-            case 'object':
-                return $this->fromJson($value, true);
-            case 'array':
-            case 'json':
-                return $this->fromJson($value);
-            case 'collection':
-                return new BaseCollection($this->fromJson($value));
-            case 'datetime':
-                return $this->asDateTime($value);
-            case 'date':
-                return $this->asDateTime($value)->toDateString();
-            default:
-                return $value;
-        }
+        return match ($this->getCastType($key)) {
+            'int', 'integer' => (int) $value,
+            'real', 'float', 'double' => (float) $value,
+            'string' => (string) $value,
+            'bool', 'boolean' => (bool) $value,
+            'object' => $this->fromJson($value, true),
+            'array', 'json' => $this->fromJson($value),
+            'collection' => new BaseCollection($this->fromJson($value)),
+            'datetime' => $this->asDateTime($value),
+            'date' => $this->asDateTime($value)->toDateString(),
+            default => $value,
+        };
     }
 
     /**
@@ -738,26 +714,16 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     public function asDateTime(mixed $value): Carbon
     {
-        if ($value instanceof Carbon) {
-            return $value;
-        }
-
-        if ($value instanceof DateTimeInterface) {
-            return new Carbon(
+        return match (true) {
+            $value instanceof Carbon => $value,
+            $value instanceof DateTimeInterface => new Carbon(
                 $value->format('Y-m-d H:i:s.u'),
                 $value->getTimezone()
-            );
-        }
-
-        if (is_numeric($value)) {
-            return Carbon::createFromTimestamp($value);
-        }
-
-        if ($this->isStandardDateFormat($value)) {
-            return Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
-        }
-
-        return new Carbon($value);
+            ),
+            is_numeric($value) => Carbon::createFromTimestamp($value),
+            $this->isStandardDateFormat($value) => Carbon::createFromFormat('Y-m-d', $value)->startOfDay(),
+            default => new Carbon($value),
+        };
     }
 
     public function getClassName(): string
@@ -790,7 +756,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
 
         $attributes = Arr::except($this->attributes, $except);
 
-        return with($instance = new static())->fill($attributes);
+        return with(new static())->fill($attributes);
     }
 
     /**

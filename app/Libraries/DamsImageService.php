@@ -157,10 +157,12 @@ class DamsImageService implements ImageServiceInterface
 
     protected function getCrop($crop_params)
     {
+        // Required for interface
     }
 
     protected function getFocalPointCrop($crop_params, $width, $height)
     {
+        // Required for interface
     }
 
     protected function fetchImageInfo($id)
