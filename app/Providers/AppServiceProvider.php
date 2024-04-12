@@ -42,7 +42,7 @@ class AppServiceProvider extends ServiceProvider
             NavigationLink::make()->forModule('artworks')
         );
 
-        $this->app->singleton('ApiClient', function ($app) {
+        $this->app->singleton('ApiClient', function () {
             return new GuzzleApiConsumer([
                 'base_uri' => config('api.base_uri'),
                 'decode_content' => true, // Explicit default

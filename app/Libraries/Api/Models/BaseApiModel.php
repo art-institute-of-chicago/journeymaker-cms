@@ -867,10 +867,6 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     }
 
     /**
-     * TODO: Consider adding _isset() here? e.g. for WEB-1245
-     */
-
-    /**
      * Dynamically set attributes on the model.
      */
     public function __set(string $key, mixed $value): void

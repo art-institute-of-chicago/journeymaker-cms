@@ -12,7 +12,7 @@ class DamsImageService implements ImageServiceInterface
 {
     use ImageServiceDefaults;
 
-    protected $base_url;
+    protected $baseUrl;
 
     protected $version;
 
@@ -20,13 +20,13 @@ class DamsImageService implements ImageServiceInterface
 
     public function __construct()
     {
-        $this->base_url = config('dams.cdn_enabled') ? config('dams.base_url_cdn') : config('dams.base_url');
+        $this->baseUrl = config('dams.cdn_enabled') ? config('dams.base_url_cdn') : config('dams.base_url');
         $this->version = config('dams.version');
     }
 
     public function getBaseUrl()
     {
-        return $this->base_url;
+        return $this->baseUrl;
     }
 
     public function getVersion()
@@ -58,7 +58,7 @@ class DamsImageService implements ImageServiceInterface
             'downloadName' => $downloadName,
             'credit' => $credit,
             'creditUrl' => $creditUrl,
-            'iiifId' => $this->base_url.$this->version.'/'.$object->{$imageField},
+            'iiifId' => $this->baseUrl.$this->version.'/'.$object->{$imageField},
         ];
 
         if (isset($preLoadedInfo['lqip']) && ! empty($preLoadedInfo['lqip'])) {
@@ -84,7 +84,7 @@ class DamsImageService implements ImageServiceInterface
             $dimensions = '!'.$width.','.$height;
         }
 
-        return $this->base_url.$this->version.'/'.$id.'/'.$size.'/'.$dimensions.'/0/default.jpg';
+        return $this->baseUrl.$this->version.'/'.$id.'/'.$size.'/'.$dimensions.'/0/default.jpg';
     }
 
     public function getUrlWithCrop($id, array $crop_params, array $params = [])
@@ -168,7 +168,7 @@ class DamsImageService implements ImageServiceInterface
         $json = Cache::remember('dams-image-'.$id.$this->cacheVersion, 24 * 60 * 60, function () use ($id) {
             try {
                 // WEB-1883: Use aggresive curl timeouts to prevent gateway timeout
-                $url = $this->base_url.$this->version.'/'.$id.'/info.json';
+                $url = $this->baseUrl.$this->version.'/'.$id.'/info.json';
 
                 $ch = curl_init();
 

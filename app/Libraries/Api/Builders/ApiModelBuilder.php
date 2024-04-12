@@ -361,9 +361,6 @@ class ApiModelBuilder extends Builder
         return $this->model;
     }
 
-    /**
-     * TODO: Apply scopes before running a passthrough
-     */
     public function toBase()
     {
         return $this;

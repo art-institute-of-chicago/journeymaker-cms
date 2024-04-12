@@ -2,6 +2,7 @@
 
 namespace App\Models\Behaviors;
 
+use A17\Twill\Services\MediaLibrary\ImageService;
 use Facades\App\Libraries\DamsImageService;
 
 trait HasMediasApi
@@ -73,9 +74,7 @@ trait HasMediasApi
             }
 
             if (! empty($this->{$this->getImageField($role, 'default')})) {
-                $image = DamsImageService::getImage($this, $this->getImageField($role, 'default'));
-
-                return $image;
+                return DamsImageService::getImage($this, $this->getImageField($role, 'default'));
             }
         }
 
@@ -96,7 +95,7 @@ trait HasMediasApi
         return ImageService::getTransparentFallbackUrl($params);
     }
 
-    public function defaultCmsImage($params = [])
+    public function defaultCmsImage()
     {
         return $this->cmsImage('iiif', 'default', ['w' => 100, 'h' => 100]);
     }
