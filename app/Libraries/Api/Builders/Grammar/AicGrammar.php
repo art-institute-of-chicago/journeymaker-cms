@@ -52,40 +52,39 @@ class AicGrammar
             // function for the component which is responsible for making the parameter/s.
             if (! is_null($query->{$component})) {
                 $method = 'compile'.ucfirst($component);
-
-                $parameters = array_merge($parameters, $this->{$method}($query, $query->{$component}));
+                $parameters = array_merge($parameters, $this->{$method}($query->{$component}));
             }
         }
 
         return $parameters;
     }
 
-    protected function compileWheres(ApiQueryBuilder $query): array
+    protected function compileWheres(): array
     {
         return [];
     }
 
-    protected function compileColumns(ApiQueryBuilder $query, array $columns): array
+    protected function compileColumns(array $columns): array
     {
         return empty($columns) ? [] : ['fields' => implode(',', $columns)];
     }
 
-    protected function compileInclude(ApiQueryBuilder $query, $columns): array
+    protected function compileInclude(array $columns): array
     {
         return empty($columns) ? [] : ['include' => implode(',', $columns)];
     }
 
-    protected function compileIds(ApiQueryBuilder $query, $ids): array
+    protected function compileIds(array $ids): array
     {
         return empty($ids) ? [] : ['ids' => implode(',', $ids)];
     }
 
-    protected function compileSearchResources(ApiQueryBuilder $query, $resources): array
+    protected function compileSearchResources(array $resources): array
     {
         return empty($resources) ? [] : ['resources' => implode(',', $resources)];
     }
 
-    protected function compileSearchText(ApiQueryBuilder $query, $text): array
+    protected function compileSearchText(string $text): array
     {
         if ($text) {
             return ['q' => $text];
@@ -94,27 +93,27 @@ class AicGrammar
         return [];
     }
 
-    protected function compileSearchParameters(ApiQueryBuilder $query, array $elasticParameters): array
+    protected function compileSearchParameters(array $elasticParameters): array
     {
         return empty($elasticParameters) ? [] : ['query' => $elasticParameters];
     }
 
-    protected function compileRawQuery(ApiQueryBuilder $query, array $rawQuery): array
+    protected function compileRawQuery(array $rawQuery): array
     {
         return empty($rawQuery) ? [] : $rawQuery;
     }
 
-    protected function compileAggregationParameters(ApiQueryBuilder $query, array $aggregations): array
+    protected function compileAggregationParameters(array $aggregations): array
     {
         return empty($aggregations) ? [] : ['aggregations' => $aggregations];
     }
 
-    protected function compileOrders(ApiQueryBuilder $query, $order): array
+    protected function compileOrders(string $order): array
     {
         return empty($order) ? [] : ['sort' => $order];
     }
 
-    protected function compileLimit(ApiQueryBuilder $query, $limit): array
+    protected function compileLimit(int $limit): array
     {
         return [
             'limit' => $limit,
@@ -122,7 +121,7 @@ class AicGrammar
         ];
     }
 
-    protected function compileOffset(ApiQueryBuilder $query, $offset): array
+    protected function compileOffset(int $offset): array
     {
         return [
             'offset' => $offset,
@@ -130,7 +129,7 @@ class AicGrammar
         ];
     }
 
-    protected function compileBoost(ApiQueryBuilder $query, bool $boost): array
+    protected function compileBoost(bool $boost): array
     {
         return [];
     }

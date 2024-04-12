@@ -378,9 +378,8 @@ class ApiModelBuilder extends Builder
     protected function callScope(callable $scope, $parameters = [])
     {
         array_unshift($parameters, $this);
-        $result = $scope(...array_values($parameters)) ?? $this;
 
-        return $result;
+        return $scope(...array_values($parameters)) ?? $this;
     }
 
     /**
