@@ -6,7 +6,8 @@ use A17\Twill\Repositories\Behaviors\HandleMedias;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
 use A17\Twill\Repositories\Behaviors\HandleTranslations;
 use A17\Twill\Repositories\ModuleRepository;
-use App\Models\Api\Artwork as ApiArtwork;
+use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Models\Artwork;
 use Illuminate\Support\Arr;
 
@@ -21,8 +22,10 @@ class ArtworkRepository extends ModuleRepository
 
     public function prepareFieldsBeforeCreate(array $fields): array
     {
-        $apiFields = ApiArtwork::query()
-            ->find($fields['datahub_id'], [
+        $connection = new AicConnection();
+
+        $apiFields = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
+            ->get([
                 'position',
                 'artist_display',
                 'is_on_view',
@@ -32,8 +35,9 @@ class ArtworkRepository extends ModuleRepository
                 'longitude',
                 'image_id',
                 'gallery_id',
-            ]
-            )->toArray();
+            ], '/api/v1/artworks/'.$fields['datahub_id'])
+            ->map(fn ($artwork) => (array) $artwork)
+            ->first();
 
         $translatedFields = [
             'artist_display' => [
