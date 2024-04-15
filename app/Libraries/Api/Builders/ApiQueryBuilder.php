@@ -6,6 +6,8 @@ use App\Helpers\CollectionHelpers;
 use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Libraries\Api\Builders\Grammar\SearchGrammar;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use stdClass;
@@ -31,6 +33,11 @@ class ApiQueryBuilder
      * Whether to apply boosting or not
      */
     public bool $boost = true;
+
+    /**
+     * The current page number
+     */
+    public ?int $page;
 
     /**
      * The database query grammar instance.
@@ -84,6 +91,11 @@ class ApiQueryBuilder
      */
     public array $searchResources = [];
 
+    /**
+     * Pagination data saved after a request
+     */
+    public $paginationData;
+
     public function __construct(public AicConnection $connection, $grammar = null)
     {
         $this->connection = $connection;
@@ -124,6 +136,68 @@ class ApiQueryBuilder
         }
 
         return $this;
+    }
+
+    /**
+     * Paginate the given query into a simple paginator.
+     *
+     * @param  int  $perPage
+     * @param  array  $columns
+     * @param  string  $pageName
+     * @param  int|null  $page
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($perPage = 15, $columns = [], $pageName = 'page', $page = null)
+    {
+        ray('paginate');
+        $page = $page ?: Paginator::resolveCurrentPage($pageName);
+
+        $results = $this->forPage($page, $perPage)->get($columns);
+
+        $paginationData = $this->getPaginationData();
+        $total = $paginationData ? $paginationData->total : $results->count();
+
+        $data = $results['body']->data;
+
+        return $this->paginator($data, $total, $perPage, $page, [
+            'path' => Paginator::resolveCurrentPath(),
+            'pageName' => $pageName,
+        ]);
+    }
+
+    /**
+     * Create a new length-aware paginator instance.
+     *
+     * @param  \Illuminate\Support\Collection  $items
+     * @param  int  $total
+     * @param  int  $perPage
+     * @param  int  $currentPage
+     * @param  array  $options
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    protected function paginator($items, $total, $perPage, $currentPage, $options)
+    {
+        return new LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            $options
+        );
+    }
+
+    /**
+     * Set the limit and offset for a given page.
+     *
+     * @param  int  $page
+     * @param  int  $perPage
+     * @return \Illuminate\Database\Query\Builder|static
+     */
+    public function forPage($page, $perPage = 15)
+    {
+        $this->page = $page;
+
+        return $this->skip(($page - 1) * $perPage)->take($perPage);
     }
 
     /**
@@ -294,6 +368,11 @@ class ApiQueryBuilder
     public function count(?string $endpoint = null): int
     {
         return $this->limit(0)->get([], $endpoint)->getMetadata('pagination')->total;
+    }
+
+    public function getPaginationData()
+    {
+        return $this->paginationData;
     }
 
     /**

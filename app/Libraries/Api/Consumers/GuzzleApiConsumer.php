@@ -22,7 +22,7 @@ class GuzzleApiConsumer implements ApiConsumerInterface
         $response = $this->client->request($method, $uri, $options);
         $contents = $response->getBody()->getContents();
 
-        if(! json_validate($contents)) {
+        if (! json_validate($contents)) {
             throw new JsonException('Invalid JSON: '.$contents);
         }
 

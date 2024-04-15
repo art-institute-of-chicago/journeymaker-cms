@@ -8,4 +8,10 @@ TwillRoutes::module('themes');
 TwillRoutes::module('themes.prompts');
 
 Route::get('admin/artworks/query', [ArtworkController::class, 'queryArtwork']);
+
+Route::get(
+    'collectionObjects/augment/{datahub_id}',
+    [ArtworkController::class, 'augment']
+)->name('artworks.augment');
+
 TwillRoutes::module('artworks');

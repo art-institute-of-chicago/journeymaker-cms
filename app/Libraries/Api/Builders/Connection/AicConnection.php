@@ -60,8 +60,6 @@ class AicConnection implements ApiConnectionInterface
             $options = array_merge($adaptedParameters, $headers);
         }
 
-        $response = $this->client->request($verb, $endpoint, $options);
-
-        return $response;
+        return $this->client->request($verb, $endpoint, $options);
     }
 }
