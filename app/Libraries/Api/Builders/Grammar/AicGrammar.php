@@ -7,18 +7,8 @@ use App\Libraries\Api\Builders\ApiQueryBuilder;
 class AicGrammar
 {
     protected array $selectComponents = [
-        'wheres',
-        'limit',
-        'offset',
-        'boost',
-        'orders',
-        'ids',
         'columns',
-        'include',
-        'searchText',
         'searchParameters',
-        'searchResources',
-        'aggregationParameters',
         'rawQuery',
     ];
 
@@ -59,38 +49,9 @@ class AicGrammar
         return $parameters;
     }
 
-    protected function compileWheres(): array
-    {
-        return [];
-    }
-
     protected function compileColumns(array $columns): array
     {
         return $columns === [] ? [] : ['fields' => implode(',', $columns)];
-    }
-
-    protected function compileInclude(array $columns): array
-    {
-        return $columns === [] ? [] : ['include' => implode(',', $columns)];
-    }
-
-    protected function compileIds(array $ids): array
-    {
-        return $ids === [] ? [] : ['ids' => implode(',', $ids)];
-    }
-
-    protected function compileSearchResources(array $resources): array
-    {
-        return $resources === [] ? [] : ['resources' => implode(',', $resources)];
-    }
-
-    protected function compileSearchText(string $text): array
-    {
-        if ($text !== '' && $text !== '0') {
-            return ['q' => $text];
-        }
-
-        return [];
     }
 
     protected function compileSearchParameters(array $elasticParameters): array
@@ -99,37 +60,6 @@ class AicGrammar
     }
 
     protected function compileRawQuery(array $rawQuery): array
-    {
-        return [];
-    }
-
-    protected function compileAggregationParameters(array $aggregations): array
-    {
-        return $aggregations === [] ? [] : ['aggregations' => $aggregations];
-    }
-
-    protected function compileOrders(string $order): array
-    {
-        return $order === '' || $order === '0' ? [] : ['sort' => $order];
-    }
-
-    protected function compileLimit(int $limit): array
-    {
-        return [
-            'limit' => $limit,
-            'size' => $limit, // Elasticsearch search parameter for limiting
-        ];
-    }
-
-    protected function compileOffset(int $offset): array
-    {
-        return [
-            'offset' => $offset,
-            'from' => $offset, // Elasticsearch search parameter for offset
-        ];
-    }
-
-    protected function compileBoost(bool $boost): array
     {
         return [];
     }
