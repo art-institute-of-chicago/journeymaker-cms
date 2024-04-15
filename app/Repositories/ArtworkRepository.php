@@ -26,6 +26,7 @@ class ArtworkRepository extends ModuleRepository
 
         $apiFields = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
             ->get([
+                'main_reference_number',
                 'position',
                 'artist_display',
                 'is_on_view',

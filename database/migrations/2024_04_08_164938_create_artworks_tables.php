@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('artworks', function (Blueprint $table) {
             createDefaultTableFields($table);
-
             $table->string('datahub_id');
+            $table->string('main_reference_number')->nullable();
             $table->boolean('is_on_view')->nullable();
             $table->string('credit_line')->nullable();
             $table->string('copyright_notice')->nullable();

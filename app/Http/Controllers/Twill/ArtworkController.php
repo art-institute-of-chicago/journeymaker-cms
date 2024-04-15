@@ -65,7 +65,9 @@ class ArtworkController extends ModuleController
             ->add(
                 BladePartial::make()
                     ->view('forms.image')
-                    ->withAdditionalParams(['src' => null])
+                    ->withAdditionalParams([
+                        'src' => DamsImageService::getUrl($object->image_id, $object->mediasParams['iiif']['default'][0])
+                    ])
             )
             ->add(
                 Medias::make()
@@ -80,6 +82,8 @@ class ArtworkController extends ModuleController
             ->add(
                 Checkbox::make()
                     ->name('is_on_view')
+                    ->disabled()
+                    ->note('readonly')
             )
             ->add(
                 Input::make()
@@ -100,12 +104,16 @@ class ArtworkController extends ModuleController
                     ->name('latitude')
                     ->label('Latitude')
                     ->type('number')
+                    ->disabled()
+                    ->note('readonly')
             )
             ->add(
                 Input::make()
                     ->name('longitude')
                     ->label('Longitude')
                     ->type('number')
+                    ->disabled()
+                    ->note('readonly')
             );
     }
 
