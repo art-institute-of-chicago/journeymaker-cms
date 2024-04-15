@@ -4,11 +4,11 @@ namespace App\Libraries\Api\Models\Behaviors;
 
 trait HasAugmentedModel
 {
-    protected $augmentedModel = null;
+    protected $augmentedModel;
 
     protected $augmentedModelClass;
 
-    public function setAugmentedModel($model)
+    public function setAugmentedModel($model): void
     {
         $this->augmentedModel = $model;
         $this->setAttribute('is_augmented', true);

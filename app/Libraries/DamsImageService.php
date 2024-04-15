@@ -4,6 +4,7 @@ namespace App\Libraries;
 
 use A17\Twill\Services\MediaLibrary\ImageServiceDefaults;
 use A17\Twill\Services\MediaLibrary\ImageServiceInterface;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -184,14 +185,14 @@ class DamsImageService implements ImageServiceInterface
 
                 $contents = curl_exec($ch);
 
-                if (curl_errno($ch)) {
-                    throw new \Exception(curl_error($ch));
+                if (curl_errno($ch) !== 0) {
+                    throw new Exception(curl_error($ch));
                 }
 
                 curl_close($ch);
 
                 return json_decode($contents);
-            } catch (\Exception $e) {
+            } catch (Exception) {
                 return null;
             }
         });

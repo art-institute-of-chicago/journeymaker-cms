@@ -12,7 +12,7 @@ class Search extends FreeTextSearch
 {
     public function applyFilter(Builder $builder): Builder
     {
-        if (! empty($this->searchString) && $this->searchColumns !== []) {
+        if ($this->searchString !== null && $this->searchString !== '' && $this->searchString !== '0' && $this->searchColumns !== []) {
             $shoulds = [];
             foreach ($this->searchColumns as $col) {
                 if ($col != 'id' || is_numeric($this->searchString)) {

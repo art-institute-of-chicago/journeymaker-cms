@@ -51,7 +51,7 @@ class AicGrammar
             // see if that component exists. If it does we'll just call the compiler
             // function for the component which is responsible for making the parameter/s.
             if (! is_null($query->{$component})) {
-                $method = 'compile'.ucfirst($component);
+                $method = 'compile'.ucfirst((string) $component);
                 $parameters = array_merge($parameters, $this->{$method}($query->{$component}));
             }
         }
@@ -66,27 +66,27 @@ class AicGrammar
 
     protected function compileColumns(array $columns): array
     {
-        return empty($columns) ? [] : ['fields' => implode(',', $columns)];
+        return $columns === [] ? [] : ['fields' => implode(',', $columns)];
     }
 
     protected function compileInclude(array $columns): array
     {
-        return empty($columns) ? [] : ['include' => implode(',', $columns)];
+        return $columns === [] ? [] : ['include' => implode(',', $columns)];
     }
 
     protected function compileIds(array $ids): array
     {
-        return empty($ids) ? [] : ['ids' => implode(',', $ids)];
+        return $ids === [] ? [] : ['ids' => implode(',', $ids)];
     }
 
     protected function compileSearchResources(array $resources): array
     {
-        return empty($resources) ? [] : ['resources' => implode(',', $resources)];
+        return $resources === [] ? [] : ['resources' => implode(',', $resources)];
     }
 
     protected function compileSearchText(string $text): array
     {
-        if ($text) {
+        if ($text !== '' && $text !== '0') {
             return ['q' => $text];
         }
 
@@ -95,22 +95,22 @@ class AicGrammar
 
     protected function compileSearchParameters(array $elasticParameters): array
     {
-        return empty($elasticParameters) ? [] : ['query' => $elasticParameters];
+        return $elasticParameters === [] ? [] : ['query' => $elasticParameters];
     }
 
     protected function compileRawQuery(array $rawQuery): array
     {
-        return empty($rawQuery) ? [] : $rawQuery;
+        return [];
     }
 
     protected function compileAggregationParameters(array $aggregations): array
     {
-        return empty($aggregations) ? [] : ['aggregations' => $aggregations];
+        return $aggregations === [] ? [] : ['aggregations' => $aggregations];
     }
 
     protected function compileOrders(string $order): array
     {
-        return empty($order) ? [] : ['sort' => $order];
+        return $order === '' || $order === '0' ? [] : ['sort' => $order];
     }
 
     protected function compileLimit(int $limit): array

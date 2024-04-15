@@ -56,15 +56,13 @@ class AicConnection implements ApiConnectionInterface
         $verb = empty($bodyParams) ? 'GET' : 'POST';
 
         if ($verb === 'GET') {
-            if (! empty($params)) {
+            if ($params !== []) {
                 // WEB-979: See DecodeParams middleware in data-aggregator
                 $endpoint = $endpoint.'?params='.urlencode(json_encode($params));
             }
-        } else {
-            if (! empty($bodyParams)) {
-                $adaptedParameters = $this->client->adaptParameters($params);
-                $options = array_merge($adaptedParameters, $headers);
-            }
+        } elseif (! empty($bodyParams)) {
+            $adaptedParameters = $this->client->adaptParameters($params);
+            $options = array_merge($adaptedParameters, $headers);
         }
 
         $response = $this->client->request($verb, $endpoint, $options);

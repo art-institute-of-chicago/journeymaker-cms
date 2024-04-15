@@ -16,26 +16,26 @@ class ApiCollection extends Collection
 
     public function getMetadata(mixed $name = null): mixed
     {
-        if ($this->metadata) {
-            if ($name) {
-                return $this->metadata->get($name);
-            }
-
-            return $this->metadata;
+        if (! $this->metadata instanceof Collection) {
+            return null;
         }
+
+        if ($name) {
+            return $this->metadata->get($name);
+        }
+
+        return $this->metadata;
     }
 
     public function setMetadata(array|Collection $data): static
     {
-        if (! ($data instanceof Collection)) {
-            $data = collect($data);
-        }
+        $data = $data instanceof Collection
+            ? $data
+            : collect($data);
 
-        if ($this->metadata) {
-            $this->metadata = $this->metadata->merge($data);
-        } else {
-            $this->metadata = $data;
-        }
+        $this->metadata = $this->metadata instanceof Collection
+            ? $this->metadata->merge($data)
+            : $data;
 
         return $this;
     }

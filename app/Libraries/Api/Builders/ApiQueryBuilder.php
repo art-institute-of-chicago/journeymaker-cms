@@ -96,7 +96,7 @@ class ApiQueryBuilder
     public function orderBy(string $column, string $direction = 'asc'): static
     {
         $this->orders[] = [
-            $column => ['order' => strtolower($direction) == 'asc' ? 'asc' : 'desc'],
+            $column => ['order' => strtolower($direction) === 'asc' ? 'asc' : 'desc'],
         ];
 
         return $this;
@@ -107,7 +107,7 @@ class ApiQueryBuilder
      */
     public function ids(array $ids = []): static
     {
-        if (! empty($ids)) {
+        if ($ids !== []) {
             $this->ids = $ids;
         }
 
@@ -119,7 +119,7 @@ class ApiQueryBuilder
      */
     public function include(array $inclusions = []): static
     {
-        if (! empty($inclusions)) {
+        if ($inclusions !== []) {
             $this->include = $inclusions;
         }
 
@@ -189,7 +189,7 @@ class ApiQueryBuilder
      */
     public function search(string $search): static
     {
-        $this->searchText = empty($search) ? null : $search;
+        $this->searchText = $search === '' || $search === '0' ? null : $search;
 
         return $this;
     }
@@ -231,7 +231,7 @@ class ApiQueryBuilder
     {
         $original = $this->columns;
 
-        if (empty($this->columns)) {
+        if ($this->columns === []) {
             $this->columns = $columns;
         }
 
@@ -327,7 +327,7 @@ class ApiQueryBuilder
      */
     private function getSortedCollection(Collection $collection): Collection
     {
-        if (empty($this->ids)) {
+        if ($this->ids === []) {
             return $collection;
         }
 
@@ -339,11 +339,7 @@ class ApiQueryBuilder
             $ia = array_search($a->id, $this->ids);
             $ib = array_search($b->id, $this->ids);
 
-            if ($ia === $ib) {
-                return 0;
-            }
-
-            return ($ia < $ib) ? -1 : 1;
+            return $ia <=> $ib;
         });
     }
 }

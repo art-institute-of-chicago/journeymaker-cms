@@ -82,6 +82,8 @@ trait HasMediasApi
         if ($this->hasAugmentedModel() && $this->getAugmentedModel() && method_exists($this->getAugmentedModel(), 'imageFront')) {
             return $this->getAugmentedModel()->imageFront($role, $crop);
         }
+
+        return null;
     }
 
     public function cmsImage($role, $crop = 'default', $params = [])
@@ -109,28 +111,16 @@ trait HasMediasApi
 
     protected function getImageField($role, $crop)
     {
-        if (isset($this->mediasParams[$role][$crop]['field'])) {
-            return $this->mediasParams[$role][$crop]['field'];
-        }
-
-        return 'image_id';
+        return $this->mediasParams[$role][$crop]['field'] ?? 'image_id';
     }
 
     protected function getWidth($role, $crop, $image)
     {
-        if (isset($this->mediasParams[$role][$crop]['width'])) {
-            return $this->mediasParams[$role][$crop]['width'];
-        }
-
-        return $image['width'] ?? '';
+        return $this->mediasParams[$role][$crop]['width'] ?? $image['width'] ?? '';
     }
 
     protected function getHeight($role, $crop, $image)
     {
-        if (isset($this->mediasParams[$role][$crop]['height'])) {
-            return $this->mediasParams[$role][$crop]['height'];
-        }
-
-        return $image['height'] ?? '';
+        return $this->mediasParams[$role][$crop]['height'] ?? $image['height'] ?? '';
     }
 }

@@ -221,7 +221,7 @@ class ApiModelBuilder extends Builder
         }
 
         if (is_array($id)) {
-            if (count($result) == count(array_unique($id))) {
+            if (count($result) === count(array_unique($id))) {
                 return $result;
             }
         } elseif (! is_null($result)) {
@@ -229,7 +229,7 @@ class ApiModelBuilder extends Builder
         }
 
         throw (new ModelNotFoundException())->setModel(
-            get_class($this->model),
+            $this->model::class,
             $id
         );
     }

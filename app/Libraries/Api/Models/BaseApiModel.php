@@ -27,8 +27,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Stringable;
 
-abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, TwillModelContract, UrlRoutable
+abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSerializable, Stringable, TwillModelContract, UrlRoutable
 {
     use HasApiCalls;
     use HasAugmentedModel;
@@ -131,7 +132,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
             return $query;
         }
 
-        $model = get_class($query->getModel());
+        $model = $query->getModel()::class;
         $moduleName = TwillPermissions::getPermissionModule(getModuleNameByModel($model));
 
         if ($moduleName && ! Auth::user()->isSuperAdmin()) {
@@ -150,7 +151,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
             }
 
             // If the module is submodule, skip the scope.
-            if (strpos($moduleName, '.')) {
+            if (strpos((string) $moduleName, '.')) {
                 return $query;
             }
 
@@ -210,9 +211,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
         // the model in a variable, which we will then use in the closure.
         $model = $this;
 
-        return static::unguarded(function () use ($model, $attributes) {
-            return $model->fill($attributes);
-        });
+        return static::unguarded(fn () => $model->fill($attributes));
     }
 
     /**
@@ -220,7 +219,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     protected function fillableFromArray(array $attributes): array
     {
-        if (count($this->fillable) > 0 && ! static::$unguarded) {
+        if ($this->fillable !== [] && ! static::$unguarded) {
             return array_intersect_key($attributes, array_flip($this->fillable));
         }
 
@@ -242,11 +241,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
     {
         $instance = new static();
 
-        $items = array_map(function ($item) use ($instance) {
-            return $instance->newInstance($item);
-        }, $items);
-
-        return $items;
+        return array_map(fn ($item) => $instance->newInstance($item), $items);
     }
 
     /**
@@ -419,7 +414,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
             // we need to determine if the attribute is black-listed on the model.
             in_array($key, $this->fillable) => true,
             $this->isGuarded($key) => false,
-            default => empty($this->fillable),
+            default => $this->fillable === [],
         };
     }
 
@@ -489,7 +484,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
         // Next we will handle any casts that have been setup for this model and cast
         // the values to their appropriate type. If the attribute has a mutator we
         // will not perform the cast on those attributes to avoid any confusion.
-        foreach ($this->casts as $key => $value) {
+        foreach (array_keys($this->casts) as $key) {
             if (
                 ! array_key_exists($key, $attributes) ||
                 in_array($key, $mutatedAttributes)
@@ -526,7 +521,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     protected function getArrayableAppends(): array
     {
-        if (! count($this->appends)) {
+        if ($this->appends === []) {
             return [];
         }
 
@@ -540,7 +535,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     protected function getArrayableItems(array $values): array
     {
-        if (count($this->getVisible()) > 0) {
+        if ($this->getVisible() !== []) {
             return array_intersect_key($values, array_flip($this->getVisible()));
         }
 
@@ -594,6 +589,8 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
         if (array_key_exists($key, $this->attributes)) {
             return $this->attributes[$key];
         }
+
+        return null;
     }
 
     /**
@@ -644,7 +641,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     protected function getCastType(string $key): string
     {
-        return trim(strtolower($this->casts[$key]));
+        return trim(strtolower((string) $this->casts[$key]));
     }
 
     /**
@@ -772,7 +769,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
      */
     public function getMutatedAttributes(): array
     {
-        $class = get_class($this);
+        $class = static::class;
 
         if (! isset(static::$mutatorCache[$class])) {
             static::cacheMutatedAttributes($class);
@@ -797,7 +794,7 @@ abstract class BaseApiModel implements Arrayable, ArrayAccess, Jsonable, JsonSer
                     $match = Str::snake($match);
                 }
 
-                $mutatedAttributes[] = lcfirst($match);
+                $mutatedAttributes[] = lcfirst((string) $match);
             }
         }
 

@@ -11,7 +11,7 @@ use A17\Twill\Models\Contracts\TwillModelContract;
  */
 trait HasApiModel
 {
-    protected $apiModel = null;
+    protected $apiModel;
 
     private array $apiFields = [];
 
@@ -35,7 +35,7 @@ trait HasApiModel
         return $this->apiModel;
     }
 
-    public function setApiModel(TwillModelContract $model)
+    public function setApiModel(TwillModelContract $model): void
     {
         $this->apiModel = $model;
     }
@@ -49,7 +49,7 @@ trait HasApiModel
      * Augment the entity with the values coming from the API.
      * TODO: Solve name collisions
      */
-    public function augmentWithApiModel()
+    public function augmentWithApiModel(): void
     {
         foreach ($this->apiModel->toArray() as $key => $value) {
             if ($this->hasAttribute($key)) {
@@ -57,7 +57,7 @@ trait HasApiModel
                 // Something like ['id' => 'datahub_id']
             } else {
                 $this->setAttribute($key, $value);
-                array_push($this->apiFields, $key);
+                $this->apiFields[] = $key;
             }
         }
     }

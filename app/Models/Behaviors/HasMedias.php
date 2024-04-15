@@ -13,9 +13,7 @@ trait HasMedias
     public function imageAsArray($role, $crop = 'default', $params = [], $media = null)
     {
         if (! $media) {
-            $media = $this->medias->first(function ($media) use ($role, $crop) {
-                return $media->pivot->role === $role && $media->pivot->crop === $crop;
-            });
+            $media = $this->medias->first(fn ($media) => $media->pivot->role === $role && $media->pivot->crop === $crop);
         }
 
         if ($media) {
