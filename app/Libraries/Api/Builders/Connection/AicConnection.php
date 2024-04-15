@@ -3,7 +3,6 @@
 namespace App\Libraries\Api\Builders\Connection;
 
 use App\Libraries\Api\Builders\Grammar\AicGrammar;
-use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\App;
 use stdClass;
@@ -32,8 +31,6 @@ class AicConnection implements ApiConnectionInterface
 
     /**
      * Run a get statement against the API.
-     *
-     * @throws Exception
      */
     public function get(string $endpoint, array $params): stdClass
     {
@@ -42,8 +39,6 @@ class AicConnection implements ApiConnectionInterface
 
     /**
      * Execute a general call to the API client
-     *
-     * @throws Exception
      */
     public function execute(?string $endpoint = null, array $params = []): stdClass
     {
@@ -66,15 +61,6 @@ class AicConnection implements ApiConnectionInterface
         }
 
         $response = $this->client->request($verb, $endpoint, $options);
-
-        if ($response?->status != 200) {
-            $message = $message = trim($response?->error.' '.$response?->detail)
-                ?: 'An error occurred while processing your request.';
-
-            $status = $response->status ?? 500;
-
-            throw new Exception($message, $status);
-        }
 
         return $response;
     }
