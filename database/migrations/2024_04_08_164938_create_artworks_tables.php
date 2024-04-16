@@ -17,15 +17,21 @@ return new class extends Migration
             $table->string('copyright_notice')->nullable();
             $table->decimal('latitude', 15, 13)->nullable();
             $table->decimal('longitude', 15, 13)->nullable();
+            $table->integer('floor')->nullable();
             $table->string('image_id')->nullable();
             $table->string('gallery_id')->nullable();
             $table->integer('position')->unsigned()->nullable();
+            $table->string('activity_template')->nullable();
         });
 
         Schema::create('artwork_translations', function (Blueprint $table) {
             createDefaultTranslationsTableFields($table, 'artwork');
-            $table->string('title', 200)->nullable();
+            $table->string('title')->nullable();
             $table->string('artist_display')->nullable();
+            $table->string('detail_narrative')->nullable();
+            $table->string('look_again')->nullable();
+            $table->string('activity_instructions')->nullable();
+            $table->string('location_directions')->nullable();
         });
 
         Schema::create('artwork_revisions', function (Blueprint $table) {

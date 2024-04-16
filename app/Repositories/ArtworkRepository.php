@@ -40,6 +40,11 @@ class ArtworkRepository extends ModuleRepository
             ->map(fn ($artwork) => (array) $artwork)
             ->first();
 
+        $apiFields['floor'] = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
+            ->get(['floor'], '/api/v1/galleries/'.$apiFields['gallery_id'])
+            ->map(fn ($gallery) => (array) $gallery)
+            ->first()['floor'] ?? null;
+
         $translatedFields = [
             'artist_display' => [
                 'en' => Arr::pull($apiFields, 'artist_display'),

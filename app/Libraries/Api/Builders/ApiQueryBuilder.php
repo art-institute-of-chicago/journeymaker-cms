@@ -83,11 +83,9 @@ class ApiQueryBuilder
      */
     public function runGet(string $endpoint): stdClass
     {
-        $grammar = null;
-
-        if (Str::endsWith($endpoint, '/search')) {
-            $grammar = new SearchGrammar();
-        }
+        $grammar = Str::endsWith($endpoint, '/search')
+            ? new SearchGrammar()
+            : null;
 
         return $this->connection->get($endpoint, $this->resolveParameters($grammar));
     }
@@ -97,10 +95,8 @@ class ApiQueryBuilder
      */
     public function resolveParameters($grammar = null): array
     {
-        if ($grammar) {
-            return $grammar->compileParameters($this);
-        }
-
-        return $this->grammar->compileParameters($this);
+        return $grammar
+            ? $grammar->compileParameters($this)
+            : $this->grammar->compileParameters($this);
     }
 }

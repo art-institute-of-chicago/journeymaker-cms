@@ -25,11 +25,17 @@ class Artwork extends Model implements Sortable
         'datahub_id',
         'title',
         'artist_display',
+        'detail_narrative',
+        'look_again',
+        'activity_instructions',
+        'location_directions',
         'is_on_view',
         'credit_line',
         'copyright_notice',
         'latitude',
         'longitude',
+        'floor',
+        'activity_template',
         'image_id',
         'gallery_id',
     ];
@@ -45,6 +51,14 @@ class Artwork extends Model implements Sortable
     ];
 
     public $mediasParams = [
+        'override' => [
+            'default' => [
+                [
+                    'name' => 'default',
+                    'ratio' => 0,
+                ],
+            ],
+        ],
         'iiif' => [
             'default' => [
                 [
