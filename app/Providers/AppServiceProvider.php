@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::enforceMorphMap([
             'theme' => 'App\Models\Theme',
+            'theme_prompt' => 'App\Models\ThemePrompt',
         ]);
 
         TwillNavigation::addLink(
