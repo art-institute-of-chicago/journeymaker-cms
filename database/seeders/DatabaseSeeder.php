@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use A17\Twill\Http\Controllers\Admin\MediaLibraryController;
+use A17\Twill\Http\Requests\Admin\MediaRequest;
 use A17\Twill\Models\Media;
 use App\Models\Theme;
 use App\Models\ThemePrompt;
@@ -15,6 +16,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
@@ -135,20 +137,38 @@ class DatabaseSeeder extends Seeder
 
     public function addMediaToLibrary(string $url): Media
     {
-        $imageName = basename($url);
+        $imageName = sanitizeFilename(basename($url));
         $imagePath = sys_get_temp_dir().'/'.$imageName;
         $imageFile = file_get_contents($url);
 
         file_put_contents($imagePath, $imageFile);
 
-        $request = Request::create('', 'POST', [
-            'unique_folder_name' => Str::uuid()->toString(),
-            'qqfilename' => $imageName,
-            'qqtotalfilesize' => strlen($imageFile),
-        ], [], [
-            'qqfile' => new UploadedFile($imagePath, $imageName, 'image/jpg', null, true),
-        ]);
+        $endpointType = config('twill.media_library.endpoint_type');
 
-        return app()->make(MediaLibraryController::class)->storeFile($request);
+        if ($endpointType === 'local') {
+            $request = Request::create('', 'POST', [
+                'unique_folder_name' => Str::uuid()->toString(),
+                'qqfilename' => $imageName,
+                'qqtotalfilesize' => strlen($imageFile),
+            ], [], [
+                'qqfile' => new UploadedFile($imagePath, $imageName, 'image/jpg', null, true),
+            ]);
+        }
+        else {
+            $uuid = Str::uuid()->toString() . '/' . $imageName;
+            Storage::disk(config('twill.media_library.disk'))->put($uuid, $imageFile);
+            [$width, $height] = getimagesize($imagePath);
+
+            $request = MediaRequest::create('', 'POST', [
+                'key' => $uuid,
+                'name' => $imageName,
+                'width' => $width,
+                'height' => $height,
+            ]);
+        }
+
+        $mediaLibraryController = app()->make(MediaLibraryController::class);
+
+        return $endpointType === 'local' ? $mediaLibraryController->storeFile($request) : $mediaLibraryController->storeReference($request);
     }
 }
