@@ -5,8 +5,13 @@ namespace App\Http\Controllers\Twill;
 use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Breadcrumbs\NestedBreadcrumbs;
+use A17\Twill\Services\Forms\Fields\Browser;
 use A17\Twill\Services\Forms\Fields\Input;
+use A17\Twill\Services\Forms\Fields\Select;
+use A17\Twill\Services\Forms\Fieldset;
+use A17\Twill\Services\Forms\Fieldsets;
 use A17\Twill\Services\Forms\Form;
+use A17\Twill\Services\Forms\InlineRepeater;
 use App\Repositories\ThemeRepository;
 
 class ThemePromptController extends BaseModuleController
@@ -35,12 +40,60 @@ class ThemePromptController extends BaseModuleController
 
     public function getForm(TwillModelContract $model): Form
     {
-        $form = parent::getForm($model);
-
-        $form->add(
-            Input::make()->name('subtitle')->label('Subtitle')->translatable()
-        );
-
-        return $form;
+        return parent::getForm($model)
+            ->withFieldSets(new Fieldsets([
+                Fieldset::make()
+                    ->title('Content')
+                    ->id('content')
+                    ->fields([
+                        Input::make()
+                            ->name('subtitle')
+                            ->label('Subtitle')
+                            ->translatable(),
+                    ]),
+                Fieldset::make()
+                    ->title('Artworks')
+                    ->id('artworks')
+                    ->fields([
+                        InlineRepeater::make()
+                            ->label('Artwork')
+                            ->name('artwork')
+                            ->allowBrowser()
+                            ->fields([
+                                Browser::make()
+                                    ->name('artwork')
+                                    ->label('Artwork')
+                                    ->modules(['artworks'])
+                                    ->max(1)
+                                    ->required(),
+                                Input::make()
+                                    ->type('textarea')
+                                    ->name('detail_narrative')
+                                    ->label('Detail Narrative (Interface)')
+                                    ->translatable(),
+                                Input::make()
+                                    ->type('textarea')
+                                    ->name('look_again')
+                                    ->label('Look Again (Journey Guide)')
+                                    ->translatable(),
+                                Select::make()
+                                    ->name('activity_template')
+                                    ->label('Activity Template (Journey Guide)')
+                                    ->options([
+                                        ['value' => '622', 'label' => 'Dialogue'],
+                                        ['value' => '1', 'label' => 'Pose'],
+                                        ['value' => '608', 'label' => 'Sequence'],
+                                        ['value' => '610', 'label' => 'Verbal Response'],
+                                        ['value' => '609', 'label' => 'Writing and Drawing'],
+                                    ]),
+                                Input::make()
+                                    ->type('textarea')
+                                    ->name('activity_instructions')
+                                    ->label('Activity Instructions (Journey Guide)')
+                                    ->translatable(),
+                            ]),
+                    ]),
+            ])
+            );
     }
 }

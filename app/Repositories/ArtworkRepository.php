@@ -7,7 +7,6 @@ use A17\Twill\Repositories\Behaviors\HandleRevisions;
 use A17\Twill\Repositories\Behaviors\HandleTranslations;
 use A17\Twill\Repositories\ModuleRepository;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
-use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Models\Artwork;
 use Illuminate\Support\Arr;
 
@@ -15,16 +14,14 @@ class ArtworkRepository extends ModuleRepository
 {
     use HandleMedias, HandleRevisions, HandleTranslations;
 
-    public function __construct(Artwork $model)
+    public function __construct(Artwork $model, public ApiQueryBuilder $api)
     {
         $this->model = $model;
     }
 
     public function prepareFieldsBeforeCreate(array $fields): array
     {
-        $connection = new AicConnection();
-
-        $apiFields = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
+        $apiFields = $this->api
             ->get([
                 'main_reference_number',
                 'position',
@@ -40,10 +37,12 @@ class ArtworkRepository extends ModuleRepository
             ->map(fn ($artwork) => (array) $artwork)
             ->first();
 
-        $apiFields['floor'] = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
-            ->get(['floor'], '/api/v1/galleries/'.$apiFields['gallery_id'])
-            ->map(fn ($gallery) => (array) $gallery)
-            ->first()['floor'] ?? null;
+        if ($apiFields['is_on_view'] === true) {
+            $apiFields['floor'] = $this->api
+                ->get(['floor'], '/api/v1/galleries/'.$apiFields['gallery_id'])
+                ->map(fn ($gallery) => (array) $gallery)
+                ->first()['floor'] ?? null;
+        }
 
         $translatedFields = [
             'artist_display' => [

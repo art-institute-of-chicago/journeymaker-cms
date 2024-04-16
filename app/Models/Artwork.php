@@ -7,9 +7,12 @@ use A17\Twill\Models\Behaviors\HasPosition;
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
+use A17\Twill\Models\Media;
 use A17\Twill\Models\Model;
+use A17\Twill\Services\MediaLibrary\ImageService;
 use Facades\App\Libraries\DamsImageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Arr;
 
 class Artwork extends Model implements Sortable
 {
@@ -25,9 +28,6 @@ class Artwork extends Model implements Sortable
         'datahub_id',
         'title',
         'artist_display',
-        'detail_narrative',
-        'look_again',
-        'activity_instructions',
         'location_directions',
         'is_on_view',
         'credit_line',
@@ -35,7 +35,6 @@ class Artwork extends Model implements Sortable
         'latitude',
         'longitude',
         'floor',
-        'activity_template',
         'image_id',
         'gallery_id',
     ];
@@ -48,6 +47,7 @@ class Artwork extends Model implements Sortable
     public $translatedAttributes = [
         'title',
         'artist_display',
+        'location_directions',
     ];
 
     public $mediasParams = [
@@ -78,35 +78,35 @@ class Artwork extends Model implements Sortable
     ];
 
     /**
-     * Replaces `imageFront()`. This more closely resembles Twill 3's
-     * `HasMedias::image()` method, see:
-     * https://twillcms.com/docs/api/3.x/A17/Twill/Models/Behaviors/HasMedias.html#method_image
-     *
-     * Define $mediasParams as they are defined in the Twill documentation:
-     * https://twillcms.com/docs/form-fields/medias.html#content-example
-     *
-     * An additional `field` key may be defined for a crop that specifies the field
-     * on the API record that contains the image ID. The default is `image_id`.
-     *
-     * Example:
-     *  public $mediasParams = [
-     *      'iiif' => [
-     *          'default' => [
-     *              [
-     *                  'name' => 'default',
-     *                  'field' => 'image_id',
-     *                  'height' => 800,
-     *                  'width' => 800,
-     *              ]
-     *          ]
-     *      ]
-     *  ];
+     * Returns the URL of the attached image for a role and crop.
      */
-    public function image($role, $crop = 'default', $params = [])
-    {
-        $cropParams = $this->getMediasParams()[$role][$crop][0];
-        $imageField = $cropParams['field'] ?? 'image_id';
+    public function image(
+        string $role,
+        string $crop = 'default',
+        array $params = [],
+        bool $has_fallback = false,
+        bool $cms = false,
+        Media|null|bool $media = null
+    ) {
+        if ($media = $media ?: $this->findMedia($role, $crop)) {
+            $crop_params = Arr::only($media->pivot->toArray(), $this->cropParamsKeys);
 
-        return DamsImageService::getUrl($this->{$imageField}, $cropParams + $params);
+            return $cms
+                ? ImageService::getCmsUrl($media->uuid, $crop_params + $params)
+                : ImageService::getUrlWithCrop($media->uuid, $crop_params, $params);
+        }
+
+        if ($has_fallback) {
+            return null;
+        }
+
+        if ($this->image_id) {
+            return DamsImageService::getUrl(
+                $this->image_id,
+                $this->getMediasParams()['iiif'][$crop][0] + $params
+            );
+        }
+
+        return ImageService::getTransparentFallbackUrl();
     }
 }

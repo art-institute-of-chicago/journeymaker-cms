@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use A17\Twill\Facades\TwillNavigation;
 use A17\Twill\View\Components\Navigation\NavigationLink;
+use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Libraries\Api\Consumers\GuzzleApiConsumer;
 use App\Models\Artwork;
 use App\Models\Theme;
@@ -41,6 +43,12 @@ class AppServiceProvider extends ServiceProvider
         TwillNavigation::addLink(
             NavigationLink::make()->forModule('artworks')
         );
+
+        $this->app->singleton(ApiQueryBuilder::class, function () {
+            $connection = new AicConnection();
+
+            return new ApiQueryBuilder($connection, $connection->getQueryGrammar());
+        });
 
         $this->app->singleton('ApiClient', fn () => new GuzzleApiConsumer([
             'base_uri' => config('api.base_uri'),

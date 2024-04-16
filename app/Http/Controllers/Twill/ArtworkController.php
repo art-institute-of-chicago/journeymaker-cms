@@ -8,11 +8,9 @@ use A17\Twill\Services\Forms\BladePartial;
 use A17\Twill\Services\Forms\Fields\Checkbox;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
-use A17\Twill\Services\Forms\Fields\Select;
 use A17\Twill\Services\Forms\Fieldset;
 use A17\Twill\Services\Forms\Form;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
-use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Support\Forms\Fields\QueryArtwork;
 use Exception;
 use Facades\App\Libraries\DamsImageService;
@@ -83,40 +81,6 @@ class ArtworkController extends ModuleController
             ->add(
                 Input::make()
                     ->type('textarea')
-                    ->name('detail_narrative')
-                    ->label('Detail Narrative (Interface)')
-                    ->translatable()
-            )
-            ->add(
-                Input::make()
-                    ->type('textarea')
-                    ->name('look_again')
-                    ->label('Look Again (Journey Guide)')
-                    ->translatable()
-            )
-            ->add(
-                Select::make()
-                    ->name('activity_template')
-                    ->label('Activity Template (Journey Guide)')
-                    ->options([
-                        ['value' => 'dialogue', 'label' => 'Dialogue'],
-                        ['value' => 'pose', 'label' => 'Pose'],
-                        ['value' => 'sequence', 'label' => 'Sequence'],
-                        ['value' => 'verbal_response', 'label' => 'Verbal Response'],
-                        ['value' => 'writing_and_drawing', 'label' => 'Writing and Drawing'],
-                    ])
-                    ->translatable()
-            )
-            ->add(
-                Input::make()
-                    ->type('textarea')
-                    ->name('activity_instructions')
-                    ->label('Activity Instructions (Journey Guide)')
-                    ->translatable()
-            )
-            ->add(
-                Input::make()
-                    ->type('textarea')
                     ->name('location_directions')
                     ->label('Location Directions (Journey Guide)')
                     ->translatable()
@@ -169,21 +133,17 @@ class ArtworkController extends ModuleController
             );
     }
 
-    public function queryArtwork(Request $request): JsonResponse
+    public function queryArtwork(Request $request, ApiQueryBuilder $api): JsonResponse
     {
         try {
-            $connection = new AicConnection();
-
-            $artworks = (new ApiQueryBuilder($connection, $connection->getQueryGrammar()))
-                ->rawSearch([
-                    'bool' => [
-                        'should' => [
-                            ['terms' => ['main_reference_number' => [$request->get('search')]]],
-                            ['terms' => ['id' => [$request->get('search')]]],
-                        ],
-                        'minimum_should_match' => 1,
+            $artworks = $api->rawSearch([
+                'bool' => [
+                    'should' => [
+                        ['terms' => ['main_reference_number' => [$request->get('search')]]],
+                        ['terms' => ['id' => [$request->get('search')]]],
                     ],
-                ])
+                    'minimum_should_match' => 1,
+                ]])
                 ->get(['id', 'title', 'artist_display', 'image_id'], '/api/v1/artworks/search')
                 ->map(function ($artwork) {
                     $artwork->thumbnail = $artwork->image_id
