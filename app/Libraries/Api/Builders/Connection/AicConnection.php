@@ -13,11 +13,6 @@ class AicConnection implements ApiConnectionInterface
 
     protected $queryGrammar;
 
-    /**
-     * Create a new API connection instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->client = App::make('ApiClient');
@@ -29,17 +24,11 @@ class AicConnection implements ApiConnectionInterface
         return $this->queryGrammar;
     }
 
-    /**
-     * Run a get statement against the API.
-     */
     public function get(string $endpoint, array $params): stdClass
     {
         return $this->execute($endpoint, $params);
     }
 
-    /**
-     * Execute a general call to the API client
-     */
     public function execute(?string $endpoint = null, array $params = []): stdClass
     {
         $headers = $this->client->headers($params);
