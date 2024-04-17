@@ -5,6 +5,7 @@ namespace App\Libraries\Api\Builders;
 use App\Helpers\CollectionHelpers;
 use App\Libraries\Api\Builders\Connection\AicConnection;
 use App\Libraries\Api\Builders\Grammar\SearchGrammar;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use stdClass;
@@ -64,12 +65,7 @@ class ApiQueryBuilder
 
         $this->columns = $original;
 
-        if (is_array($results->body->data)) {
-            $collection = CollectionHelpers::collectApi($results->body->data);
-        } else {
-            // If it's a single element return as a collection with 1 element
-            $collection = CollectionHelpers::collectApi([$results->body->data]);
-        }
+        $collection = CollectionHelpers::collectApi(Arr::wrap($results->body->data));
 
         $collection->setMetadata([
             'pagination' => $results->body->pagination ?? null,
