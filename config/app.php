@@ -182,7 +182,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'DamsImageService' => App\Facades\DamsImageServiceFacade::class,
+        // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
 ];

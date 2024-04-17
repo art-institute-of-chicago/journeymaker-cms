@@ -153,9 +153,8 @@ class DatabaseSeeder extends Seeder
             ], [], [
                 'qqfile' => new UploadedFile($imagePath, $imageName, 'image/jpg', null, true),
             ]);
-        }
-        else {
-            $uuid = Str::uuid()->toString() . '/' . $imageName;
+        } else {
+            $uuid = Str::uuid()->toString().'/'.$imageName;
             Storage::disk(config('twill.media_library.disk'))->put($uuid, $imageFile);
             [$width, $height] = getimagesize($imagePath);
 
