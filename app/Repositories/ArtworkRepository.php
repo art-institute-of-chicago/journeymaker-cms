@@ -24,7 +24,6 @@ class ArtworkRepository extends ModuleRepository
         $apiFields = $this->api
             ->get([
                 'main_reference_number',
-                'position',
                 'artist_display',
                 'is_on_view',
                 'credit_line',
