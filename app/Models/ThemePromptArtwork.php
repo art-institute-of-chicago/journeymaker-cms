@@ -7,10 +7,11 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemePromptArtwork extends Model implements Sortable
 {
-    use HasPosition, HasRevisions, HasTranslation;
+    use HasFactory, HasPosition, HasRevisions, HasTranslation;
 
     protected $fillable = [
         'published',
