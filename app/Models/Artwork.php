@@ -26,6 +26,7 @@ class Artwork extends Model implements Sortable
         'published',
         'position',
         'datahub_id',
+        'main_reference_number',
         'title',
         'artist_display',
         'location_directions',
@@ -41,7 +42,7 @@ class Artwork extends Model implements Sortable
 
     protected $casts = [
         'latitude' => 'decimal:13',
-        'longitude' => 'decimal:13',
+        'longitude' => 'decimal:14',
     ];
 
     public $translatedAttributes = [
