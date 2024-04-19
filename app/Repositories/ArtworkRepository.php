@@ -28,8 +28,6 @@ class ArtworkRepository extends ModuleRepository
                 'is_on_view',
                 'credit_line',
                 'copyright_notice',
-                'latitude',
-                'longitude',
                 'image_id',
                 'gallery_id',
             ], '/api/v1/artworks/'.$fields['datahub_id'])
@@ -37,10 +35,15 @@ class ArtworkRepository extends ModuleRepository
             ->first();
 
         if ($apiFields['is_on_view'] === true) {
-            $apiFields['floor'] = $this->api
-                ->get(['floor'], '/api/v1/galleries/'.$apiFields['gallery_id'])
+            $galleryFields = $this->api
+                ->get(endpoint: '/api/v1/galleries/'.$apiFields['gallery_id'])
                 ->map(fn ($gallery) => (array) $gallery)
-                ->first()['floor'] ?? null;
+                ->first();
+
+            $apiFields['gallery_name'] = $galleryFields['title'] ?? null;
+            $apiFields['latitude'] = $galleryFields['latitude'] ?? null;
+            $apiFields['longitude'] = $galleryFields['longitude'] ?? null;
+            $apiFields['floor'] = $galleryFields['floor'] ?? null;
         }
 
         $translatedFields = [
