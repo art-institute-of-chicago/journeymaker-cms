@@ -51,7 +51,7 @@ class DatabaseSeeder extends Seeder
 
             $theme->translations()->update(['active' => true]);
 
-            collect($english['prompts'])->each(function($prompt) use ($theme, $promptTranslatable, $locales) {
+            collect($english['prompts'])->each(function ($prompt) use ($theme, $promptTranslatable, $locales) {
                 $prompt = ThemePrompt::factory()->create([
                     ...Arr::only($prompt, $promptTranslatable),
                     'theme_id' => $theme->id,
@@ -59,12 +59,10 @@ class DatabaseSeeder extends Seeder
                 ]);
 
                 $locales->each(
-                    fn ($translation, $locale) =>
-                        collect($translation['prompts'])->each(
-                            fn ($promptTranslation) =>
-                                $this->addTranslation($prompt, Arr::only($promptTranslation, $promptTranslatable), $locale)
-                        )
-                    );
+                    fn ($translation, $locale) => collect($translation['prompts'])->each(
+                        fn ($promptTranslation) => $this->addTranslation($prompt, Arr::only($promptTranslation, $promptTranslatable), $locale)
+                    )
+                );
 
                 $prompt->translations()->update(['active' => true]);
             });
@@ -155,9 +153,8 @@ class DatabaseSeeder extends Seeder
             ], [], [
                 'qqfile' => new UploadedFile($imagePath, $imageName, 'image/jpg', null, true),
             ]);
-        }
-        else {
-            $uuid = Str::uuid()->toString() . '/' . $imageName;
+        } else {
+            $uuid = Str::uuid()->toString().'/'.$imageName;
             Storage::disk(config('twill.media_library.disk'))->put($uuid, $imageFile);
             [$width, $height] = getimagesize($imagePath);
 

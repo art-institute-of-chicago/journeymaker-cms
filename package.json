@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "format": "npx prettier --write resources/",
+    "tailwind": "npx tailwindcss -i ./resources/assets/css/app.css -o ./public/assets/twill/css/custom.css --watch"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "prettier-plugin-blade": "^2.1.11",
+    "prettier-plugin-tailwindcss": "^0.5.13",
+    "tailwindcss": "^3.4.3"
+  }
+}

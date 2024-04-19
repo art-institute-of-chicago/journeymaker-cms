@@ -1,142 +1,107 @@
-![Art Institute of Chicago](https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif)
+<img src=https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif alt="Art Institute of Chicago" width=20% /><img src=journeymaker-logo.png alt="JourneyMaker: Your Journey Begins Here" width=75% style="float: right"/>
 
-# Name of Project
-> Additional Sub-Title If Necessary
+# JourneyMaker CMS
+> A Twill CMS site to administer content
 
-Summary of the project. This is the first thing you read when you view this
-project. This is a great place to summarize the goals or intentions of this
-project. Generally speaking, this section is optional, but is a nice way to
-get a snapshot of what this project is about.
+[JourneyMaker](http://www.artic.edu/journeymaker/) is an innovative new interactive experience that empowers families to create
+their own personalized journeys of the Art Institute of Chicago. Designed as a web application
+and developed for multi-touch screens, the interactive is allows your family to create your
+very own tour of the museum. Choose one of eight storylines—like Superheroes, Time Travelers, or Strange
+and Wild Creatures—and then select works from the museum’s collection within that story.
+After you’ve made your selections, print out your personalized Journey Guide, which includes
+information, activities, and wayfinding directions. Then head into the museum for an art-filled
+adventure!
 
-Also include information on the maturity of the project, like when it was
-launched, what its current production environment is like, and who it is
-maintained by.
+JourneyMaker launched at the Art Institute of Chicago on July 1, 2016 as six multi-touchscreens in our Ryan
+Learning Center, along with a [desktop version](http://journeymaker.artic.edu/) available online. It's
+still in place today and is being maintained by a team of internal developers.
 
 ## Features
 
-What are all the bells and whistles that are significant or unique to this project?
-
-* What's the main functionality
-* What new thing does this project provide?
-* What unique feature does this project include?
+* Integration with your Collections API
+* Bundles all CMS data to a JSON file for the frontend
 
 ## Overview
 
-Describe the architecture in which this project fits, and point to any other repos
-that make up the full stack of software. Describe how each piece fits
-together.
+JourneyMaker consists of two parts: a content authoring system written PHP utilizing Laravel and Twill CMS, and a public-facing
+frontend written in JavaScript. This repository contains the content authoring system. In order to deploy
+your own instance of JourneyMaker, you will also need to install the JourneyMaker Client:
+
+https://github.com/art-institute-of-chicago/journeymaker-client
+
+The JourneyMaker Client does not need to be installed on the same server or under the same domain as the CMS:
+as long as the client can access the assets stored in the CMS over HTTP ([CORS](http://stackoverflow.com/questions/20035101/no-access-control-allow-origin-header-is-present-on-the-requested-resource)),
+everything should work fine. For cross-domain development, you can use the [Allow-Control-Allow-Origin: \*](https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi)
+Chrome extension.
+
+For brevity, throughout the rest of this repo's documentation, "JourneyMaker" refers to the public-facing
+frontend client. "JourneyMaker CMS" refers to the content authoring system, i.e. this repository.
 
 ## Requirements
 
-List any and all requirements, included hardware, server software, and third-party
-libraries.
+You can find information on Laravel 10's requirements [here](https://laravel.com/docs/10.x/installation).
+This package has the following requirements:
 
-## Installing
+* Composer
+* PHP ^8.1
+* Node 20
 
-A quick introduction of the minimal setup you need to get a hello world up and
-running.
+In addition to Laravel PHP extension requirements you will also need either the [GD](http://php.net/manual/en/book.image.php) or [Imagick](http://php.net/manual/en/book.imagick.php) PHP extension to support the [Glide](https://glide.thephpleague.com/) Image Rendering Service.
 
-```shell
-# Comment your code
-packagemanager install aic-project
+## Installation
 
-# Descibe in brief what each step does
-aic-project start
+The easiest way to get started locally is using [Laravel Herd](https://herd.laravel.com/).
 
-# Or why this step is required
-aic-project some-setup-function-if-necessary
+There is some additional content required in order for to get your CMS ready for the client. You'll need
+to add artworks and tie them to themes. You may see errors until you do this. Please follow the
+[User Documentation](USER-DOCUMENTATION.md) for further instructions.
+
+If you install the JourneyMaker Client, you'll need to provide it the URL to the JSON document produced by the CMS. To produce the document, click the "Publish Data" menu option in the CMS. Then the following URL should be available with all your content bundled together:
+
+```
+http://your-journeymaker-cms.test/json/json.json
 ```
 
-Here you should say more thoroughly what actually happens when you execute the code above.
+### Integration with your Collections API
 
-## Developing
+There is some functionality built in to retrieve artwork and gallery metadata from a collections API. You can go to `/admin/settings/aic-api` in your CMS to set the URLs for various queries to your API, but the parsing of the results is currently hardcoded. Take a look at the functions in [`aic_api.module`](sites/all/modules/custom/aic_api/aic_api.module) to make changes to reflect your API.
 
-Here is a brief intro about what a developer must do in order to start developing
-the project further:
+Here are some examples of what your URLs might look like:
 
-```shell
-git clone https://github.com/your/aic-project.git
-cd aic-project/
-packagemanager install
+```
+# Artwork query by ID URL
+http://api.yourmuseum.org/solr/select?fq=document_type:artwork-webcoll&q=object_id:{{pk}}&wt=json
+
+# Gallery query by name URL
+http://api.yourmuseum.org/solr/select?fq=document_type:gallery&wt=json&q=title_s:{{name}}
+
+# General artwork query URL
+http://api.yourmuseum.org/solr/select?fq=document_type:artwork-webcoll&q={{type}}:{{term}}&wt=json
 ```
 
-And state what happens step-by-step.
+## User Documentation
 
-If a developer needs to copy a sample configuration file to get their local instance
-going, provide the most minimum effort needed here. More details on configuration can
-be included in a later section on [Configuration](#configuration).
-
-### Building
-
-If your project needs some additional steps for the developer to build the
-project after some code changes, state them here:
-
-```shell
-./configure
-make
-make install
-```
-
-Here again you should state what actually happens when the code above gets
-executed.
-
-### Deploying / Publishing
-
-In case there's some step you have to take that publishes this project to a
-server, here is where to state it.
-
-```shell
-packagemanager deploy aic-project -s server.com -u username -p password
-```
-
-And again you'd need to tell what the previous code actually does.
-
-## Configuration
-
-Here you should write what are all of the configurations a user can enter when
-using the project, and which file each config is set if applicable.
-
-### Configuration file path
-
-#### Configuration 1 Name
-Type: `String`
-Default: `'default value'`
-
-State what it does and how you can use it. If needed, you can provide
-an example below.
-
-Example:
-```bash
-aic-project "Some other value"  # Prints "Hello World"
-```
-
-#### Configuration 2 Name
-Type: `Number|Boolean`
-Default: 100
-
-Copy-paste as many of these as you need.
+For information on create and managing content within the CMS, please see the [User Documentation](USER-DOCUMENTATION.md).
 
 ## Contributing
 
-We encourage your contributions. Please fork this repository and make your changes in a separate branch. To better understand how we organize our code, please review our [version control guidelines](https://docs.google.com/document/d/1B-27HBUc6LDYHwvxp3ILUcPTo67VFIGwo5Hiq4J9Jjw).
+We encourage your contributions. Please fork this repository and make your changes in a separate branch.
+We like to use [git-flow](https://github.com/nvie/gitflow) to make this process easier.
 
 ```bash
 # Clone the repo to your computer
-git clone git@github.com:your-github-account/aic-project.git
+git clone https://github.com/your-github-account/journeymaker-cms.git
 
 # Enter the folder that was created by the clone
-cd aic-project
-
-# Run the install script
-./install.sh
+cd journeymaker-cms
 
 # Start a feature branch
-git checkout -b feature/good-short-description
+git flow start feature yourinitials-good-description-issuenumberifapplicable
 
 # ... make some changes, commit your code
 
 # Push your branch to GitHub
-git push origin feature/good-short-description
+git push origin yourinitials-good-description-issuenumberifapplicable
 ```
 
 Then on github.com, create a Pull Request to merge your changes into our
@@ -145,21 +110,52 @@ Then on github.com, create a Pull Request to merge your changes into our
 This project is released with a Contributor Code of Conduct. By participating in
 this project you agree to abide by its [terms](CODE_OF_CONDUCT.md).
 
-We welcome bug reports and questions under GitHub's [Issues](issues). For other concerns, you can reach our engineering team at [engineering@artic.edu](mailto:engineering@artic.edu)
+We also welcome bug reports and questions under GitHub's [Issues](issues).
 
-If there's anything else a developer needs to know (e.g. the code style
-guide), you should link it here. If there's a lot of things to take into
-consideration, separate this section to its own file called `CONTRIBUTING.md`
-and say that it exists here.
+## Development
 
-## Acknowledgements
+When developing custom Vue.js components for Twill, we need to take control of the build step with the following commands:
 
-Name who designed and developed this project. Reference someone's code you used,
-list contributors, insert an external link or thank people. If there's a lot to
-inclue here, separate this section to its own file called `CONTRIBUTORS.md` and
-say that it exists here.
+`twill:build` -> Build Twill assets with custom Vue components/blocks
+`twill:dev` -> Hot reload Twill assets with custom Vue components/blocks
+
+The site also uses TailwindCSS for styling components.
+Styles can be updated by running:
+
+```bash
+# Called directly:
+npx tailwindcss -i ./resources/assets/css/app.css -o ./public/assets/twill/css/custom.css --watch
+
+# Or using the NPM alias
+npm run tailwind
+```
+
+### Code Style
+
+This project uses [Laravel Pint](https://laravel.com/docs/pint) to maintain code PHP code style.
+
+```bash
+# Called directly
+./vendor/bin/pint
+
+# Or using composer alias
+composer fix
+```
+
+Vue components, Blade files, JavaScript files, and CSS is formatted using Prettier:
+```bash
+# Called directly
+npx prettier --write resources/
+
+# Or using the NPM alias
+npm run format
+```
+
+## Acknowledgments
+
+Design and Development by [Belle & Wissel Co](http://www.bwco.info/).
 
 ## Licensing
 
-This project is licensed under the [GNU Affero General Public License
-Version 3](LICENSE).
+The code in this project is licensed under the [GNU Affero General Public
+License Version 3](LICENSE).

@@ -10,7 +10,7 @@
             <br />
             {{ $item->title }}
             <br />
-            {{ $item->subtitle }}
+            {{ $item->description }}
         </div>
     </body>
 </html>

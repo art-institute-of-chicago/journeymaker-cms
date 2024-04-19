@@ -30,4 +30,9 @@ class ThemePrompt extends Model implements Sortable
     {
         return $this->belongsTo(Theme::class);
     }
+
+    public function artworks()
+    {
+        return $this->hasMany(ThemePromptArtwork::class)->orderBy('position');
+    }
 }
