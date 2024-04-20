@@ -27,7 +27,7 @@ return new class extends Migration
         Schema::create('theme_prompt_artwork_translations', function (Blueprint $table) {
             createDefaultTranslationsTableFields($table, 'theme_prompt_artwork');
             $table->string('detail_narrative')->nullable();
-            $table->string('look_again')->nullable();
+            $table->string('viewing_description')->nullable();
             $table->string('activity_instructions')->nullable();
         });
 

@@ -22,15 +22,7 @@ class ArtworkRepository extends ModuleRepository
     public function prepareFieldsBeforeCreate(array $fields): array
     {
         $apiFields = $this->api
-            ->get([
-                'main_reference_number',
-                'artist_display',
-                'is_on_view',
-                'credit_line',
-                'copyright_notice',
-                'image_id',
-                'gallery_id',
-            ], '/api/v1/artworks/'.$fields['datahub_id'])
+            ->get(Artwork::ARTWORK_API_FIELDS, '/api/v1/artworks/'.$fields['datahub_id'])
             ->map(fn ($artwork) => (array) $artwork)
             ->first();
 

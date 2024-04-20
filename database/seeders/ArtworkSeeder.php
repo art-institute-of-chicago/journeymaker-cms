@@ -40,10 +40,6 @@ class ArtworkSeeder extends Seeder
                 'title' => $rawArtwork['title'],
                 'artist_display' => $rawArtwork['artist'],
                 'location_directions' => $rawArtwork['locationDirections'],
-                'latitude' => $rawArtwork['mapX'],
-                'longitude' => $rawArtwork['mapY'],
-                'floor' => $rawArtwork['floor'],
-                'gallery_id' => $rawArtwork['galleryId'],
                 'position' => $position + 1,
                 'published' => true,
                 ...$apiFields,
@@ -69,7 +65,7 @@ class ArtworkSeeder extends Seeder
 
             $themePromptArtwork = ThemePromptArtwork::factory()->create([
                 'detail_narrative' => $rawArtwork['detailNarrative'],
-                'look_again' => $rawArtwork['viewingDescription'],
+                'viewing_description' => $rawArtwork['viewingDescription'],
                 'activity_instructions' => $rawArtwork['activityInstructions'],
                 'theme_prompt_id' => $themePrompt->id,
                 'artwork_id' => $artwork->id,
@@ -82,7 +78,7 @@ class ArtworkSeeder extends Seeder
                     $themePromptArtwork,
                     [
                         'detail_narrative' => $translation['detailNarrative'],
-                        'look_again' => $translation['viewingDescription'],
+                        'viewing_description' => $translation['viewingDescription'],
                         'activity_instructions' => $translation['activityInstructions'],
                     ],
                     $locale
@@ -99,11 +95,7 @@ class ArtworkSeeder extends Seeder
             return $this->api
                 ->get([
                     'id',
-                    'main_reference_number',
                     'is_on_view',
-                    'credit_line',
-                    'copyright_notice',
-                    'image_id',
                 ], '/api/v1/artworks/'.$id)
                 ->map(fn ($artwork) => [
                     'datahub_id' => $artwork->id,

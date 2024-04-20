@@ -74,7 +74,7 @@ class ThemePromptController extends BaseModuleController
                                     ->translatable(),
                                 Input::make()
                                     ->type('textarea')
-                                    ->name('look_again')
+                                    ->name('viewing_description')
                                     ->label('Look Again (Journey Guide)')
                                     ->translatable(),
                                 Select::make()
