@@ -9,8 +9,10 @@ use A17\Twill\Models\Media;
 use A17\Twill\Models\Model;
 use A17\Twill\Services\MediaLibrary\ImageService;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
+use Exception;
 use Facades\App\Libraries\DamsImageService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use stdClass;
@@ -91,6 +93,18 @@ class Artwork extends Model
             ],
         ],
     ];
+
+    public function themePrompts(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ThemePrompt::class,
+            ThemePromptArtwork::class,
+            'artwork_id',
+            'id',
+            'id',
+            'theme_prompt_id'
+        );
+    }
 
     /**
      * Returns the URL of the attached image for a role and crop.

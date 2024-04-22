@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
@@ -13,7 +13,7 @@ use A17\Twill\Services\Listings\Columns\Image;
 use A17\Twill\Services\Listings\Columns\NestedData;
 use A17\Twill\Services\Listings\TableColumns;
 
-class ThemeController extends BaseModuleController
+class ThemeController extends ModuleController
 {
     protected $moduleName = 'themes';
 

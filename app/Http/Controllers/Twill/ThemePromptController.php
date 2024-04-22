@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Breadcrumbs\NestedBreadcrumbs;
 use A17\Twill\Services\Forms\Fields\Browser;
@@ -15,7 +15,7 @@ use A17\Twill\Services\Forms\InlineRepeater;
 use App\Models\ActivityTemplate;
 use App\Repositories\ThemeRepository;
 
-class ThemePromptController extends BaseModuleController
+class ThemePromptController extends ModuleController
 {
     protected $moduleName = 'themes.prompts';
 
@@ -24,6 +24,10 @@ class ThemePromptController extends BaseModuleController
     protected function setUpController(): void
     {
         $this->disablePermalink();
+        $this->disableBulkEdit();
+        $this->disableBulkPublish();
+        $this->disableBulkRestore();
+        $this->disableBulkForceDelete();
 
         if (request('theme')) {
             $this->setBreadcrumbs(
