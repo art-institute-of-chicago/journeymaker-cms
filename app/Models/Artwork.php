@@ -3,10 +3,8 @@
 namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasMedias;
-use A17\Twill\Models\Behaviors\HasPosition;
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
-use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Media;
 use A17\Twill\Models\Model;
 use A17\Twill\Services\MediaLibrary\ImageService;
@@ -17,11 +15,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use stdClass;
 
-class Artwork extends Model implements Sortable
+class Artwork extends Model
 {
     use HasFactory;
     use HasMedias;
-    use HasPosition;
     use HasRevisions;
     use HasTranslation;
 
@@ -48,12 +45,12 @@ class Artwork extends Model implements Sortable
 
     protected $fillable = [
         'published',
-        'position',
         'datahub_id',
         'title',
         'artist_display',
         'location_directions',
         'is_on_view',
+        'image_id',
     ];
 
     protected $casts = [
@@ -135,10 +132,10 @@ class Artwork extends Model implements Sortable
             array_pad([], count(Artwork::ARTWORK_API_FIELDS), null)
         );
 
-        // @TODO - handle 404 exceptions in the API
-        return (object) Cache::remember("artwork.{$this->datahub_id}", now()->addMinutes(1), fn () => app()->make(ApiQueryBuilder::class)
-            ->get(self::ARTWORK_API_FIELDS, "/api/v1/artworks/{$this->datahub_id}")
-            ->first() ?? $nullArtwork
+        return $this->getApiData(
+            self::ARTWORK_API_FIELDS,
+            "/api/v1/artworks/{$this->datahub_id}",
+            $nullArtwork
         );
     }
 
@@ -149,12 +146,26 @@ class Artwork extends Model implements Sortable
             array_pad([], count(Artwork::GALLERY_API_FIELDS), null)
         );
 
-        return $id
-            ? Cache::remember("gallery.{$id}", now()->addMinutes(1), fn () => app()->make(ApiQueryBuilder::class)
-                ->get(self::GALLERY_API_FIELDS, "/api/v1/galleries/{$id}")
-                ->first() ?? $nullGallery
-            )
-            : $nullGallery;
+        if (! $id) {
+            return $nullGallery;
+        }
+
+        return $this->getApiData(
+            self::GALLERY_API_FIELDS,
+            "/api/v1/galleries/{$id}",
+            $nullGallery
+        );
+    }
+
+    public function getApiData(array $columns, string $endpoint, object $default): object
+    {
+        try {
+            return (object) Cache::remember($endpoint, now()->addMinutes(1), fn () =>
+                app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
+            );
+        } catch (Exception) {
+            return $default;
+        }
     }
 
     public static function cacheArtworkApiData(): void
@@ -171,15 +182,13 @@ class Artwork extends Model implements Sortable
                 $apiGalleries = app()->make(ApiQueryBuilder::class)
                     ->get(self::GALLERY_API_FIELDS, "/api/v1/galleries?ids={$galleryIds}");
 
-                $apiArtworks->each(fn ($artwork) => Cache::put("artwork.{$artwork->id}", $artwork, now()->addMinutes(5))
-                );
-
-                $apiGalleries->each(fn ($gallery) => Cache::put("gallery.{$gallery->id}", $gallery, now()->addMinutes(5))
-                );
+                $apiArtworks->each(fn ($artwork) => Cache::put("artwork.{$artwork->id}", $artwork, now()->addMinutes(5)));
+                $apiGalleries->each(fn ($gallery) => Cache::put("gallery.{$gallery->id}", $gallery, now()->addMinutes(5)));
 
                 $artworks->each(function ($artwork) use ($apiArtworks) {
                     $artwork->is_on_view = (bool) $apiArtworks[$artwork->datahub_id]->is_on_view;
-                    if ($artwork->isDirty('is_on_view')) {
+                    $artwork->image_id = (bool) $apiArtworks[$artwork->datahub_id]->image_id;
+                    if ($artwork->isDirty('is_on_view') || $artwork->isDirty('image_id')) {
                         $artwork->save();
                     }
                 });
@@ -188,11 +197,11 @@ class Artwork extends Model implements Sortable
 
     public function __get($key)
     {
-        if (in_array($key, self::ARTWORK_API_FIELDS) && $key != 'id') {
+        if (in_array($key, self::ARTWORK_API_FIELDS) && ! $this->getAttribute($key)) {
             return $this->getArtworkApiData()->$key;
         }
 
-        if (in_array($key, [...self::GALLERY_API_FIELDS, 'gallery_name']) && $key != 'id') {
+        if (in_array($key, [...self::GALLERY_API_FIELDS, 'gallery_name']) && ! $this->getAttribute($key)) {
             $key = $key == 'gallery_name' ? 'title' : $key;
 
             return $this->getGalleryApiData($this->gallery_id)->$key;

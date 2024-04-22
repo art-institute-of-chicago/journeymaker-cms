@@ -41,7 +41,6 @@ class AicConnection implements ApiConnectionInterface
 
         if ($verb === 'GET') {
             if ($params !== []) {
-                // WEB-979: See DecodeParams middleware in data-aggregator
                 $endpoint = $endpoint.'?params='.urlencode(json_encode($params));
             }
         } elseif (! empty($bodyParams)) {

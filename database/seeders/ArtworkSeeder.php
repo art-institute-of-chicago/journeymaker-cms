@@ -24,7 +24,7 @@ class ArtworkSeeder extends Seeder
 
     public function run(ThemePrompt $themePrompt, array $artworks): void
     {
-        collect($artworks)->each(function ($rawArtwork, $position) use ($themePrompt) {
+        collect($artworks)->each(function ($rawArtwork) use ($themePrompt) {
 
             $apiFields = $this->getApiFields(
                 $this->getApiId($rawArtwork['id'])
@@ -40,7 +40,6 @@ class ArtworkSeeder extends Seeder
                 'title' => $rawArtwork['title'],
                 'artist_display' => $rawArtwork['artist'],
                 'location_directions' => $rawArtwork['locationDirections'],
-                'position' => $position + 1,
                 'published' => true,
                 ...$apiFields,
             ]);
@@ -96,6 +95,7 @@ class ArtworkSeeder extends Seeder
                 ->get([
                     'id',
                     'is_on_view',
+                    'image_id',
                 ], '/api/v1/artworks/'.$id)
                 ->map(fn ($artwork) => [
                     'datahub_id' => $artwork->id,

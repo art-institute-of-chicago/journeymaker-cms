@@ -12,7 +12,7 @@ return new class extends Migration
             createDefaultTableFields($table);
             $table->string('datahub_id');
             $table->boolean('is_on_view')->nullable();
-            $table->integer('position')->unsigned()->nullable();
+            $table->string('image_id')->nullable();
         });
 
         Schema::create('artwork_translations', function (Blueprint $table) {
