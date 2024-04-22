@@ -174,7 +174,7 @@ class Artwork extends Model
     public function getApiData(array $columns, string $endpoint, object $default): object
     {
         try {
-            return (object) Cache::remember($endpoint, now()->addMinutes(1), fn () =>
+            return (object) Cache::remember($endpoint, now()->addMinutes(5), fn () =>
                 app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
             );
         } catch (Exception) {
@@ -184,7 +184,7 @@ class Artwork extends Model
 
     public static function cacheArtworkApiData(): void
     {
-        self::all(['id', 'datahub_id', 'is_on_view'])
+        self::all(['id', 'datahub_id', 'is_on_view', 'image_id'])
             ->chunk(100)
             ->each(function ($artworks) {
                 $artworkIds = $artworks->pluck('datahub_id')->filter()->unique()->implode(',');
@@ -196,12 +196,12 @@ class Artwork extends Model
                 $apiGalleries = app()->make(ApiQueryBuilder::class)
                     ->get(self::GALLERY_API_FIELDS, "/api/v1/galleries?ids={$galleryIds}");
 
-                $apiArtworks->each(fn ($artwork) => Cache::put("artwork.{$artwork->id}", $artwork, now()->addMinutes(5)));
-                $apiGalleries->each(fn ($gallery) => Cache::put("gallery.{$gallery->id}", $gallery, now()->addMinutes(5)));
+                $apiArtworks->each(fn ($artwork) => Cache::put("/api/v1/artworks/{$artwork->id}", $artwork, now()->addMinutes(5)));
+                $apiGalleries->each(fn ($gallery) => Cache::put("/api/v1/galleries/{$gallery->id}", $gallery, now()->addMinutes(5)));
 
                 $artworks->each(function ($artwork) use ($apiArtworks) {
                     $artwork->is_on_view = (bool) $apiArtworks[$artwork->datahub_id]->is_on_view;
-                    $artwork->image_id = (bool) $apiArtworks[$artwork->datahub_id]->image_id;
+                    $artwork->image_id = $apiArtworks[$artwork->datahub_id]->image_id;
                     if ($artwork->isDirty('is_on_view') || $artwork->isDirty('image_id')) {
                         $artwork->save();
                     }
