@@ -67,6 +67,9 @@ class ArtworkController extends ModuleController
 
     protected function additionalFormFields($object): Form
     {
+        $apiArtwork = $object->getArtworkApiData();
+        $apiGallery = $object->getGalleryApiData($apiArtwork->gallery_id);
+
         return Form::make()
             ->add(
                 BladePartial::make()
@@ -95,6 +98,38 @@ class ArtworkController extends ModuleController
             ->add(
                 Checkbox::make()
                     ->name('is_on_view')
+                    ->disabled()
+                    ->note('readonly')
+            )
+            ->add(
+                Input::make()
+                    ->name('datahub_id')
+                    ->label('Datahub ID')
+                    ->placeholder($apiArtwork->id ?? '')
+                    ->disabled()
+                    ->note('readonly')
+            )
+            ->add(
+                Input::make()
+                    ->name('main_reference_number')
+                    ->label('Main Reference Number')
+                    ->placeholder($apiArtwork->main_reference_number ?? '')
+                    ->disabled()
+                    ->note('readonly')
+            )
+            ->add(
+                Input::make()
+                    ->name('gallery')
+                    ->label('Gallery')
+                    ->placeholder($apiGallery->title ?? '')
+                    ->disabled()
+                    ->note('readonly')
+            )
+            ->add(
+                Input::make()
+                    ->name('floor')
+                    ->label('Floor')
+                    ->placeholder($apiGallery->floor ?? '')
                     ->disabled()
                     ->note('readonly')
             );
