@@ -118,8 +118,8 @@ class Artwork extends Model
      * Returns the URL of the attached image for a role and crop.
      */
     public function image(
-        string $role,
-        string $crop = 'default',
+        $role,
+        $crop = 'default',
         array $params = [],
         bool $has_fallback = false,
         bool $cms = false,
