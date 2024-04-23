@@ -75,6 +75,14 @@ class Artwork extends Model
                     'ratio' => 0,
                 ],
             ],
+            'thumbnail' => [
+                [
+                    'name' => 'thumbnail',
+                    'ratio' => 1,
+                    'height' => 112,
+                    'width' => 112,
+                ],
+            ],
         ],
         'iiif' => [
             'default' => [
@@ -174,8 +182,7 @@ class Artwork extends Model
     public function getApiData(array $columns, string $endpoint, object $default): object
     {
         try {
-            return (object) Cache::remember($endpoint, now()->addMinutes(5), fn () =>
-                app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
+            return (object) Cache::remember($endpoint, now()->addMinutes(5), fn () => app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
             );
         } catch (Exception) {
             return $default;

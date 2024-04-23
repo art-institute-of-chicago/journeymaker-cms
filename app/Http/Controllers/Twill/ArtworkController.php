@@ -107,15 +107,13 @@ class ArtworkController extends ModuleController
         $table->splice(1, 0, [
             Text::make()
                 ->field('Image')
-                ->customRender(function ($artwork) {
-                    return view(
-                        'admin.artwork-image',
-                        [
-                            'src' => $artwork->image('iiif', 'thumbnail'),
-                            'link' => $this->getModuleRoute($artwork, 'edit')
-                        ]
-                    )->render();
-                })
+                ->customRender(fn ($artwork) => view(
+                    'admin.artwork-image',
+                    [
+                        'src' => $artwork->image('override', 'thumbnail'),
+                        'link' => $this->getModuleRoute($artwork, 'edit'),
+                    ]
+                )->render()),
         ]);
 
         return $table;
@@ -130,11 +128,9 @@ class ArtworkController extends ModuleController
                 ->field('is_on_view'))
             ->add(Text::make()
                 ->field('Themes')
-                ->customRender(function ($artwork) {
-                    return $artwork->themePrompts()->with('theme')->get()->pluck('theme')
-                    ->map(fn ($theme) => '<a href="/admin/themes/' . $theme->id . '/edit">' . $theme->title . '</a>')
-                    ->join(', ');
-                }));
+                ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')
+                    ->map(fn ($theme) => '<a href="/admin/themes/'.$theme->id.'/edit">'.$theme->title.'</a>')
+                    ->join(', ')));
     }
 
     public function queryArtwork(Request $request, ApiQueryBuilder $api): JsonResponse

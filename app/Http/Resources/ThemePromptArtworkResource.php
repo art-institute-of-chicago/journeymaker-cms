@@ -2,40 +2,35 @@
 
 namespace App\Http\Resources;
 
+use Facades\App\Libraries\DamsImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ThemePromptArtworkResource extends JsonResource
 {
+    public const IMAGE_SIZES = [
+        'img' => 3000,
+        'small' => 200,
+        'medium' => 843,
+        'large' => 1686,
+    ];
+
     public function toArray(Request $request): array
     {
         $override = $this->artwork->imageObject('override')?->toCmsArray();
 
-        if ($override) {
-            // Cms image
-        } else {
-            /// API image
-        }
+        $images = $override
+            ? $this->getCmsImages($override)
+            : $this->getApiImages($this->artwork->image_id);
 
         return [
             'id' => $this->id,
             'title' => $this->title,
-            // 'img' => [
-            //     'url' => $this->img,
-            //     'width' => $this->img_width,
-            //     'height' => $this->img_height,
-            // ],
-            // 'artwork_thumbnail' => $this->artwork_thumbnail,
-            // 'img_medium' => [
-            //     'url' => $this->img_medium,
-            //     'width' => $this->img_medium_width,
-            //     'height' => $this->img_medium_height,
-            // ],
-            // 'img_large' => [
-            //     'url' => $this->img_large,
-            //     'width' => $this->img_large_width,
-            //     'height' => $this->img_large_height,
-            // ],
+            'img' => null,
+            'artwork_thumbnail' => null,
+            'img_medium' => null,
+            'img_large' => null,
+            ...$images,
             'artist' => $this->artwork->artist_display,
             'year' => $this->artwork->date_display,
             'medium' => $this->artwork->medium_display,
@@ -52,5 +47,108 @@ class ThemePromptArtworkResource extends JsonResource
             'mapY' => $this->artwork->longitude,
             'floor' => $this->artwork->floor,
         ];
+    }
+
+    private function getCmsImages(array $image): array
+    {
+        return [
+            'img' => [
+                'url' => $image['original'],
+                'width' => $image['width'],
+                'height' => $image['height'],
+            ],
+            'artwork_thumbnail' => [
+                'url' => $image['original'].'?fm=jpg&q=60&fit=max&dpr=1&w='.static::IMAGE_SIZES['small'],
+                ...$this->getDimensions(
+                    $image['width'],
+                    $image['height'],
+                    static::IMAGE_SIZES['small']
+                ),
+            ],
+            'img_medium' => [
+                'url' => $image['original'].'?fm=jpg&q=80&fit=max&dpr=1&w=843',
+                ...$this->getDimensions(
+                    $image['width'],
+                    $image['height'],
+                    static::IMAGE_SIZES['medium']
+                ),
+            ],
+            'img_large' => [
+                'url' => $image['original'].'?fm=jpg&q=100&fit=max&dpr=1&w=843',
+                ...$this->getDimensions(
+                    $image['width'],
+                    $image['height'],
+                    static::IMAGE_SIZES['large']
+                ),
+            ],
+        ];
+    }
+
+    private function getApiImages(?string $id): array
+    {
+        if (! $id) {
+            return [];
+        }
+
+        $dimensions = DamsImageService::getDimensions($id);
+
+        return [
+            'img' => [
+                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['img']),
+                ...$this->getDimensions(
+                    $dimensions['width'],
+                    $dimensions['height'],
+                    static::IMAGE_SIZES['img']
+                ),
+            ],
+            'artwork_thumbnail' => [
+                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['small']),
+                ...$this->getDimensions(
+                    $dimensions['width'],
+                    $dimensions['height'],
+                    static::IMAGE_SIZES['small']
+                ),
+            ],
+            'img_medium' => [
+                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['medium']),
+                ...$this->getDimensions(
+                    $dimensions['width'],
+                    $dimensions['height'],
+                    static::IMAGE_SIZES['medium']
+                ),
+            ],
+            'img_large' => [
+                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['large']),
+                ...$this->getDimensions(
+                    $dimensions['width'],
+                    $dimensions['height'],
+                    static::IMAGE_SIZES['large']
+                ),
+            ],
+        ];
+    }
+
+    private function getApiImageUrl(string $id, string|int $width): string
+    {
+        return "https://www.artic.edu/iiif/2/{$id}/full/{$width},/0/default.jpg";
+    }
+
+    private function getDimensions(int $width, int $height, int $newWidth): array
+    {
+        if ($width === 0 || $height === 0) {
+            return ['width' => 0, 'height' => 0];
+        }
+
+        $aspectRatio = $width / $height;
+
+        $width = $newWidth;
+        $height = round($newWidth / $aspectRatio);
+
+        if ($height > static::IMAGE_SIZES['img']) {
+            $height = static::IMAGE_SIZES['img'];
+            $width = round(static::IMAGE_SIZES['img'] * $aspectRatio);
+        }
+
+        return ['width' => $width, 'height' => $height];
     }
 }
