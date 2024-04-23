@@ -92,40 +92,19 @@ class ThemePromptArtworkResource extends JsonResource
 
         $dimensions = DamsImageService::getDimensions($id);
 
-        return [
-            'img' => [
-                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['img']),
-                ...$this->getDimensions(
-                    $dimensions['width'],
-                    $dimensions['height'],
-                    static::IMAGE_SIZES['img']
-                ),
-            ],
-            'artwork_thumbnail' => [
-                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['small']),
-                ...$this->getDimensions(
-                    $dimensions['width'],
-                    $dimensions['height'],
-                    static::IMAGE_SIZES['small']
-                ),
-            ],
-            'img_medium' => [
-                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['medium']),
-                ...$this->getDimensions(
-                    $dimensions['width'],
-                    $dimensions['height'],
-                    static::IMAGE_SIZES['medium']
-                ),
-            ],
-            'img_large' => [
-                'url' => $this->getApiImageUrl($id, static::IMAGE_SIZES['large']),
-                ...$this->getDimensions(
-                    $dimensions['width'],
-                    $dimensions['height'],
-                    static::IMAGE_SIZES['large']
-                ),
-            ],
-        ];
+        return collect([
+            'img' => static::IMAGE_SIZES['img'],
+            'artwork_thumbnail' => static::IMAGE_SIZES['small'],
+            'img_medium' => static::IMAGE_SIZES['medium'],
+            'img_large' => static::IMAGE_SIZES['large'],
+        ])->map(fn ($size) => [
+            'url' => $this->getApiImageUrl($id, $size),
+            ...$this->getDimensions(
+                $dimensions['width'],
+                $dimensions['height'],
+                $size
+            ),
+        ])->toArray();
     }
 
     private function getApiImageUrl(string $id, string|int $width): string
