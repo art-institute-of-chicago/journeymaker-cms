@@ -90,6 +90,10 @@ class ArtworkSeeder extends Seeder
 
     private function getApiFields(?int $id): array
     {
+        if (! $id) {
+            return [];
+        }
+
         try {
             return $this->api
                 ->get([
