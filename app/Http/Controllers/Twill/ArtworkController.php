@@ -96,42 +96,15 @@ class ArtworkController extends ModuleController
                     ->translatable()
             )
             ->add(
-                Checkbox::make()
-                    ->name('is_on_view')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('datahub_id')
-                    ->label('Object ID')
-                    ->placeholder($apiArtwork->id ?? '')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('main_reference_number')
-                    ->label('Main Reference Number')
-                    ->placeholder($apiArtwork->main_reference_number ?? '')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('gallery')
-                    ->label('Gallery')
-                    ->placeholder($apiGallery->title ?? '')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('floor')
-                    ->label('Floor')
-                    ->placeholder($apiGallery->floor ?? '')
-                    ->disabled()
-                    ->note('readonly')
+                BladePartial::make()
+                    ->view('forms.object-info')
+                    ->withAdditionalParams([
+                        'isOnView' => $object->is_on_view ?? false,
+                        'datahubId' => $object->datahub_id ?? '',
+                        'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
+                        'gallery' => $apiGallery->title ?? '',
+                        'floor' => $apiGallery->floor ?? '',
+                    ])
             );
     }
 
