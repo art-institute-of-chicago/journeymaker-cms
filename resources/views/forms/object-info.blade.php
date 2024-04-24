@@ -31,7 +31,7 @@
     <hr class="mt-10">
     <div class="mt-8">
         <h3 class="font-semibold leading-7 text-gray-900">Object Information</h3>
-        <p class="text-sm leading-6 text-gray-500">This information is pulled directly from the API and cannot be editted.</p>
+        <p class="text-sm leading-6 text-gray-500">This information is pulled directly from the API and cannot be edited.</p>
     </div>
     <div class="flex flex-col mt-5">
         @foreach ($items as $item)
