@@ -47,7 +47,7 @@ class ArtworkController extends ModuleController
                     artworkField: 'id'
                 ),
             Input::make()->name('title')->translatable(),
-            Input::make()->name('datahub_id')->readOnly(),
+            Input::make()->name('datahub_id')->label('Object ID')->readOnly(),
         ]);
     }
 
@@ -104,7 +104,7 @@ class ArtworkController extends ModuleController
             ->add(
                 Input::make()
                     ->name('datahub_id')
-                    ->label('Datahub ID')
+                    ->label('Object ID')
                     ->placeholder($apiArtwork->id ?? '')
                     ->disabled()
                     ->note('readonly')
