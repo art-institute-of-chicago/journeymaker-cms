@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Breadcrumbs\NestedBreadcrumbs;
 use A17\Twill\Services\Forms\Fields\Browser;
@@ -12,9 +12,10 @@ use A17\Twill\Services\Forms\Fieldset;
 use A17\Twill\Services\Forms\Fieldsets;
 use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Forms\InlineRepeater;
+use App\Models\ActivityTemplate;
 use App\Repositories\ThemeRepository;
 
-class ThemePromptController extends BaseModuleController
+class ThemePromptController extends ModuleController
 {
     protected $moduleName = 'themes.prompts';
 
@@ -23,6 +24,10 @@ class ThemePromptController extends BaseModuleController
     protected function setUpController(): void
     {
         $this->disablePermalink();
+        $this->disableBulkEdit();
+        $this->disableBulkPublish();
+        $this->disableBulkRestore();
+        $this->disableBulkForceDelete();
 
         if (request('theme')) {
             $this->setBreadcrumbs(
@@ -73,19 +78,18 @@ class ThemePromptController extends BaseModuleController
                                     ->translatable(),
                                 Input::make()
                                     ->type('textarea')
-                                    ->name('look_again')
+                                    ->name('viewing_description')
                                     ->label('Look Again (Journey Guide)')
                                     ->translatable(),
                                 Select::make()
                                     ->name('activity_template')
                                     ->label('Activity Template (Journey Guide)')
-                                    ->options([
-                                        ['value' => '622', 'label' => 'Dialogue'],
-                                        ['value' => '1', 'label' => 'Pose'],
-                                        ['value' => '608', 'label' => 'Sequence'],
-                                        ['value' => '610', 'label' => 'Verbal Response'],
-                                        ['value' => '609', 'label' => 'Writing and Drawing'],
-                                    ]),
+                                    ->options(
+                                        ActivityTemplate::all()->map(fn ($template) => [
+                                            'value' => $template->id,
+                                            'label' => $template->label,
+                                        ])->toArray()
+                                    ),
                                 Input::make()
                                     ->type('textarea')
                                     ->name('activity_instructions')

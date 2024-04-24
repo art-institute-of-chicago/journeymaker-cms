@@ -12,6 +12,15 @@ return [
                 'search' => true,
                 'search_fields' => ['title', 'intro'],
             ],
+            'artwork' => [
+                'name' => 'artworks',
+                'count' => true,
+                'create' => true,
+                'activity' => true,
+                'draft' => true,
+                'search' => true,
+                'search_fields' => ['title', 'artist_display'],
+            ],
         ],
     ],
     'enabled' => [

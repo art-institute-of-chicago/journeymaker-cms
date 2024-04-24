@@ -18,7 +18,7 @@ class ThemePromptArtwork extends Model implements Sortable
         'theme_prompt_id',
         'artwork_id',
         'detail_narrative',
-        'look_again',
+        'viewing_description',
         'activity_instructions',
         'activity_template',
         'position',
@@ -26,7 +26,7 @@ class ThemePromptArtwork extends Model implements Sortable
 
     public $translatedAttributes = [
         'detail_narrative',
-        'look_again',
+        'viewing_description',
         'activity_instructions',
     ];
 

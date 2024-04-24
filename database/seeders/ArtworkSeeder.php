@@ -24,7 +24,7 @@ class ArtworkSeeder extends Seeder
 
     public function run(ThemePrompt $themePrompt, array $artworks): void
     {
-        collect($artworks)->each(function ($rawArtwork, $position) use ($themePrompt) {
+        collect($artworks)->each(function ($rawArtwork) use ($themePrompt) {
 
             $apiFields = $this->getApiFields(
                 $this->getApiId($rawArtwork['id'])
@@ -36,40 +36,40 @@ class ArtworkSeeder extends Seeder
                 return;
             }
 
-            $artwork = Artwork::factory()->create([
-                'title' => $rawArtwork['title'],
-                'artist_display' => $rawArtwork['artist'],
-                'location_directions' => $rawArtwork['locationDirections'],
-                'latitude' => $rawArtwork['mapX'],
-                'longitude' => $rawArtwork['mapY'],
-                'floor' => $rawArtwork['floor'],
-                'gallery_id' => $rawArtwork['galleryId'],
-                'position' => $position + 1,
-                'published' => true,
-                ...$apiFields,
-            ]);
+            $artwork = Artwork::firstOrCreate(
+                ['datahub_id' => $apiFields['datahub_id']],
+                [
+                    'title' => $rawArtwork['title'],
+                    'artist_display' => $rawArtwork['artist'],
+                    'location_directions' => $rawArtwork['locationDirections'],
+                    'published' => true,
+                    ...$apiFields,
+                ]
+            );
 
             if (! $rawArtwork['translations']) {
                 $this->command->warn('No translations found for: '.$rawArtwork['id'].' - '.$rawArtwork['title']);
             }
 
-            collect($rawArtwork['translations'])->each(
-                fn ($translation, $locale) => $this->addTranslation(
-                    $artwork,
-                    [
-                        'title' => $translation['title'],
-                        'artist_display' => $translation['artist'],
-                        'location_directions' => $translation['locationDirections'],
-                    ],
-                    $locale
-                )
-            );
+            if($artwork->translations()->count() === 1) {
+                collect($rawArtwork['translations'])->each(
+                    fn ($translation, $locale) => $this->addTranslation(
+                        $artwork,
+                        [
+                            'title' => $translation['title'],
+                            'artist_display' => $translation['artist'],
+                            'location_directions' => $translation['locationDirections'],
+                        ],
+                        $locale
+                    )
+                );
+            }
 
             $artwork->translations()->update(['active' => true]);
 
             $themePromptArtwork = ThemePromptArtwork::factory()->create([
                 'detail_narrative' => $rawArtwork['detailNarrative'],
-                'look_again' => $rawArtwork['viewingDescription'],
+                'viewing_description' => $rawArtwork['viewingDescription'],
                 'activity_instructions' => $rawArtwork['activityInstructions'],
                 'theme_prompt_id' => $themePrompt->id,
                 'artwork_id' => $artwork->id,
@@ -82,7 +82,7 @@ class ArtworkSeeder extends Seeder
                     $themePromptArtwork,
                     [
                         'detail_narrative' => $translation['detailNarrative'],
-                        'look_again' => $translation['viewingDescription'],
+                        'viewing_description' => $translation['viewingDescription'],
                         'activity_instructions' => $translation['activityInstructions'],
                     ],
                     $locale
@@ -95,14 +95,15 @@ class ArtworkSeeder extends Seeder
 
     private function getApiFields(?int $id): array
     {
+        if (! $id) {
+            return [];
+        }
+
         try {
             return $this->api
                 ->get([
                     'id',
-                    'main_reference_number',
                     'is_on_view',
-                    'credit_line',
-                    'copyright_notice',
                     'image_id',
                 ], '/api/v1/artworks/'.$id)
                 ->map(fn ($artwork) => [

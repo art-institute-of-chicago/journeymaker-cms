@@ -10,6 +10,9 @@ use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
 use A17\Twill\Services\Forms\Fieldset;
 use A17\Twill\Services\Forms\Form;
+use A17\Twill\Services\Listings\Columns\Boolean;
+use A17\Twill\Services\Listings\Columns\Text;
+use A17\Twill\Services\Listings\TableColumns;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use App\Support\Forms\Fields\QueryArtwork;
 use Exception;
@@ -23,7 +26,11 @@ class ArtworkController extends ModuleController
 
     protected function setUpController(): void
     {
-        $this->enableShowImage();
+        $this->disablePermalink();
+        $this->disableBulkEdit();
+        $this->disableBulkPublish();
+        $this->disableBulkRestore();
+        $this->disableBulkForceDelete();
     }
 
     public function getCreateForm(): Form
@@ -40,7 +47,7 @@ class ArtworkController extends ModuleController
                     artworkField: 'id'
                 ),
             Input::make()->name('title')->translatable(),
-            Input::make()->name('datahub_id')->readOnly(),
+            Input::make()->name('datahub_id')->label('Object ID')->readOnly(),
         ]);
     }
 
@@ -60,6 +67,9 @@ class ArtworkController extends ModuleController
 
     protected function additionalFormFields($object): Form
     {
+        $apiArtwork = $object->getArtworkApiData();
+        $apiGallery = $object->getGalleryApiData($apiArtwork->gallery_id);
+
         return Form::make()
             ->add(
                 BladePartial::make()
@@ -86,51 +96,49 @@ class ArtworkController extends ModuleController
                     ->translatable()
             )
             ->add(
-                Checkbox::make()
-                    ->name('is_on_view')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('main_reference_number')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('credit_line')
-            )
-            ->add(
-                Input::make()
-                    ->name('copyright_notice')
-            )
-            ->add(
-                Input::make()
-                    ->name('latitude')
-                    ->label('Latitude')
-                    ->type('number')
-                    ->placeholder($object->latitude ?? '')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('longitude')
-                    ->label('Longitude')
-                    ->type('number')
-                    ->placeholder($object->longitude ?? '')
-                    ->disabled()
-                    ->note('readonly')
-            )
-            ->add(
-                Input::make()
-                    ->name('floor')
-                    ->type('number')
-                    ->placeholder($object->floor ?? '')
-                    ->disabled()
-                    ->note('readonly')
+                BladePartial::make()
+                    ->view('forms.object-info')
+                    ->withAdditionalParams([
+                        'isOnView' => $object->is_on_view ?? false,
+                        'datahubId' => $object->datahub_id ?? '',
+                        'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
+                        'gallery' => $apiGallery->title ?? '',
+                        'floor' => $apiGallery->floor ?? '',
+                    ])
             );
+    }
+
+    protected function getIndexTableColumns(): TableColumns
+    {
+        $table = parent::getIndexTableColumns();
+
+        $table->splice(1, 0, [
+            Text::make()
+                ->field('Image')
+                ->customRender(fn ($artwork) => view(
+                    'admin.artwork-image',
+                    [
+                        'src' => $artwork->image('override', 'thumbnail'),
+                        'link' => $this->getModuleRoute($artwork, 'edit'),
+                    ]
+                )->render()),
+        ]);
+
+        return $table;
+    }
+
+    protected function additionalIndexTableColumns(): TableColumns
+    {
+        return parent::additionalIndexTableColumns()
+            ->add(Text::make()
+                ->field('artist_display'))
+            ->add(Boolean::make()
+                ->field('is_on_view'))
+            ->add(Text::make()
+                ->field('Themes')
+                ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')
+                    ->map(fn ($theme) => '<a href="/admin/themes/'.$theme->id.'/edit">'.$theme->title.'</a>')
+                    ->join(', ')));
     }
 
     public function queryArtwork(Request $request, ApiQueryBuilder $api): JsonResponse
