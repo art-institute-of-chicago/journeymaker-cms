@@ -7,4 +7,4 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
-Route::get('/sites/default/files/json/{id}.json', JsonController::class);
+Route::get('/json/{id}.json', JsonController::class);
