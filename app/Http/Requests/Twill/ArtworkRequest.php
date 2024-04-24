@@ -8,7 +8,9 @@ class ArtworkRequest extends Request
 {
     public function rulesForCreate()
     {
-        return [];
+        return [
+            'datahub_id' => 'required|unique:artworks,datahub_id',
+        ];
     }
 
     public function rulesForUpdate()
