@@ -19,7 +19,7 @@ class ThemePromptRepository extends ModuleRepository
 
     public function afterSave(TwillModelContract $model, array $fields): void
     {
-        $fields['repeaters']['artwork'] = collect($fields['repeaters']['artwork'])->map(fn ($artwork) => [
+        $fields['repeaters']['artwork'] = collect($fields['repeaters']['artwork'] ?? [])->map(fn ($artwork) => [
             'artwork_id' => $artwork['browsers']['artwork'][0]['id'] ?? null,
             ...$artwork,
         ])->toArray();
