@@ -7,6 +7,7 @@ use App\Models\Artwork;
 use App\Models\Theme;
 use App\Models\ThemePrompt;
 use Database\Seeders\TestSeeder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PHPUnit\Framework\Attributes\Test;
@@ -230,6 +231,8 @@ class JsonDataTest extends TestCase
 
         Theme::find(1)->update(['published' => false]);
 
+        Cache::forget('data.json');
+
         $this->get('/json/data.json')
             ->assertJsonCount(3, 'themes');
     }
@@ -241,6 +244,8 @@ class JsonDataTest extends TestCase
             ->assertJsonCount(4, 'themes.0.prompts');
 
         ThemePrompt::find(1)->update(['published' => false]);
+
+        Cache::forget('data.json');
 
         $this->get('/json/data.json')
             ->assertJsonCount(3, 'themes.0.prompts');
@@ -259,6 +264,8 @@ class JsonDataTest extends TestCase
         $visibleArtworks->take(8 - $visibleArtworks->count() - 1)
             ->each(fn ($artwork) => $artwork->update(['published' => false]));
 
+        Cache::forget('data.json');
+
         $this->get('/json/data.json')
             ->assertJsonCount(7, 'themes.0.prompts.0.artworks');
     }
@@ -271,6 +278,8 @@ class JsonDataTest extends TestCase
 
         Theme::find(1)->translations()->where('locale', 'es')->update(['active' => false]);
 
+        Cache::forget('data.json');
+
         $this->get('/json/data.json')
             ->assertJsonCount(3, 'themes');
     }
@@ -282,6 +291,8 @@ class JsonDataTest extends TestCase
             ->assertJsonCount(4, 'themes.0.prompts');
 
         ThemePrompt::find(1)->translations()->where('locale', 'es')->update(['active' => false]);
+
+        Cache::forget('data.json');
 
         $this->get('/json/data.json')
             ->assertJsonCount(3, 'themes.0.prompts');
@@ -302,12 +313,16 @@ class JsonDataTest extends TestCase
         $visibleArtworks->take(8 - $visibleArtworks->count() - 1)
             ->each(fn ($artwork) => $artwork->translations()->where('locale', 'es')->update(['active' => false]));
 
+        Cache::forget('data.json');
+
         $this->get('/json/data.json')
             ->assertJsonCount(7, 'themes.0.prompts.0.artworks');
 
         // Artwork also requires all translations to be active
         $themePrompt->artworks()->active()->get()->first()
             ->artwork->translations()->where('locale', 'es')->update(['active' => false]);
+
+        Cache::forget('data.json');
 
         $this->get('/json/data.json')
             ->assertJsonCount(6, 'themes.0.prompts.0.artworks');

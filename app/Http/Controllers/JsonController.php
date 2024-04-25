@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\ThemeResource;
-use App\Models\ActivityTemplate;
-use App\Models\Artwork;
 use App\Repositories\ThemeRepository;
-use Illuminate\Contracts\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 class JsonController extends Controller
 {
@@ -18,26 +15,17 @@ class JsonController extends Controller
 
     public function __invoke($id)
     {
-        $locale = match ($id) {
-            'data-es' => 'es',
-            'data-zh-hans' => 'zh',
-            default => 'en',
-        };
+        return response(
+            Cache::get($id, fn () => $this->cache($id)),
+            200,
+            ['Content-Type' => 'application/json']
+        );
+    }
 
-        App::setLocale($locale);
+    private function cache(string $id)
+    {
+        Artisan::call('app:cache-json', ['id' => $id]);
 
-        Artwork::cacheArtworkApiData();
-
-        return response()->json([
-            'activityTemplates' => ActivityTemplate::select('id', 'img')->get(),
-            'themes' => ThemeResource::collection(
-                $this->themeRepository->active()->with(
-                    [
-                        'prompts' => fn (Builder $query) => $query->active(),
-                        'prompts.artworks' => fn (Builder $query) => $query->active()->limit(8),
-                    ]
-                )->get()
-            ),
-        ]);
+        return Cache::get($id);
     }
 }
