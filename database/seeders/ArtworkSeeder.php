@@ -74,7 +74,6 @@ class ArtworkSeeder extends Seeder
                 'theme_prompt_id' => $themePrompt->id,
                 'artwork_id' => $artwork->id,
                 'activity_template' => $rawArtwork['activityTemplate'],
-                'published' => true,
             ]);
 
             collect($rawArtwork['translations'])->each(
