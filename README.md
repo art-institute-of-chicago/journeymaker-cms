@@ -151,6 +151,20 @@ npx prettier --write resources/
 npm run format
 ```
 
+## Testing
+
+Tests can be run using PHPUnit:
+
+```bash
+# Called directly
+./vendor/bin/phpunit
+
+# Or using composer alias
+composer test
+```
+
+Tests use an in memory SQLite database.
+
 ## Acknowledgments
 
 Design and Development by [Belle & Wissel Co](http://www.bwco.info/).
