@@ -18,7 +18,6 @@ class ThemePromptSeeder extends Seeder
                 'title' => $rawThemePrompt['title'],
                 'subtitle' => $rawThemePrompt['subtitle'],
                 'theme_id' => $theme->id,
-                'published' => true,
             ]);
 
             collect($rawThemePrompt['translations'])->each(

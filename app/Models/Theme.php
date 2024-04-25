@@ -8,6 +8,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Theme extends Model implements Sortable
@@ -82,5 +83,12 @@ class Theme extends Model implements Sortable
     public function prompts()
     {
         return $this->hasMany(ThemePrompt::class);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query
+            ->published()
+            ->whereDoesntHave('translations', fn (Builder $query) => $query->where('active', false));
     }
 }

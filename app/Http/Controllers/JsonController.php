@@ -31,14 +31,10 @@ class JsonController extends Controller
         return response()->json([
             'activityTemplates' => ActivityTemplate::select('id', 'img')->get(),
             'themes' => ThemeResource::collection(
-                $this->themeRepository->published()->with(
+                $this->themeRepository->active()->with(
                     [
-                        'prompts' => fn (Builder $query) => $query
-                            ->published(),
-                        'prompts.artworks' => fn (Builder $query) => $query
-                            ->whereRelation('artwork', 'is_on_view', true)
-                            ->whereRelation('artwork', 'published', true)
-                            ->limit(8),
+                        'prompts' => fn (Builder $query) => $query->active(),
+                        'prompts.artworks' => fn (Builder $query) => $query->active()->limit(8),
                     ]
                 )->get()
             ),

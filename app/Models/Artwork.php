@@ -11,6 +11,7 @@ use A17\Twill\Services\MediaLibrary\ImageService;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use Exception;
 use Facades\App\Libraries\DamsImageService;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
@@ -114,6 +115,13 @@ class Artwork extends Model
         );
     }
 
+    public function scopeActive(Builder $query): void
+    {
+        $query
+            ->published()
+            ->where('is_on_view', true);
+    }
+
     /**
      * Returns the URL of the attached image for a role and crop.
      */
@@ -182,7 +190,10 @@ class Artwork extends Model
     public function getApiData(array $columns, string $endpoint, object $default): object
     {
         try {
-            return (object) Cache::remember($endpoint, now()->addMinutes(5), fn () => app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
+            return (object) Cache::remember(
+                $endpoint,
+                now()->addMinutes(5),
+                fn () => app()->make(ApiQueryBuilder::class)->get($columns, $endpoint)->first()
             );
         } catch (Exception) {
             return $default;

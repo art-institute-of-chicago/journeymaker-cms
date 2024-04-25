@@ -210,10 +210,7 @@ class JsonDataTest extends TestCase
     {
         $themePrompt = ThemePrompt::find(1);
 
-        $visibleArtworks = $themePrompt->artworks()
-            ->whereRelation('artwork', 'is_on_view', true)
-            ->whereRelation('artwork', 'published', true)
-            ->count();
+        $visibleArtworks = $themePrompt->artworks()->active()->count();
 
         $this->assertGreaterThan(8, $visibleArtworks);
 
@@ -255,9 +252,7 @@ class JsonDataTest extends TestCase
         $this->get('/json/data.json')
             ->assertJsonCount(8, 'themes.0.prompts.0.artworks');
 
-        $visibleArtworks = Artwork::where('published', true)
-            ->where('is_on_view', true)
-            ->get();
+        $visibleArtworks = Artwork::active()->get();
 
         // Prompts can have many associated artworks but only the first 8 visible artworks are included
         // Take all the currently public artworks and unpublish enough to leave 7
@@ -266,5 +261,55 @@ class JsonDataTest extends TestCase
 
         $this->get('/json/data.json')
             ->assertJsonCount(7, 'themes.0.prompts.0.artworks');
+    }
+
+    #[Test]
+    public function themes_require_all_translations_to_be_active(): void
+    {
+        $this->get('/json/data.json')
+            ->assertJsonCount(4, 'themes');
+
+        Theme::find(1)->translations()->where('locale', 'es')->update(['active' => false]);
+
+        $this->get('/json/data.json')
+            ->assertJsonCount(3, 'themes');
+    }
+
+    #[Test]
+    public function prompts_require_all_translations_to_be_active(): void
+    {
+        $this->get('/json/data.json')
+            ->assertJsonCount(4, 'themes.0.prompts');
+
+        ThemePrompt::find(1)->translations()->where('locale', 'es')->update(['active' => false]);
+
+        $this->get('/json/data.json')
+            ->assertJsonCount(3, 'themes.0.prompts');
+    }
+
+    #[Test]
+    public function prompt_artworks_require_all_translations_to_be_active(): void
+    {
+        $themePrompt = ThemePrompt::find(1);
+
+        $this->get('/json/data.json')
+            ->assertJsonCount(8, 'themes.0.prompts.0.artworks');
+
+        $visibleArtworks = $themePrompt->artworks()->active()->get();
+
+        // Prompts can have many associated artworks but only the first 8 visible artworks are included
+        // Take all the currently public artworks and remove enough translations to leave 7
+        $visibleArtworks->take(8 - $visibleArtworks->count() - 1)
+            ->each(fn ($artwork) => $artwork->translations()->where('locale', 'es')->update(['active' => false]));
+
+        $this->get('/json/data.json')
+            ->assertJsonCount(7, 'themes.0.prompts.0.artworks');
+
+        // Artwork also requires all translations to be active
+        $themePrompt->artworks()->active()->get()->first()
+            ->artwork->translations()->where('locale', 'es')->update(['active' => false]);
+
+        $this->get('/json/data.json')
+            ->assertJsonCount(6, 'themes.0.prompts.0.artworks');
     }
 }

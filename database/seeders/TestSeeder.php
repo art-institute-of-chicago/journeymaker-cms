@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use A17\Twill\Models\Model;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use App\Models\ActivityTemplate;
 use App\Models\Artwork;
@@ -16,6 +17,8 @@ class TestSeeder extends Seeder
     use HasTwillSeeding;
 
     private ApiQueryBuilder $api;
+
+    private $locales = ['es', 'zh'];
 
     public function __construct()
     {
@@ -32,6 +35,8 @@ class TestSeeder extends Seeder
                 'published' => true,
             ]);
 
+            $this->addTranslations($theme, ['title', 'intro', 'journey_guide']);
+
             $this->addImage($theme, base_path('tests/data/images/theme-icon.png'), 'icon');
             $this->addImage($theme, base_path('tests/data/images/theme-cover.png'), 'cover');
             $this->addImage($theme, base_path('tests/data/images/theme-cover-home.png'), 'cover_home');
@@ -43,6 +48,11 @@ class TestSeeder extends Seeder
                     'theme_id' => $theme->id,
                     'published' => true,
                 ]);
+
+                $this->addTranslations(
+                    $themePrompt,
+                    ['title', 'subtitle']
+                );
 
                 $artworks = $this->api->get(endpoint: '/api/v1/artworks')
                     ->map(fn ($artwork) => $artwork = Artwork::firstOrCreate(
@@ -57,6 +67,12 @@ class TestSeeder extends Seeder
                         ]
                     ));
 
+                $artworks->each(fn ($artwork) => $this->addTranslations(
+                    $artwork,
+                    ['title', 'artist_display', 'location_directions']
+                )
+                );
+
                 $themePromptArtworks = $artworks->map(fn ($artwork) => ThemePromptArtwork::factory()->create([
                     'detail_narrative' => 'Test Detail Narrative',
                     'viewing_description' => 'Test Viewing Description',
@@ -64,9 +80,27 @@ class TestSeeder extends Seeder
                     'theme_prompt_id' => $themePrompt->id,
                     'artwork_id' => $artwork->id,
                     'activity_template' => ActivityTemplate::all()->random()->id,
-                    'published' => true,
                 ]));
+
+                $themePromptArtworks->each(fn ($themePromptArtwork) => $this->addTranslations(
+                    $themePromptArtwork,
+                    ['detail_narrative', 'viewing_description', 'activity_instructions']
+                )
+                );
             });
         });
+    }
+
+    private function addTranslations(Model $model, array $columns): void
+    {
+        collect($this->locales)->each(
+            fn ($locale) => $this->addTranslation(
+                $model,
+                (array) $model->only($columns),
+                $locale
+            )
+        );
+
+        $model->translations()->update(['active' => true]);
     }
 }
