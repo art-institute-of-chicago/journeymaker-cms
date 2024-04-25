@@ -25,7 +25,7 @@ class ThemePromptArtworkResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'title' => $this->artwork->title,
             'img' => null,
             'artwork_thumbnail' => null,
             'img_medium' => null,

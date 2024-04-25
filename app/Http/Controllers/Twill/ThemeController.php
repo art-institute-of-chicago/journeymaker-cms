@@ -47,6 +47,11 @@ class ThemeController extends ModuleController
                         ->label('Intro')
                         ->maxLength(225)
                         ->translatable(),
+                    Input::make()
+                        ->name('journey_guide')
+                        ->label('Journey Guide Cover Title')
+                        ->maxLength(25)
+                        ->translatable(),
                 ]),
                 Fieldset::make()->title('Media')->id('media')->fields([
                     Medias::make()

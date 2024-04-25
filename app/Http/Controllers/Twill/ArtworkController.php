@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Twill;
 use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Forms\BladePartial;
-use A17\Twill\Services\Forms\Fields\Checkbox;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
 use A17\Twill\Services\Forms\Fieldset;

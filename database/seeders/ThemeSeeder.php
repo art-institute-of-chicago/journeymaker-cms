@@ -39,6 +39,7 @@ class ThemeSeeder extends Seeder
                 $theme = Theme::factory()->create([
                     'title' => $rawTheme['title'],
                     'intro' => $rawTheme['intro'],
+                    'journey_guide' => $rawTheme['journey_guide'],
                     'published' => true,
                 ]);
 
@@ -48,6 +49,7 @@ class ThemeSeeder extends Seeder
                         [
                             'title' => $translation['title'],
                             'intro' => $translation['intro'],
+                            'journey_guide' => $translation['journey_guide'],
                         ],
                         $locale
                     )

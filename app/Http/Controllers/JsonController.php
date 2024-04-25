@@ -6,6 +6,7 @@ use App\Http\Resources\ThemeResource;
 use App\Models\ActivityTemplate;
 use App\Models\Artwork;
 use App\Repositories\ThemeRepository;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 
 class JsonController extends Controller
@@ -27,11 +28,20 @@ class JsonController extends Controller
 
         Artwork::cacheArtworkApiData();
 
-        $data = [
+        return response()->json([
             'activityTemplates' => ActivityTemplate::select('id', 'img')->get(),
-            'themes' => ThemeResource::collection($this->themeRepository->with(['prompts.artworks'])->get()),
-        ];
-
-        return response()->json($data);
+            'themes' => ThemeResource::collection(
+                $this->themeRepository->published()->with(
+                    [
+                        'prompts' => fn (Builder $query) => $query
+                            ->published(),
+                        'prompts.artworks' => fn (Builder $query) => $query
+                            ->whereRelation('artwork', 'is_on_view', true)
+                            ->whereRelation('artwork', 'published', true)
+                            ->limit(8),
+                    ]
+                )->get()
+            ),
+        ]);
     }
 }

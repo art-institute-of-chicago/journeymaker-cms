@@ -9,39 +9,41 @@ class ThemeResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $icon = $this->imageObject('icon')->toCmsArray();
-        $cover = $this->imageObject('cover')->toCmsArray();
-        $cover_home = $this->imageObject('cover_home')->toCmsArray();
-        $backgrounds = $this->imageObjects('backgrounds')
-            ->map(fn ($image) => $image->toCmsArray())
-            ->map(fn ($image) => [
-                'url' => $image['original'],
-                'width' => $image['width'],
-                'height' => $image['height'],
-            ])->values();
-
         return [
             'id' => $this->id,
             'title' => $this->title,
             'intro' => $this->intro,
             'shapeFace' => $this->shapeFace,
-            'icon' => [
-                'url' => $icon['original'],
-                'width' => $icon['width'],
-                'height' => $icon['height'],
-            ],
-            'guideCoverArt' => [
-                'url' => $cover['original'],
-                'width' => $cover['width'],
-                'height' => $cover['height'],
-            ],
-            'guideCoverArtHome' => [
-                'url' => $cover_home['original'],
-                'width' => $cover_home['width'],
-                'height' => $cover_home['height'],
-            ],
-            'bgs' => $backgrounds,
+            'icon' => $this->getImage('icon'),
+            'guideCoverArt' => $this->getImage('cover'),
+            'guideCoverArtHome' => $this->getImage('cover_home'),
+            'bgs' => $this->getImages('backgrounds'),
             'prompts' => ThemePromptResource::collection($this->prompts),
+            'journey_guide' => $this->journey_guide,
         ];
+    }
+
+    private function getImage(string $image): ?array
+    {
+        $image = $this->imageObject($image)?->toCmsArray();
+
+        return $image
+            ? [
+                'url' => $image['original'],
+                'width' => $image['width'],
+                'height' => $image['height'],
+            ]
+            : null;
+    }
+
+    private function getImages(string $image): array
+    {
+        return $this->imageObjects($image)
+            ->map(fn ($image) => $image->toCmsArray())
+            ->map(fn ($image) => [
+                'url' => $image['original'],
+                'width' => $image['width'],
+                'height' => $image['height'],
+            ])->values()->toArray();
     }
 }

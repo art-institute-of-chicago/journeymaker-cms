@@ -1,0 +1,2704 @@
+{
+    "data": [
+    {
+    "id": 45350,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/45350",
+    "is_boosted": false,
+    "title": "A13: New England Bedroom, 1750-1850",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhDAAFAPUAAEAlDUYsFkAvGUcuGko1G24+Fm1AFGdAGlRFKldNNF5JM1pTPWVDIWRMLWtKKXtSKm1SMHVaPllTQGlcQmhcRGlgR3FgRHZjR3hnRXVkSHxqS4FMGIBOKI5YIodlPZV2TZV7VJGBXKeHXISAbpmKaZuMbZ+Mbp+QbpWSepqSeqWFZq+EY6SRbqaSb6OTdK+TcbKefKadhaaai7WpkbSolcOpicKrjcauj8evk8G6rdS9otPBqwAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAMAAUAAAY3QERiUSnBTi0WKYWaWDKmna6Ds81yMcpF86rdNqoVTeZqODAh0ONQ4EQUIwEgQIB4DKIPYyAJAgA7",
+    "width": 3000,
+    "height": 1291,
+    "alt_text": "A work made of miniature room, mixed media."
+    },
+    "main_reference_number": "1942.493",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1937,
+    "date_end": 1940,
+    "date_display": "c. 1940",
+    "date_qualifier_title": "Made",
+    "date_qualifier_id": 4,
+    "artist_display": "Designed by Narcissa Niblack Thorne\nAmerican, 1882-1966",
+    "place_of_origin": "United States",
+    "description": null,
+    "short_description": null,
+    "dimensions": "Scale 1 inch = 1 foot: 20.7 × 48.2 × 47.5 cm (8 1/8 × 19 × 18 3/4 in.); Interior, Scale 1 inch = 1 foot: 21 × 48.9 × 48.3 cm (8 1/4 × 19 1/4 × 19 in.)",
+    "dimensions_detail": [
+    {
+    "depth": 47,
+    "width": 48,
+    "height": 20,
+    "diameter": null,
+    "clarification": "Scale 1 inch = 1 foot"
+    },
+    {
+    "depth": 48,
+    "width": 48,
+    "height": 21,
+    "diameter": null,
+    "clarification": "Interior, Scale 1 inch = 1 foot"
+    }
+    ],
+    "medium_display": "Miniature room, mixed media",
+    "inscriptions": null,
+    "credit_line": "Gift of Mrs. James Ward Thorne",
+    "catalogue_display": null,
+    "publication_history": null,
+    "exhibition_history": null,
+    "provenance_text": null,
+    "edition": null,
+    "publishing_verification_level": "Web Basic",
+    "internal_department_id": 6,
+    "fiscal_year": 1942,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": true,
+    "is_zoomable": true,
+    "max_zoom_window_size": -1,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 39.5679,
+    "color": {
+    "h": 37,
+    "l": 47,
+    "s": 45,
+    "percentage": 0.0229383352011692,
+    "population": 70
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 11",
+    "gallery_id": 2147477257,
+    "nomisma_id": null,
+    "artwork_type_title": "Miniature room",
+    "artwork_type_id": 21,
+    "department_title": "Applied Arts of Europe",
+    "department_id": "PC-9",
+    "artist_id": 26086,
+    "artist_title": "Narcissa Niblack Thorne",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    26086
+    ],
+    "artist_titles": [
+    "Narcissa Niblack Thorne"
+    ],
+    "category_ids": [
+    "PC-825",
+    "PC-9"
+    ],
+    "category_titles": [
+    "Women artists",
+    "Applied Arts of Europe"
+    ],
+    "term_titles": [
+    "miniature",
+    "mixed media",
+    "media",
+    "artists' materials",
+    "thorne rooms"
+    ],
+    "style_id": null,
+    "style_title": null,
+    "alt_style_ids": [],
+    "style_ids": [],
+    "style_titles": [],
+    "classification_id": "TM-591",
+    "classification_title": "miniature",
+    "alt_classification_ids": [
+    "TM-1393"
+    ],
+    "classification_ids": [
+    "TM-591",
+    "TM-1393"
+    ],
+    "classification_titles": [
+    "miniature",
+    "thorne rooms"
+    ],
+    "subject_id": null,
+    "alt_subject_ids": [],
+    "subject_ids": [],
+    "subject_titles": [],
+    "material_id": "TM-2527",
+    "alt_material_ids": [
+    "TM-3224",
+    "TM-3223"
+    ],
+    "material_ids": [
+    "TM-2527",
+    "TM-3224",
+    "TM-3223"
+    ],
+    "material_titles": [
+    "mixed media",
+    "media",
+    "artists' materials"
+    ],
+    "technique_id": null,
+    "alt_technique_ids": [],
+    "technique_ids": [],
+    "technique_titles": [],
+    "theme_titles": [
+    "Women artists"
+    ],
+    "image_id": "60fd6f6f-7772-69f9-6033-22860e8ce553",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1942.493"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "A13: New England Bedroom, 1750-1850"
+    ],
+    "weight": 16453,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-04-25T00:15:01-05:00",
+    "updated_at": "2024-04-25T00:15:36-05:00",
+    "timestamp": "2024-04-25T01:05:50-05:00"
+    },
+    {
+    "id": 28067,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/28067",
+    "is_boosted": true,
+    "title": "The Old Guitarist",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhAwAFAPMAAD1APzM8QzZARTJASzhFTTBFYEFRVUtWVkFTW0NUXURVYlVkZFFqelFrfF56iAAAACH5BAAAAAAALAAAAAADAAUAAAQL0LHRlCgLpBMMIhEAOw==",
+    "width": 10020,
+    "height": 15000,
+    "alt_text": "Painting, mostly in shades of blue, of a thin, bent, older man wearing ragged clothes and sitting cross-legged playing a guitar positioned upright in his lap."
+    },
+    "main_reference_number": "1926.253",
+    "has_not_been_viewed_much": false,
+    "boost_rank": 85,
+    "date_start": 1903,
+    "date_end": 1904,
+    "date_display": "late 1903–early 1904",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Pablo Picasso\nSpanish, active France, 1881–1973",
+    "place_of_origin": "Spain",
+    "description": "<p>Pablo Picasso made <em>The Old Guitarist</em> while working in Barcelona. In the paintings of his Blue Period (1901-04), the artist restricted himself to a cold, monochromatic blue palette, flattened forms, and emotional, psychological themes of human misery and alienation related to the work of such artists as Edvard Munch and Paul Gauguin. The elongated, angular figure of the blind musician also relates to Picasso's interest in Spanish art and, in particular, the great 16th-century artist El Greco. The image reﬂects the twenty-two-year-old Picasso's personal struggle and sympathy for the plight of the downtrodden; he knew what it was like to be poor, having been nearly penniless during all of 1902.</p>\n",
+    "short_description": "This famous work is from Picasso’s Blue Period (1901–04), a time the artist restricted himself to a cold, monochromatic blue palette and flattened forms to convey the themes of misery and alienation. The elongated figure also reflects his interest in the great 16th-century Spanish artist El Greco. The 22-year-old Picasso had sympathy for the downtrodden; at the time, knew what it meant to be penniless.",
+    "dimensions": "122.9 × 82.6 cm (48 3/8 × 32 1/2 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": 82,
+    "height": 122,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Oil on panel",
+    "inscriptions": "signed, l.r.: \"Picasso\"",
+    "credit_line": "Helen Birch Bartlett Memorial Collection",
+    "catalogue_display": null,
+    "publication_history": "Henri Guilbeaux, “Exposition Pablo Picasso (Vollard, rue Laffitte),” Les Hommes du Jour 3, 155 (Jan. 7, 1911), n.pag., as “vieux musicien.”\n\nHarriett C. Bryant, Third Exhibition of Contemporary French Art (Carroll Galleries, 1915), n.pag., cat. 3, as The Guitarrist [sic].\n\n“What is Happening in the World of Art,” Sun, Mar. 14, 1915, sec. 3, p. 2 (ill.), as The Guitarist.\n\nArt Institute of Chicago, Annual Report 48 (1926), p. 56 (ill.), as The Guitarist.\n\nArt Institute of Chicago, Modern Paintings in the Helen Birch Bartlett Memorial from the Birch-Bartlett Collection (Art Institute of Chicago, 1926), pp. 36–37 (ill.), 57, as Le Guitariste.\n\nJohn Quinn, John Quinn, 1870–1925: Collection of Paintings, Watercolors, Drawings, and Sculpture (Pidgeon Hill Press, 1926), pp. 12, 96 (ill.), as The Guitarist—Blue Period.\n\nR. M. F., “Cézanne, Rousseau, Picasso,” Bulletin of the Art Institute of Chicago 20, 5 (May 1926), p. 64 (ill.), as “The Guitarist.”\n\nR. M. F., “Helen Birch-Bartlett Memorial Collection Now Installed,” Art News 24, 31 (May 8, 1926), p. 2, as “The Guitarist.”\n\nForbes Watson, “A Note on the Birch-Bartlett Collection,” Arts 9 (June 1926), pp. 307 (ill.), 312, as The Guitarist.\n\nChristian Zervos, “Picasso: Œuvres Inédites Anciennes,” Cahiers d’Art 3, 5–6 (1928), p. 213 (ill.).\n\nMorton Dauwen Zabel, “An American Gallery of Modern Painting,” Art and Archaeology 26, 6 (Dec. 1928), pp. 233 (ill.), 235, as Le Guitariste.\n\nArts Club of Chicago, Paintings by Pablo Picasso, exh. cat. (Arts Club of Chicago, 1930), n.pag., cat. 6, as Le Guitariste, about 1910.\n\nDaniel Catton Rich, “Consider Picasso,” Bulletin of the Art Institute of Chicago 25, 5 (May 1931), pp. 68, 69 (ill.), as Guitar Player, about 1905.\n\nArt Institute of Chicago, A Guide to the Paintings in the Permanent Collection (Art Institute of Chicago, 1932), p. 167, as The Guitarist.\n\nChristian Zervos, Pablo Picasso, vol. I, Œuvres de 1895 a 1906 (Cahiers d’Art, 1932), p. XXXIV; pl. 90, no. 202; n.pag., no. 202, as Le Vieux Guitariste, Barcelone, 1903.\n\nChristian Zervos, “Picasso,” Cahiers d’Art 7, 3–5 (1932), p. 91 (ill.), as Le vieux guitariste, 1903.\n\nJames Johnson Sweeney, “La Peinture Française Moderne a l’Institut des Beaux-Arts de Chicago,” Cahiers d’Art 7, 8–10 (1932), pp. 335 (ill.), 336, as le Guitariste.\n\nWalter J. Sherwood, “The Famous Birch Bartlett Collection,” Chicago Visitor (Oct. 1932), pp. 17, 40, as “The Guitarist.”\n\nArt Institute of Chicago, Catalogue of a Century of Progress Exhibition of Paintings and Sculpture Lent from American Collections, exh. cat. (Art Institute of Chicago, 1933), p. 56, cat. 402, as The Guitarist, 1903.\n\nArt Institute of Chicago, Catalogue of a Century of Progress Exhibition of Paintings and Sculpture, exh. cat. (Art Institute of Chicago, 1934), p. 53, cat. 358, as The Guitarist, 1903.\n\nWadsworth Atheneum, Pablo Picasso, exh. cat. (Wadsworth Atheneum, 1934), n.pag., cat. 11 (ill.), as Vieux Guitariste, 1903.\n\nFrancis Henry Taylor, “African Baroque in Hartford,” Parnassus 6, 3 (Mar. 1934), p. 11 (ill.), as The Guitarist.\n\nArt Institute of Chicago, A Brief Illustrated Guide to the Collections (Art Institute of Chicago, 1935), p. 30, as The Guitarist.\n\nJacques Seligmann and Company, Picasso: “Blue” and “Rose” Periods, 1901–1906, exh. cat. (Jacques Seligmann and Company, 1936), pp. 9; 17, cat. 15; pl. 15, as The Old Guitar Player (The Guitarist), Barcelona, 1903.\n\nJames W. Lane, “Picasso: The Spanish Charivari,” Parnassus 8, 6 (Nov. 1936), p. 17, as The Blind Guitarist.\n\nAlfred H. Barr, Jr., ed., Picasso: Forty Years of His Art, exh. cat. (Museum of Modern Art, 1939), pp. 34–35, cat. 20 (ill.); 194, as The Old Guitarist, Barcelona, 1903.\n\nAlfred M. Frankfurter, “Picasso in Retrospect: 1939–1900, The Comprehensive Exhibition in New York and Chicago,” Art News 38, 7 (Nov. 18, 1939), pp. 12 (ill.), 26.\n\nJames Thrall Soby, “Picasso: A Critical Estimate,” Parnassus 11, 8 (Dec. 1939), p. 9.\n\nHelen F. Mackenzie, Understanding Picasso: A Study of His Styles and Development (University of Chicago Press, 1940), pl. II, as “The Old Guitarist,” 1903.\n\nReginald Howard Wilenski, Modern French Painters (Reynal and Hitchcock, 1940), pl. 47; pp. 138; 168; 199; 202, as Le vieux guitariste, 1903.\n\nHelen F. Mackenzie, “Understanding Picasso—A Study of His Styles and Development,” Bulletin of the Art Institute of Chicago 34, 2 (Feb. 1940), p. 26, as The Guitarist.\n\nFrederick A. Sweet, “Picasso—Forty Years of His Art,” Bulletin of the Art Institute of Chicago 34, 2 (Feb. 1940), p. 22, as The Guitarist.\n\nRegina Schoolman and Charles E. Slatkin, The Enjoyment of Art in America (J. B. Lippincott Company, 1942), p. 565; pl. 579, as Guitar Player.\n\nCeferino Palencia, Picasso (Editorial Leyenda, 1945), fig. 7; pp. 118–19; 131, as El ciego guitarrista and El Guitarrista ciego, Barcelona, 1903. \n\nArt Institute of Chicago, Modern Paintings in the Helen Birch Bartlett Memorial from the Birch Bartlett Collection (Art Institute of Chicago, 1946), pp. 38, 39 (ill.), 59, 63, as The Guitarist, 1903.\n\nAlfred H. Barr, Jr., Picasso: Fifty Years of His Art (Museum of Modern Art, 1946), pp. 28 (ill.), 29, 254, 280, as The Old Guitarist, Barcelona, 1903.\n\nAlexandre Cirici Pellicer, Picasso antes de Picasso (Iberia-Joaquin Gil, 1946), pp. 183–85; fig. 170, as Viejo guitarrista, 1903.\n\nJoan Merli, Picasso: el artista y la obra de nuestro tiempo, 2nd ed. (Editorial Poseidon, 1948), pp. 29; fig. 83; 598, as Guitarrista ciego, and El viejo guitarrista, Barcelona, 1903.\n\nDenys Sutton, Picasso: Blue and Pink Periods (Lindsay Drummond/Éditions du Chêne, 1948), n.pag., as Old Guitarist, 1903.\n\nPer-Olav Zennström, Pablo Picasso (P. A. Norstedt and Söners Förlag, 1948), fig. 4; pp. 28; 259, as Den gamle gitarrspelaren, 1903.\n\nJuan Antonio Gaya Nuño, Picasso (Ediciones Omega, 1950), pp. 12; 33, no. 9; pl. 9, as El viejo guitarrista, 1903.\n\nAnthony Bertram, Picasso, The World’s Masters—New Series (Studio Publications, 1951), pl. 4, as The Old Guitarist, 1903.\n\nWilliam S. Lieberman, Pablo Picasso (Harry N. Abrams, 1952), pp. 10–11 (ill.), as The Old Guitarist, Barcelona, 1903.\n\nWilliam S. Lieberman, Pablo Picasso: Blue and Rose Periods (Harry N. Abrams, 1954), pl. 18, as The Old Guitarist, 1903. \n\nDenys Sutton, Picasso: peintures époques bleue et rose (Les Éditions du Chêne, 1955), n.pag., as Vieux Guitariste, 1903.\n\nAntonina Vallentin, Pablo Picasso (Éditions Albin Michel, 1957), p. 88, 93, as le Vieux Guitariste.\n\nRoland Penrose, Picasso: His Life and Work (Victor Gollancz, 1958), pp. 10; 90; 92; 106–07; pl. III, no. 6, as The Old Guitarist, 1903.\n\nPierre de Champris, Picasso ombre et soleil (Librairie Gallimard, 1960), pp. 267–68, no. 311 (ill.); 294, as Le guitariste aveugle, 1903.\n\nArt Institute of Chicago, Paintings in the Art Institute of Chicago: A Catalogue of the Picture Collection (Art Institute of Chicago, 1961), p. 356, as The Old Guitarist, 1903.\n\nAnthony Blunt and Phoebe Pool, Picasso, the Formative Years: A Study of His Sources (New York Graphic Society, 1962), p. 31, no. 111; fig. 111, as Blind Guitar-Player, 1903.\n\nH. W. Janson, History of Art: A Survey of the Major Visual Arts from the Dawn of History to the Present Day (Harry N. Abrams, 1962), pp. 509, fig. 765; 510, as The Old Guitarist, 1903.\n\nJohn Ferguson, “Picasso and the Classics,” Greece and Rome, 2nd series, 9, 2 (Oct. 1962), p. 184.\n\nGeorges Boudaille, Picasso: Première époque 1881–1906, périodes bleue et rose (Musée Personnel, 1964), pp. 13; 14; 16; pl. IV, as Le Vieux Guitariste, 1903.\n\nJacques Damase, Pablo Picasso, trans. Haydn Barnes (Barnes and Noble, 1965), pp. 6, 23 (ill.), 86, as The Old Guitarist, 1903.\n\nPierre Daix and Georges Boudaille, Picasso 1900–1906: Catalogue raisonné de l'œuvre peint (Editions Ides et Calendes, 1966), pp. 62; 63 (ill.); 64–66; 229, cat. IX. 34 (ill.), as Le Vieux Guitariste, Barcelone, 1903.\n\nJosep Palau i Fabre, Picasso en Cataluña (Ediciones Polígrafa, 1966), pp. 104–05, fig. 92; 106; 109; 113; 116; 125; 242–43, as El viejo guitarrista; The old guitarrist [sic.]; Le vieux guitariste; Der alte Gitarrenspieler; Gitarrenspielers, Barcelona, 1903.\n\nFrederick A. Sweet, “Great Chicago Collectors,” Apollo 84, 55 (Sept. 1966), pp. 194, fig. 13; 195; 197, as The Old Guitarist, 1903.\n\nArt Institute of Chicago, Instituto de arte de Chicago: Presentación de Charles C. Cunningham, El Mundo de los museos (Editorial Codex, S. A., 1967), pp. 14, ill. 62; 25; 72–73 (ill.), as El viejo guitarrista.\n\nGeorge Heard Hamilton, Painting and Sculpture in Europe, 1880 to 1940 (Penguin Books, 1967), p. 88, as The Blind Guitarist, 1903.\n\nRoland Penrose, The Eye of Picasso (New American Library, 1967), p. 8; pl. 4, as The Old Guitarist, 1903.\n\nLael Wertenbaker, The World of Picasso, 1881– (Time-Life Books, 1967), pp. 34, 44 (ill.), as The Old Guitarist, 1903.\n\nArt Institute of Chicago, Picasso in Chicago: Paintings, Drawings, and Prints from Chicago Collections, exh. cat. (Art Institute of Chicago, 1968), pp. 14–15, cat. 7 (ill.); 112, as The Old Guitarist, Barcelona, 1903.\n\nThomas Greer, A Brief History of Western Man (Harcourt, Brace and World, 1968), pp. 556; 557, fig. 13-2, as The Old Guitarist, 1903.\n\nB. L. Reid, The Man from New York: John Quinn and His Friends (Oxford University Press, 1968), pp. 207–08, as Old Man.\n\nDenys Sutton and Paolo Lecaldano, The Complete Paintings of Picasso: Blue and Rose Periods, Classics of the World’s Great Art, ed. Paolo Lecaldano (Harry N. Abrams, 1968), pp. 16; pl. XV; 94 (ill.); 95, cat. 92; 114; 119, as The Old Blind Guitar Player and Le vieux guitariste.\n\nMahonri Sharp Young, “Letter from U.S.A.: Let’s Talk Turkey,” Apollo 87, 75 (May 1968), p. 390, fig. 8, as The Old Guitarist, 1903.\n\nDenys Chevalier, Picasso, époques bleue et rose (Flammarion, 1969), pp. 17 (ill.), 62, 96, as Le Vieux guitariste, 1903.\n\nPicasso, Sekai no meiga [Famous Paintings in the World], 7 (Holp Shuppan, 1970), n.pag. (ill.), as Gitā-hiki no rōjin [The Old Guitarist].\n\nJohn Maxon, The Art Institute of Chicago (Harry N. Abrams, 1970), pp. 12, 109 (ill.), 284, as The Old Guitarist, 1903.\n\nHoward Greenfeld, Pablo Picasso: An Introduction (Follett Publishing Company, 1971), pp. 33 (ill.), 61, as The Old Guitarist, 1903.\n\nSandra Grung, Supplement to Paintings in the Art Institute of Chicago (Art Institute of Chicago, 1971), p. 86.\n\nOtsurō Sakazaki, Pikaso, Gendai sekai bijutsu zenshū [Picasso, Modern Art of the World], 14/Picasso, L’art moderne du monde, 14, eds. Ryūzaburō Umehara, Tetsuzō, and Sōichi Tominaga (Shueisha, 1972), pl. 9; pp. 85; 114 (ill.); n.pag. as Toshi oita gitā-hiki [Old Guitarist]/Le vieux guitariste, 1903.\n\nIleana Șoldea, Picasso (Editura Meridiane, 1972), p. 59; fig. 7 as Bătrînul ghitarist, 1903.\n\nDiane Monk, “‘Meet me at the Picasso’: Artistic Landmark for All Chicagoans,” Chicago Daily News (Apr. 9, 1973), p. 4.\n\nToshio Nishimura, ed., Picasso, Les Grands maîtres de la peinture moderne 17/Pikaso, Sekai no meiga 17 [Picasso, Masterpieces of the World 17] (Japan Art Center, 1973), pl. 22; p. 115, no. 22 (ill.), as Oita gitā-hiki [Old Guitarist]/Le vieux guitariste, 1903.\n\nYūsuke Nakahara, ed., Pikaso to Machisu: rittaiha to yajūha, Gurando sekai bijutsu [Picasso and Matisse: Cubism and Fauvism, Grand Collection of World Art], 23 (Kōdansha, 1974), pl. 3, as Gitā-hiki no rōjin [The Old Guitarist], 1903.\n\nDomenico Porzio and Marco Valsecchi, Understanding Picasso (Newsweek Books, 1974), pl. 12, as The Old Guitarist, 1903.\n\nRonald W. Johnson, “Picasso’s ‘Old Guitarist’ and the Symbolist Sensibility,” Artforum 13, 4 (Dec. 1974), pp. 56, fig. 1; 57–62, as Old Guitarist, 1903.\n\nTimothy Hilton, Picasso (Thames and Hudson, 1975), pp. 35, fig. 19; 277, as The Blind Guitarist and The Blind Guitarist (The Old Guitarist), Barcelona, 1903.\n\nEunice Lipton, Picasso Criticism, 1901–1939: The Making of an Artist-Hero, Ph.D. diss., New York University, 1975, p. 191, as The Old Guitarist, 1903.\n\nFelix Andreas Baumann, Pablo Picasso: Leben und Werk (Gerd Hatje, 1976), p. 22, fig. 29, as Der alte Gitarrist, 1903.\n\nRon Johnson, The Early Sculpture of Picasso, 1901–1914 (Garland Publishing, 1976), pp. 21–22; 201, fig. 25, as The Old Guitarist, 1903.\n\nVivian Endicott Barnett, The Guggenheim Museum: Justin K. Thannhauser Collection (Solomon R. Guggenheim Foundation, 1978), p. 132, as Old Guitarist, 1903.\n\nJanice J. Feldstein and Maureen Smith, eds., The Art Institute of Chicago: 100 Masterpieces (Art Institute of Chicago, 1978), pp. 20; 131, fig. 82, as The Old Guitarist, 1903.\n\nJudith Zilczer, “The Noble Buyer:” John Quinn, Patron of the Avant-Garde, exh. cat. (Hirschhorn Museum and Sculpture Garden, 1978), pp. 32; 33, fig. 10; 176, as The Old Guitarist and Blind Guitarist, 1903.\n\nDavid A. Lauer, Design Basics (Holt, Rinehart and Winston, 1979), pp. 80–81, fig. c, as The Old Guitarist, 1903.\n\nMary Matthews Gedo, Picasso: Art as Autobiography (University of Chicago Press, 1980), p. 54 (ill.), as The Old Guitarist, 1903.\n\nJosep Palau i Fabre, Picasso vivent (1881–1907) (Ediciones Polígrafa, 1980), pp. 358, fig. 932; 361; 377; 542, cat. 932, as El vell guitarrista, Barcelona, 1903 and Vell guitarrista.\n\nJane Fluegel, “Chronology,” Pablo Picasso: A Retrospective, exh. cat. ed. William Rubin (Museum of Modern Art, 1980), p. 47 (ill.), as The Old Guitarist, Barcelona, Autumn 1903.\n\nA. James Speyer and Courtney Graham Donnell, Twentieth-Century European Paintings (University of Chicago Press, 1980), pp. 15; 62, no. 3C10; microfiche 3, no. C10 (ill.), as The Old Guitarist, 1903.\n\nRonald Christ, “Picasso’s Hands: The Mutability of Human Form,” Artscanada, 236/237 (Sept./Oct. 1980), pp. 21, 25, as The Old Guitarist, 1903.\n\nMark Rosenthal, “The Nietzschean Character of Picasso’s Early Development,” Arts Magazine 55, 2 (October 1980), pp. 87, fig. 1; 91, n. 9, as The Old Guitarist, 1903.\n\nLydia Gasman, Mystery, Magic, and Love in Picasso, 1925–1938: Picasso and the Surrealist Poets, Ph.D. diss., Columbia University, 1981, p. 1335.\n\nFederico Sopeña Ibañez, Picasso y la música (Ministerio de Cultura, 1982), pp. 22; 27, n. 9; 29 (ill.); 43; 132; 164, no. 26, as El ciego guitarrista and El viejo guitarrista, Barcelona, 1903.\n\nFrancisco Ugarte and Michael Ugarte, España y su Civilización, 3rd ed. (Random House, 1983), pp. 186, 187 (ill.), as El guitarrista viejo.\n\nArt Institute of Chicago, “Front Matter” and “The Helen Birch Bartlett Memorial Collection,” Art Institute of Chicago Museum Studies 12, 2 (1986), n.pag. (ill.); p. 223, no. 19, as The Old Guitarist, 1903.\n\nRichard R. Brettell, “The Bartletts and the Grande Jatte: Collecting Modern Painting in the 1920s,” Art Institute of Chicago Museum Studies 12, 2 (1986), pp. 105, 111, as Old Guitarist and The Old Guitarist.\n\nCourtney Graham Donnell, “Frederic Clay and Helen Birch Bartlett: The Collectors,” Art Institute of Chicago Museum Studies 12, 2 (1986), p. 95, fig. 11, as Old Guitarist.\n\nMary Mathews Gedo, “A Youthful Genius Confronts His Destiny: Picasso’s Old Guitarist in \nthe Art Institute of Chicago,” Art Institute of Chicago Museum Studies 12, 2 (1986), pp. 152, fig. 1; 153; 155–56; 158–59, figs. 7–8; 161–65, as Old Guitarist and The Old Guitarist, 1903/04.\n\nLois Fichner-Rathus, Understanding Art (Prentice-Hall, 1986), p. 356, fig. 13-5, as The Old Guitarist, 1903.\n\nPierre Daix, Picasso créateur: La vie intime et l’œuvre (Éditions du Seuil, 1987), p. 48, as le Vieux Guitariste.\n\nPaul Zelanski and Mary Pat Fisher, The Art of Seeing (Prentice-Hall, 1988), pp. 142–43; 144–45, fig. 2.109; 413, as The Old Guitarist, 1903.\n\nDidier Imbert Fine Art, Picasso: La Célestine, exh. cat. (Didier Imbert Fine Art, 1988), pp. 36 (ill.), 67, as Le Vieux guitariste/The Old Guitarist, 1903.\n\nJames N. Wood and Katherine C. Lee, Master Paintings in the Art Institute of Chicago (Art Institute of Chicago, 1988), p. 108 (ill.), as The Old Guitarist, 1903/04.\n\nAuckland City Art Gallery, Pablo Picasso: The Artist Before Nature, exh. cat. (Auckland City Art Gallery, 1989), p. 41.\n\nPatricia Leighten, Re-Ordering the Universe: Picasso and Anarchism, 1897–1914 (Princeton University Press, 1989), pp. 34; fig. 21, as The Old Guitarist, 1903.\n\nAnatoliĭ Podoksik, Pikasso, vechnyi poisk: proizvedeniia khudozhnika iz muzeev Sovetskofo Soiuza [Picasso: The Artist's Works in Soviet Museums] (Avrora, 1989), pp. 36; 39 (ill.); 153; 154, fig. 83, as Staryi Gitarist and Starym Gitaristom [The Old Guitarist], 1903.\n\nPrentice Hall Literature: World Masterpieces (Prentice Hall, 1991), p. 1142 (ill.).\n\nJohn Beardsley, Pablo Picasso, First Impressions (Harry N. Abrams, 1991), pp. 23 (ill.), 90, as The Old Guitarist, 1903.\n\nGiorgio Cortenova, Picasso: la vita e l’opera (Idealibri, 1991), p. 74 (ill.), as Il vecchio chitarrista, Barcellona, 1903. \n\nJack Hobbs and Richard Salome, The Visual Experience (Davis, 1991), pp. 69, fig. 6-30; 292, as The Old Guitarist, 1903.\n\nJohn Richardson, A Life of Picasso, vol. I, 1881–1906 (Random House, 1991), pp. 277, 278 (ill.), 292, 541, as The Old Guitarist, Barcelona, 1903.\n\nMarie-Laure Bernadac, Brigitte Léal, and Hélène Seckel, Picasso (ODA, Laser Edition, 1992), p. 15, no. 6432; [laser disc] n.pag. (ills.), as The Old Guitarist, Barcelona, 1903.\n\nLaura H. Chapman, A World of Images (Davis Publications, 1992), p. 48 (ill.), as The Old Guitarist, 1903.\n\nCarsten-Peter Warncke, Pablo Picasso, 1881–1973, Tome I, Les œuvres de 1890 à 1936 (Benedikt Taschen, 1992), p. 94 (ill.), as Le Vieux Guitariste aveugle, Barcelone, automne 1903.\n\nSimon Miller, “Instruments of Desire: Musical Morphology in the Early Work of Picasso,” The Musical Quarterly 76, 4 (Winter 1992), pp. 447; 448, fig. 1, as The Old Guitarist, 1903.\n\nHiro Clark, ed., Picasso: In His Words (Collins Publishers, 1993), pp. 45 (ill.), 94, as The Old Guitarist, 1903.\n\nChristian Geelhaar, Picasso: Wegbereiter und Förderer seines Aufstiegs 1899–1939 (Palladion, 1993), pp. 205–06, fig. 230, as Le vieux guitariste, 1903. \n\nGlen MacLeod, Wallace Stevens and Modern Art: From the Armory Show to Abstract Expressionism (Yale University Press, 1993), p. 64, as The Old Guitarist, 1903.\n\nMarilyn McCully, Picasso: A Private Collection (Cacklegoose Press, 1993), p. 30 (ill.), as The Old Guitarist, 1903.\n\nRichard J. Wattenmaker and Anne Distel, Great French Paintings from the Barnes Foundation: Impressionist, Post-Impressionist, and Early Modern (Alfred A. Knopf, 1993), pp. 192; 304, n. 7, as The Old Guitar Player.\n\nJames N. Wood, Treasures of 19th- and 20th-Century Painting: The Art Institute of Chicago (Abbeville Press, 1993), pp. 15, 178, 186 (ill.), as The Old Guitarist, 1903.\n  \nLaurie Schneider Adams, A History of Western Art (Harry N. Abrams, 1994), pp. 412, fig. 26.1; 422, as The Old Guitarist, 1903.\n\nJoan Jasper, Identifiable Fragments: Comparisons Between Picasso and Gertrude Stein, 1905–1907, Master’s Thesis, School of the Art Institute of Chicago, 1994, Chapter 1, [p. 5]; fig. 6, as The Blue Guitarist and Blue Guitarist, 1903.\n\nDuane Preble and Sarah Preble, Artforms: An Introduction to the Visual Arts, 5th ed. (Harper Collins College Publishers, 1994), pp. 80, fig. 119; 82, as The Old Guitarist, 1903.\n\nDavid F. Setford, Pablo Picasso: A Vision, exh. cat. (Norton Gallery of Art, 1994), pp. 12, fig. 3; 13; 54, as The Old Guitarist, 1903.\n\nSandra Kraskin and Glen MacLeod, Painting in Poetry, Poetry in Painting: Wallace Stevens and Modern Art, exh. cat. (Sidney Mishkin Gallery, 1995), pp. 14 (ill.), 15, 18, as The Old Guitarist, 1903.\n\nRichard Lewis and Susan Lewis, The Power of Art (Harcourt Brace, 1995), p. 373, fig. 15-10, as The Old Guitarist, 1903.\n\nLaurie Schneider Adams, The Methodologies of Art: An Introduction (HarperCollins, 1996), p. 23; pl. 3, as The Old Guitarist, 1903.\n\nJosep Palau i Fabre, Pablo Picasso: Academic and Anti-Academic (1895–1900), exh. cat. (Yoshii Gallery, 1996), p. 144, as The Blind Guitarist, 1903.\n\nJohn Richardson, A Life of Picasso, vol. II, 1907–1917 (Random House, 1996), pp. 363; 472, n. 20, as Z.I. 202.\n\nJames N. Wood and Teri J. Edelstein, The Art Institute of Chicago: Twentieth-Century Painting and Sculpture (Art Institute of Chicago, 1996), p. 12 (ill.), as The Old Guitarist, 1903. \n\nArt Institute of Chicago, Pocketguide (Art Institute of Chicago, 1997), p. 38, fig. 66, as The Old Guitarist, 1903.\n\nMarilyn McCully, “Chronology,” in Picasso: The Early Years, 1892–1906, exh. cat. ed. Marilyn McCully (National Gallery of Art, 1997), pp. 40, fig. 26; 41, as The Old Guitarist, Barcelona, 1903. \n\nJeffrey Weiss, “Bohemian Nostalgia: Picasso in Villon’s Paris,” in Picasso: The Early Years, 1892–1906, exh. cat. ed. Marilyn McCully (National Gallery of Art, 1997), p. 200, as the Old Guitarist, 1903.\n\nAndrew Wilton, “Symbolism in Britain,” in The Age of Rossetti, Burne-Jones, and Watts: Symbolism in Britain, 1860–1910, exh. cat. eds. Andrew Wilton and Robert Upstone (Flammarion, 1997), p. 33, fig. 17, as The Old Guitarist, 1903.\n\nBeverly Mayne Kienzle and Teresa Méndez-Faith, Panoramas literarios España (Houghton Mifflin, 1998), p. 316 (ill.), as El guitarrista.\n\nIngrid Schaffner, The Essential Pablo Picasso, The Essential Series (Harry N. Abrams, 1998), pp. 34, 41 (ill.), as The Old Guitarist, 1903.\n\nMartin E. P. Seligman and David L. Rosenhan, Abnormality (W. W. Norton and Company, 1998), p. 226 (ill.).\n\nLaurie Schneider Adams, Art Across Time, vol. II (McGraw-Hill, 1999), pp. 819, fig. 25.1; 834 (ill.); 835.\n\nSilke Immenga, Picasso und Spanien: Kulturelle Identität als Strategie (Peter Lang, 2000), pp. 60; 306, fig. 38; 339, as Der Gitarrenspieler, 1903; Der Gitarrist.\n\nMeyer Schapiro, The Unity of Picasso’s Art (George Braziller, 2000), p. 11, fig. 15, as The Old Guitarist, autumn 1903.\n\nJames N. Wood and Debra N. Mancoff, Treasures from the Art Institute of Chicago (Hudson Hills Press, 2000), p. 231 (ill.), as The Old Guitarist, 1903/1904.\n\nBonnie Rimer, “The Art Institute of Chicago: The Old Guitarist Meets New Technology,” Picasso: The Artist’s Studio (Cleveland Museum of Art, 2001), http://www.clevelandart.org/exhibcef/picassoas/html/7327426.html (accessed Aug. 2012), no fig. no. (ill.), as The Old Guitarist, 1903.\n\nLilli F. Colton, The Art of Medicine (Annenberg Center for Health Sciences at Eisenhower Medical Center, 2002), pp. 13, 54 (ill.), as The Old Guitarist, 1903-1904.\n\nRobert Hughes, The Portable Picasso (Universe, 2003), pp. 54 (ill.), 425, as The Old Guitarist, 1903.\n\nSandra Benadretti Pellard, Regards complices, hommage à Picasso/Sharing Views, Tribute to Picasso, exh. cat. (Somogy, 2003), pp. 59 (ill.), 90, as Le Vieux Guitariste, 1903; The old guitarist, 1903.\n\nLaurie Schneider Adams, A History of Western Art, 4th ed. (McGraw Hill, 2004), pp. 467, fig. 26.1; 477 (ill.); 478 (ill.), as The Old Guitarist, 1903.\n\nMichael FitzGerald, “Colecciones Permanentes e historias efímeras: una breve crónica de la acogida de la obra de Picasso en Norteamérica” and “America’s Embrace of Picasso: Permanent Collections and Ephemeral Histories,” in Fundación Marcelino Botín, La época de Picasso: donaciones a los museos americanos, exh. cat. (Fundación Marcelino Botín, 2004), pp. 41, 246, as El viejo guitarrista, 1903; The Old Guitarist, 1903.\n\nMichael FitzGerald, “L’abbraccio americano a Picasso: collezioni permanenti e vicende effimere” and “America’s Embrace of Picasso: Permanent Collections and Ephemeral Histories,” in Pepe Karmel, Picasso e la sua epoca: Donazioni a Musei Americani, exh. cat. (Skira, 2004), pp. 31, 175, as Il vecchio chitarrista, 1903; The Old Guitarist, 1903.\n\nJeff Lyon, “In the Loop: Need to Know: Q: Is It True a Picasso Painting at the Art Institute Conceals a 2nd Work?” Chicago Tribune Magazine (June 5, 2005), p. 12 (ill.).\n\nJulia May Boddewyn, “Selected Chronology of Exhibitions, Auctions, and Magazine Reproductions, 1910–1957,” in Michael FitzGerald, Picasso and American Art, exh. cat. (Whitney Museum of American Art/Yale University Press, 2006), pp. 329, 334, 336, 339–40, 342, 344, 350.\n\nMichael FitzGerald, “Chapter Two (1914–1929),” in Picasso and American Art, exh. cat. (Whitney Museum of American Art/Yale University Press, 2006), pp. 69; 70, fig. 25; 104, as The Old Guitarist, 1903.\n\nAsher Ethan Miller, “148. Pablo Picasso, The Old Guitarist,” in Cézanne to Picasso: Ambroise Vollard, Patron of the Avant-Garde, exh. cat. ed. Rebecca A. Rabinow (Metropolitan Museum of Art, 2006), p. 388, cat. 148 (ill.), as The Old Guitarist, 1903/4.\n\nGary Tinterow with research by Asher Ethan Miller, “Vollard and Picasso,” in Cézanne to Picasso: Ambroise Vollard, Patron of the Avant-Garde, exh. cat. ed. Rebecca A. Rabinow (Metropolitan Museum of Art, 2006), pp. 107, fig. 113; 112, as The Old Guitarist, 1903/4; Old Guitarist.\n\nAgnes Husslein-Arco and Alfred Weidinger, Kokoschka: träumender Knabe, enfant terrible (Bibliotek der Provinz, 2008), pp. 146, fig. 83; 148, as Der alte Gitarrenspieler, 1903; Gitarrenspieler.\n\nJ. R. Leibowitz, Hidden Harmony: The Connected Worlds of Physics and Art (Johns Hopkins University Press, 2008), pp. 55; 56, pl. 6; 61, as The Old Guitarist, 1903–4.\n\nP. I. Maltbie, Picasso and Minou (Charlesbridge, 2008), n.pag. (ills.), as The Old Guitarist, 1903/04.\n\nMarilyn McCully, “Picasso Symboliste,” in Marilyn McCully, Picasso in Paris 1900-1907: Eating Fire, exh. cat. ed. Michael Raeburn (Van Gogh Museum/Museu Picasso, 2011), pp. 127; 129, fig. 32, as The Old Guitarist, Barcelona, 1903–4.\n\nThe Picasso Project, Picasso’s Paintings, Watercolors, Drawings and Sculpture: A Comprehensive Illustrated Catalogue 1885–1973, vol. 23, The Blue Period, 1902–1904, Barcelona and Paris (Alan Wofsy Fine Arts, 2011), pp. xii; xxii; 135, cat. 1903–106 (ill.); 235; 243, as The Old Guitarist/Le vieux guitariste, Autumn, 1903.\n\nJack Flam, Katy Rogers, and Tim Clifford, Robert Motherwell Paintings and Collages: A Catalogue Raisonné, 1941–1991, vol. 1, Essays and References (Yale, 2012), pp. 154–55, fig. 151, as The Old Guitarist, 1903-4.\n\nArt Institute of Chicago, “Revealing Picasso Conservation Project,” n.d.,  http://www.artic.edu/collections/conservation/revealing-picasso-conservation-project (accessed Aug. 2012), no fig. no. (ill), as The OId Guitarist, Barcelona, late 1903–probably early 1904.\n\nEnrique Mallen, ed., The On-Line Picasso Project, Sam Houston State University, n.d., https://picasso.shsu.edu/index.php?view=ArtworkInfo&OPPID=OPP.03:022 (accessed Oct. 2012), cat. 03:022 (ill.), as Le vieux guitariste aveugle, Barcelona, Fall/1903 [~Winter]/1903~1904.\n\nStephanie D’Alessandro, Picasso and Chicago: 100 Years, 100 Works (Art Institute of Chicago/Yale University Press, 2013), pp. 9; 17; 18 (ill.); 28; 34-35, pl. 4; 102, cat. 6.\n\nAllison Malafronte, “Picasso and Chicago: A Hundred-Year Art Affair,” Fine Art Connoisseur, n.d. [Feb. 2013?], http://www.fineartconnoisseur.com/Picasso-and-Chicago-A-Hundred-Year-Art-Affair/15593501 (accessed Feb. 27, 2013).\n\nThomas Connors, “Perfectly Pablo,” Michigan Avenue, Feb. 2013, pp. 86, 87 (ill.), as The Old Guitarist, 1903–1904.\n\nThomas Connors, “AIC Opens ‘Picasso and Chicago,’” Michigan Avenue, Feb. 2013, http://michiganavemag.com/living/articles/aic-opens-picasso-and-chicago (accessed Feb. 26, 2013), n.pag. (ill.), as The Old Guitarist, 1903–1904.\n\nJavier Pes, “Pablo Picasso: A Man about Town,” Art Newspaper, Feb. 1, 2013, p. 35 (ill.), as The Old Guitarist, 1903–04.\n\nLauren Weinberg, “The Picasso Effect,” Time Out Chicago, Feb. 14, 2013, pp. 18–19, as The Old Guitarist, 1903–04.\n\nMark Caro, “Looking at Picasso from Chicago’s Angle,” Chicago Tribune, Feb. 15, 2013, cover (ill.); sec. 5, p. 5, as The Old Guitarist, 1902–04; The Old Guitarist, 1903–04.\n\nAssociated Press, “Art Institute of Chicago Opens Major Picasso Show,” New York Times, Feb. 19, 2013, http://www.nytimes.com/aponline/2013/02/19/arts/ap-us-chicago-picasso.html?ref=aponline&_r=1& (accessed Feb. 26, 2013).\n\nCaryn Rousseau, “Picasso and Chicago: Art Institute Opens Major Show Dedicated to the Famed Spanish Painter,” Huffington Post, Feb. 19, 2013, http://www.huffingtonpost.com/2013/02/19/picasso-and-chicago-art-institute-major-show_n_2717584.html and http://www.huffingtonpost.com/2013/02/19/picasso-and-chicago-art-institute-major-show_n_2717584.html#slide=2124777 (accessed Feb. 26, 2013), n.pag. (ill.), as Old Guitarist and The Old Guitarist, 1902–04.\n\nChris Miller, “Review: ‘Picasso and Chicago’/Art Institute of Chicago,” Newcity Art, Feb. 21, 2013, http://art.newcity.com/2013/02/21/review-picasso-in-chicagoart-institute-of-chicago/ (accessed Feb. 27, 2013), n.pag. (ill.), as The Old Guitarist, 1902–04.\n\nHedy Weiss, “Art Institute Exhibit ‘Picasso and Chicago’ as Enigmatic as Famous Chicago Landmark,” Herald-News, Feb. 21, 2013, updated Feb. 22, 2013, http://heraldnews.suntimes.com/entertainment/18340917-421/art-institute-exhibit-picasso-and-chicago-as-enigmatic-as-famous-chicago-landmark.html (accessed Feb. 26, 2013), n.pag.; “Gallery” sec. (ill.), as The Old Guitarist, 1902–04.\n\nHedy Weiss, “Master Collection: Art Institute Exhibit ‘Picasso and Chicago’ as Enigmatic as Famous Sculpture,” Chicago Sun-Times, Feb. 22, 2013, p. 10 (ill.), as The Old Guitarist, 1902–04.\n\nKenneth Brummel, Susan Behrends Frank, Marilyn McCully, Patricia Favero, Eduard Vallès, Sandra Webster-Cook, Picasso: Painting the Blue Period, exh. cat. (New York: DelMonico Books; Toronto: Art Gallery of Ontario; Washington D.C.: The Phillips Collection, 2021), 308, fig. 15 (color ill.).",
+    "exhibition_history": "Probably Paris, Galerie Vollard, Exposition Picasso, Dec. 1910–Feb. 1911, no cat.\n\nNew York, Carroll Galleries, Third Exhibition of Contemporary French Art, Mar. 8–Apr. 3, 1915, cat. 3, as The Guitarrist [sic].\n\nChicago, Arts Club, Paintings by Pablo Picasso, Mar. 26–Apr. 9, 1930, cat. 6, as Le Guitariste, about 1910.\n\nChicago, Art Institute, A Century of Progress Exhibition of Paintings and Sculpture, June 1–Nov. 1, 1933, cat. 402, as The Guitarist, 1903.\n\nHartford, Conn., Wadsworth Atheneum, Pablo Picasso, Feb. 6–Mar. 1, 1934, cat. 11 (ill.), as Vieux Guitariste, 1903.\n\nChicago, Art Institute, Century of Progress Exhibition of Paintings and Sculpture, June 1–Nov. 1, 1934, cat. 358, as The Guitarist, 1903.\n\nNew York, Jacques Seligmann and Company, Picasso: “Blue” and “Rose” Periods, 1901–1906, Nov. 2–26, 1936, cat. 15 (ill.), as The Old Guitar Player (The Guitarist), Barcelona, 1903.\n\nNew York, Museum of Modern Art, Picasso: Forty Years of His Art, Nov. 15, 1939–Jan. 7, 1940, cat. 20 (ill.); traveled to Chicago, Art Institute, Feb. 1–Mar. 3, 1940; St. Louis, City Art Museum, Mar. 17–Apr. 14, 1940; Boston, Museum of Art, Apr. 26–May 25, 1940; San Francisco Museum of Art, June 25–July 22, 1940; Cincinnati Museum of Art, Sept. 28–Oct. 27, 1940; Cleveland Museum of Art, Nov. 7–Dec. 8, 1940; New Orleans, Isaac Delgado Museum, Dec. 20, 1940–Jan. 17, 1941; Pittsburgh, Department of Fine Arts, Carnegie Institute, Mar. 17–Apr. 13, 1941, as The Old Guitarist, Barcelona, 1903 (New York, Chicago, and possibly St. Louis only).\n\nChicago, Art Institute, Gallery of Art Interpretation: Presenting the Art Institute's Picassos, Sept. 12–Dec. 15, 1955, no cat.\n\nChicago, Art Institute, Picasso in Chicago: Paintings, Drawings, and Prints from Chicago Collections, Feb. 3–Mar. 31, 1968, cat. 7 (ill.).\n\nNew York, Metropolitan Museum of Art, Cézanne to Picasso: Ambroise Vollard, Patron of the Avant-Garde, Sept. 13, 2006–Jan. 7, 2007, cat. 148 (ill.), as The Old Guitarist, 1903/4; traveled to Chicago, Art Institute, Feb. 17–May 13, 2007 and Paris, Musée d’Orsay, June 18–Sept. 16, 2007 (New York and Chicago only).\n\nChicago, Art Institute, Picasso and Chicago, Feb. 20–May 12, 2013, cat. 6 (ill.). \n\nFort Worth, Kimbell Art Museum, The Age of Picasso and Matisse: Modern Masters from the Art Institute of Chicago, Oct. 6, 2013–Feb. 16, 2014, no cat. no. ",
+    "provenance_text": "Ambroise Vollard (1867–1939), Paris, c. 1906, probably acquired directly from the artist [Miller 2006, 388]; sold through Carroll Galleries, New York, to John Quinn (1870–1924), New York, 1915, for 5,000 fr [$1,000] [letter from John Quinn to Ambroise Vollard, Feb. 26, 1915; Memorandum of Pictures consigned to Carroll Galleries, Inc, (n.d.), 3, John Quinn Collection, New York Public Library Manuscript Division, copies in curatorial object file]; Quinn estate; sold through Felix Wildenstein, Art Centre auction, New York, to Paul Rosenberg (1881–1959), Paris, Jan. 9, 1926 [“52 Picasso Paintings Sold,” 1926, copy in curatorial object file]; sold through Joseph Stransky, The French Galleries, New York, to Frederic Clay Bartlett (1873–1953), Chicago, 1926, for $9,500 [letter from Alexandre Rosenberg to Courtney G. Donnell, Nov. 17, 1975; letter from Frederic Clay Bartlett to Joseph Stransky, May 21, 1927; copies in curatorial object file]; given to the Art Institute, Apr. 30, 1926.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 246,
+    "fiscal_year": 1926,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": true,
+    "max_zoom_window_size": 1280,
+    "copyright_notice": "© 2018 Estate of Pablo Picasso / Artists Rights Society (ARS), New York",
+    "has_multimedia_resources": true,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 19.7591,
+    "color": {
+    "h": 195,
+    "l": 43,
+    "s": 28,
+    "percentage": 0.050006297785623384,
+    "population": 532
+    },
+    "latitude": 41.8803363736073,
+    "longitude": -87.6219357177614,
+    "latlon": "41.880336373607,41.880336373607",
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 391",
+    "gallery_id": 25474,
+    "nomisma_id": null,
+    "artwork_type_title": "Painting",
+    "artwork_type_id": 1,
+    "department_title": "Modern Art",
+    "department_id": "PC-11",
+    "artist_id": 36198,
+    "artist_title": "Pablo Picasso",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    36198
+    ],
+    "artist_titles": [
+    "Pablo Picasso"
+    ],
+    "category_ids": [
+    "PC-11",
+    "PC-831"
+    ],
+    "category_titles": [
+    "Modern Art",
+    "Essentials"
+    ],
+    "term_titles": [
+    "oil on panel",
+    "oil painting",
+    "oil paint (paint)",
+    "Century of Progress",
+    "Blue period",
+    "painting (image making)",
+    "painting",
+    "modern and contemporary art",
+    "music",
+    "portraits",
+    "emotions",
+    "men",
+    "world's fairs",
+    "Chicago World's Fairs",
+    "guitars",
+    "musical instruments",
+    "elderly",
+    "blue (color)"
+    ],
+    "style_id": "TM-12030",
+    "style_title": "Blue period",
+    "alt_style_ids": [],
+    "style_ids": [
+    "TM-12030"
+    ],
+    "style_titles": [
+    "Blue period"
+    ],
+    "classification_id": "TM-80",
+    "classification_title": "oil on panel",
+    "alt_classification_ids": [
+    "TM-9",
+    "TM-155"
+    ],
+    "classification_ids": [
+    "TM-80",
+    "TM-9",
+    "TM-155"
+    ],
+    "classification_titles": [
+    "oil on panel",
+    "painting",
+    "modern and contemporary art"
+    ],
+    "subject_id": "TM-12169",
+    "alt_subject_ids": [
+    "TM-8906",
+    "TM-8658",
+    "TM-10122",
+    "TM-10121",
+    "TM-11299",
+    "TM-12176",
+    "TM-12696",
+    "TM-8832",
+    "TM-12617",
+    "TM-11843"
+    ],
+    "subject_ids": [
+    "TM-12169",
+    "TM-8906",
+    "TM-8658",
+    "TM-10122",
+    "TM-10121",
+    "TM-11299",
+    "TM-12176",
+    "TM-12696",
+    "TM-8832",
+    "TM-12617",
+    "TM-11843"
+    ],
+    "subject_titles": [
+    "Century of Progress",
+    "music",
+    "portraits",
+    "emotions",
+    "men",
+    "world's fairs",
+    "Chicago World's Fairs",
+    "guitars",
+    "musical instruments",
+    "elderly",
+    "blue (color)"
+    ],
+    "material_id": "TM-2451",
+    "alt_material_ids": [],
+    "material_ids": [
+    "TM-2451"
+    ],
+    "material_titles": [
+    "oil paint (paint)"
+    ],
+    "technique_id": "TM-4273",
+    "alt_technique_ids": [
+    "TM-3891"
+    ],
+    "technique_ids": [
+    "TM-4273",
+    "TM-3891"
+    ],
+    "technique_titles": [
+    "oil painting",
+    "painting (image making)"
+    ],
+    "theme_titles": [
+    "Essentials"
+    ],
+    "image_id": "ddacae05-9279-51b5-e9ab-00024ae01e27",
+    "alt_image_ids": [],
+    "document_ids": [
+    "ad4b851f-f04b-694b-e3c1-73166263775b"
+    ],
+    "sound_ids": [
+    "ad4b851f-f04b-694b-e3c1-73166263775b"
+    ],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [
+    17
+    ],
+    "suggest_autocomplete_boosted": "The Old Guitarist",
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1926.253"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "The Old Guitarist"
+    ],
+    "weight": 256321,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-04-10T10:21:12-05:00",
+    "updated_at": "2024-04-24T23:33:30-05:00",
+    "timestamp": "2024-04-25T01:05:50-05:00"
+    },
+    {
+    "id": 27992,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/27992",
+    "is_boosted": true,
+    "title": "A Sunday on La Grande Jatte — 1884",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhCAAFAPUAAE1WUFVTU1NWUFZYVllbVlpaW1tcWF1cXVxiWl1jWl9mX2NmVWVnXF9eZlxdaGZkYmpmZWRtYGZuY2htZGpsanBsZXVwZXB5Znp+ZXJwaYSAaYiBaYqIbIeAdI2DcYqFcI+FcoiCd5iRcouJgIyKhoyNi4mMjo2RkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAIAAUAAAYlwBLmMmEkCAHTaRTqfB4QEmgj8mgaGY6lsohIHAXKwQBQIAaCIAA7",
+    "width": 9310,
+    "height": 6237,
+    "alt_text": "Large painting of people in a crowded park, brushstrokes are dots."
+    },
+    "main_reference_number": "1926.224",
+    "has_not_been_viewed_much": false,
+    "boost_rank": 14,
+    "date_start": 1884,
+    "date_end": 1886,
+    "date_display": "1884/86",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Georges Seurat\nFrench, 1859-1891",
+    "place_of_origin": "France",
+    "description": "<p>In his best-known and largest painting, Georges Seurat depicted people from different social classes strolling and relaxing in a park just west of Paris on La Grande Jatte, an island in the Seine River. Although he took his subject from modern life, Seurat sought to evoke the sense of timelessness associated with ancient art, especially Egyptian and Greek sculpture. He once wrote, “I want to make modern people, in their essential traits, move about as they do on those friezes, and place them on canvases organized by harmonies of color.”</p>\n<p>Seurat painted <em>A Sunday on La Grande Jatte—1884</em> using pointillism, a highly systematic and scientific technique based on the hypothesis that closely positioned points of pure color mix together in the viewer’s eye. He began work on the canvas in 1884 (and included this date in the title) with a layer of small, horizontal brushstrokes in complementary colors. He next added a series of dots that coalesce into solid and luminous forms when seen from a distance. Sometime before 1889 Seurat added a border of blue, orange, and red dots that provide a visual transition between the painting’s interior and the specially designed white frame, <a href=\"https://www.artic.edu/articles/969/la-grande-jatte-frame-by-frame\">which has been re-created at the Art Institute</a>.</p>\n",
+    "short_description": "For his largest and best-known painting, Georges Seurat depicted Parisians enjoying all sorts of leisurely activities—strolling, lounging, sailing, and fishing—in the park called La Grande Jatte on the River Seine. He used an innovative technique called Pointillism that was inspired by optical and color theory, applying tiny dabs of different colored paint that viewers would see as a single, and Seurat believed, more brilliant hue.",
+    "dimensions": "207.5 × 308.1 cm (81 3/4 × 121 1/4 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": 308,
+    "height": 207,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Oil on canvas",
+    "inscriptions": "Inscribed at lower right: Seurat",
+    "credit_line": "Helen Birch Bartlett Memorial Collection",
+    "catalogue_display": "<p>de Hauke 162</p>",
+    "publication_history": "Jules Christophe, Georges Seurat (Paris, 1890).\n\nGustave Kahn, “Seurat,” L’Art Moderne 11 (April 5, 1891), pp. 107-10.\n\nHenry van de Velde, “Georges Seurat,” La Wallonie 6 (March/April 1891), pp. 167-71.\n\nEmile Verhaeren, “Mort de Georges Seurat,” La Nation (April 1, 1891).\n\n\nEmile Verhaeren, “Georges Seurat,” La Société nouvelle (April 30, 1891), pp. 430-38.\n\nTéodor de Wyzewa, “Georges Seurat,” L’Art dans les Deux Mondes 22 (April 18, 1891), pp. 263-64.\n\nJules Christophe, “Seurat,” La Plume (September 1, 1891).\n\nPaul Signac, D’Eugène Delacroix au néo-impressionnisme (Paris, 1899).\n\nEmile Verhaeren, “Georges Seurat,” L’Art Moderne 15, 13 (April 1, 1900), p. 104.\n\nThadée Natanson, “Un Primitif d’aujourd’hui: Georges Seurat,” La Revue Blanche 21 (April 1900), pp. 610-14.\n\nEmile Verhaeren, “Notes: Georges Seurat,” La Nouvelle Revue Française 1 (February 1, 1909), p. 92.\n\nRoger Fry, “The Post-Impressionsists,” in Manet and the Post-Impressionists, exh. cat. (Grafton Galleries, London, 1910-11), pp. 8-9.\n\nLucie Cousturier, “Georges Seurat,” L’Art Décoratif 27 (20 June 1912), pp. 357-72.\n\nElie Faure, Les Constructeurs (Paris, 1914).\n\nFélix Féneon, “Georges Seurat,” Bulletin de la Vie Artistique 7 (14 May 1914); reprinted in Félix Fénéon, Oeuvres plus que complètes, ed. Joan Halperin (Geneva, 1970), pp. 293-94.\n\nRoger Bissière, “Notes sur l’art de Seurat,” L’Esprit Nouveau 1 (Oct. 1920), pp. 13-28.\n\nAndré Salmon, “Georges Seurat,” The Burlington Magazine 37 (September 1920), pp. 115-22.\n\nRoger Fry, “Retrospect” in Vision and Design (London, 1920), pp. 188-199.\n\nLucie Cousturier, Seurat (Paris, 1921), p. 17, pl. 11.\n\nJ. Carré.  “Le Grand Art. Georges Seurat,” La Vie (September 1, 1922).\n\nAndré Salmon, Propos d’atelier (Paris, 1922).\n\nAndré Lhote, Georges Seurat (Rome, 1922), pl. 4.\n\nAndré Lhote, “Seurat” in Parlons peinture, 1922; reprinted in Ecrits sur la peinture (Brussels, 1946).\n\nWalter Pach, “Georges Seurat (1853-1891),” The Arts 3 (March 1923), pp. 160-74.\n\nWalter Pach, Georges Seurat (New York, 1923), pl. 6.\n\nGustave Coquiot, Seurat (Paris, 1924), pp. 214-19, ill. opp. p. 216, 247.\n\nFélix Fénéon, “Précisions concernant Seurat,” Bulletin de la Vie Artistique (15 August 1924); reprinted in Félix Fénéon, Oeuvres plus que complètes, ed. Joan Halperin (Geneva, 1970), pp. 467-68.\n\nExhibition of Paintings and Drawings by Georges Seurat, foreward by Walter Pach (New York, Brummer Galleries, 1924).\n\nGuy Eglinton, “The Theory of Seurat,” International Studio 81 (May 1925), pp. 113-17.\n\nFélix Fénéon, “Georges Seurat und die oeffentliche Meinung,” Der Querschnitt 6 (October 1926), pp. 767-70.    \n\nRoger Fry, “Georges Seurat,” The Dial 1926, reprinted in R. Fry, Transformations, Critical and Speculative Essays on Art, 1926, pp. 188-96 and Sir Anthony Blunt, Seurat (1965), pp. 9-22.\n\nAmédée Ozenfant, “Seurat,” Cahiers d’Art 7 (September 1926), p. 172.\n\nFlorent Fels, “La Peinture française aux XIXe et Xxe siècles, Seurat,” A.B.C. Magazine d’Art (1927), pp. 282-87.\n\nAndré Lhote, “Expositions Seurat et Roger de la Fresnaye,” (1927); reprinted in La Peinture, Le Coeur et l’Esprit (Paris, 1933).\n\nClaude Roger-Marx, “Georges Seurat,” Gazette des Beaux-Arts (December 1927), pp. 311-18.\n\nChristian Zervos, “Un Dimanche à la Grande Jatte et la technique de Seurat,” Cahiers d’Art 9 (1928), pp. 361-75.\n\nAlfred Barr, The Museum of Modern Art First Loan Exhibition New York November 1929; Cézanne, Gauguin, Seurat, Van Gogh, exh. cat. (Museum of Modern Art, New York 1929), pp. 23-27.\n\nRobert Rey, “Seurat,” in La Peinture française à la fin du XIXe siècle, La Renaissance du Sentiment Classique, Degas, Renoir, Gauguin, Cézanne, Seurat (Paris, 1931), pp. 95-134.\n\nB.E. Werner, “Georges Seurat,” Die Kunst 65 (February 1932), pp. 147-52.\n\nF. Walter, “Du Paysage Classique au surréalisme:  Seurat,” Revue de l’Art Ancien et Moderne 63 (April 1933), pp. 165-76.\n\nP. Signac, “Les étapes de la peinture contemporaine:  Georges Seurat,” Beaux-Arts (December 15, 1933), p. 1.\n\nLévy-Gutmann, “Seurat et ses amis,” Art et Décoration 63 (Jan. 1934), pp. 36-37.\n\nPaul Signac, “Le néo-impressionisme,” Gazette des Beaux-Arts 11 (January 1934), pp. 49-59.\n\nDaniel Catton Rich, Seurat and the Evolution of “La Grande Jatte” (Chicago, 1935).\n\nMeyer Schapiro, “Seurat and “La Grande Jatte”,\" The Columbia Review 17 (November 1935), pp. 9-16.\n\nA. Watt, “Art of Georges Seurat,” Apollo 23 (March 1936), pp. 168-69.\n\nJ. Hélion, “Seurat as a predecessor,” The Burlington Magazine 69 (July 1936), pp. 4-14.\n\nPaul Signac, “The Neo-Impressionist Movement,” in Seurat and his Contemporaries, exh. cat. (London, Wildenstein, 1937).\n\nGeorges Duthuit, “Seurat’s System,” The Listener 17, 421 (February 3, 1937), pp. 210-11.\n\nD. Goldring, “London Art News:  Seurat and His Contemporaries,” London Studio 13 (April 1937), p. 219.\n\n“Seurat,” Apollo 32 (July 1940), pp. 11-12.\n\nR. J. Goldwater, “Some Aspects of the Development of Seurat’s Style,” Art Bulletin 23 (June 1941), pp. 117-30.\n\nLionello Venturi, “The Art of Seurat,” Gazette des Beaux-Arts (July-Dec. 1944), pp. 421-30.\n\nJohn Rewald, Georges Seurat (New York, 1946).\n\nGeorges Duthuit, “Georges Seurat, Voyant et physicien,” Labyrinthe [Geneva] (December 1946).\n\nGermain Seligman, The Drawings of Georges Seurat (New York, 1947).\n\nAndré Lhote, Seurat (Paris, 1948).\n\nAndré Lhote, “Le classicisme de Seurat; excerpts,” Arts (June 18, 1948), p. 2.\n\nThadée Natanson, “L’Ecole de Seurat,” in Peints à leur tour (Paris, 1948), pp. 121-29.\n\nJohn Rewald, “Seurat:  the meaning of the dots,” Art News 48 (April 1949), pp. 24-27, 61-63.\n\nUmbro Apollonio, “Disegni di Georges Seurat,” in XXV Biennale di Venezia, Catalogo (Venice, 1950), pp. 175-79.\n\n“Sunday at the Grande Jatte,” Life 31 (July 23, 1951), pp. 60-64.\n\n“Pointillism with Paint and Camera,” Design 53 (March 1952), p. 141.\n\n\"Chicago's Fabulous Collectors\" Art Institute Announces it will Get Treasures from their Homes,\" Life Magazine (October 27, 1952): 90.\n\nJohn Rewald, “Seurat and His Friends,” in Seurat and His Friends, exh. cat. (New York, Wildenstein, 1953).\n\nTerence Mullaly, “Pointillists,” Apollo 63 (June 1956), pp. 185-89.\n\nD.C. Rich, ed., Seurat Paintings and Drawings, exh. cat. (Chicago, 1958).\n\nD. C. Rich, “Place of Seurat,” Art Institute Quarterly 52 (February 1958), pp. 1-5.\n\nL. Katz, “Seurat: Allegory and Image,” Arts 32 (April 1958), pp. 40-47.\n\nMeyer Schapiro, “New Light on Seurat,” Art News 57 (April 1958), pp. 22-24, 44-45, 52.\n\nJ. O. Kerr, “Seurat:  the Silent Post-Impressionist,” Studio 155 (May 1958), pp. 129-33.\n\nRobert L. Herbert, “Seurat in Chicago and New York,” The Burlington Magazine 100 (May 1958), pp. 146-155.\n\nRobert L. Herbert, “Seurat and Jules Chéret,” Art Bulletin 40 (June 1958), pp. 156-58.\n\nWilliam I. Homer, “Seurat’s formative period:  1880-1884,” Connoisseur 142 (September 1958), pp. 58-62.\n\nHenri Dorra and John Rewald, Seurat (Paris, 1959), no. 139 (ill.).\n\nRobert L. Herbert, “Seurat and Puvis de Chavannes,” Yale University Art Gallery Bulletin 25 (October 1959), pp. 22-29.\n\nRobert L. Herbert, “Seurat and Emile Verhaeren: Unpublished Letters,” Gazette des Beaux-Arts 54 (December 1959), pp. 315-28.\n\nCésar M. De Hauke, Seurat et son oeuvre 2 vol. (Paris, 1961), no. 162.\n\nJohn Russell, Seurat (London, 1965).\n\nJohn House, \"Meaning in Seurat's Figure Painting,\"Art History 3, 3 (September 1980), pp. 345-56.\n\nRichard Thomson, “ ‘Les Quat’ Pattes’: The Image of the Dog in Late Nineteenth-Century French Art,” Art History 5 (September 1982), pp. 331-37.\n\nJeroen Stumpel, \"The Grande Jatte, that patient tapestry,\" Simiolus 14 (1984), pp. 209-24.\n\nRichard Thomson, Seurat (Oxford, 1985), pp. 97-126.\n\nRichard R. Brettell, “The Bartletts and the ‘Grande Jatte:’ Collecting Modern Painting in the 1920s,” Art Institute of Chicago Museum Studies 12, 2 (1986), pp. 103-113 (ill.).\n\nAlan Lee, “Seurat and Science,” Art History 10 (June 1987), pp. 203-26.\n\nS. Hollis Clayson, “The Family and the Father:  The Grande Jatte and its Absences,”\nThe Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 155-72.\n\nStephen F. Eisenman, “Seeing Seurat Politically,” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 211-21.\n\nMary Mathews Gedo, “The Grande Jatte as the Icon of a New Religion:  A Psycho-Iconographic Interpretation,” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 223-37.\n\nJohn House, “Reading the Grande Jatte, ” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 115-31.\n\nLinda Nochlin, “Seurat’s Grande Jatte:  An Anti-Utopian Allegory,” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 133-53.\n\nRichard Thomson, “The Grande Jatte: Notes on Drawing and Meaning,” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 181-97.\n\nMichael Zimmerman, “Seurat, Charles Blanc, and Naturalist Art Criticism,” The Art Institute of Chicago Museum Studies 14, 2 (1989), pp. 199-209.\n\nJean Claude Lebensztejn, Chahut (Paris, 1989).\n\nNatasha Staller, “Babel: Hermetic Languages, Universal Languages, and Anti-Languages in fin de siècle Parisian Culture,” Art Bulletin 76 (June 1994), pp. 331-54.\n\nFritz Novotny, Painting and Sculpture in Europe, 1780-1880 (New Haven, 1995), p. 370.\n\nPaul Smith, Seurat and the Avant-Garde (New Haven, 1997).\n\nSuzanne Folds McCullagh, “‘A Lasting Monument’: The Regenstein Collection at the Art Institute of Chicago,” Art Institute of Chicago Museum Studies 26, 1 (2000), p. 13.\n\nJane Block, Le Néo-Imoressionnisme de Seurat á Paul Klee, Exh. cat. (Réunion des Musées Nationaux, 2005), ill.14-15, p. 16-21, p. 27-29,  p. 32, p. 64, p. 74, p. 76, p. 85, p. 97, p. 108, p. 112, p. 122.  \n\nMartha Tedeschi, “Study of Trees, 1884,” Art Institute of Chicago Museum Studies 26, 1 (2000), pp. 82-83, cat. 36, fig. 29.\n\nRichard Shiff, Jodi Hauptman, Hubert Damisch, and Richard Thomson, “Seurat Distracted,” “Medium and Miasma: Seurat’s Drawings on the Margins of Paris,” “Polka Dots and Moonbeams,” and “The Imperatives of Style: Seurat’s Drawings,” George Seurat: The Drawings, Exh. cat. (The Museum of Modern Art, New York, 2007), p.18, p. 110, ill. 111, p. 122, p. 123, p. 171.  \n\nBasel, Switzerland, Kunstmuseum Basel, Vincent van Gogh- Between Earth and Heaven: The Landscapes, 2009, Fig. 45, p. 82, p. 86.\n\nMary Mathews Gedo, Monet and His Muse: Camille Monet in the Artists Life, Chicago: The University of Chicago Press, 2010. p. 39, p. 58, p. 164.  \n\nRichard R. Brettell, Pissarro’s People. New York: Fine Arts Museum of San Francisco, 2011. p. 202, p. 208, p. 217, fig. 154. \n\nHomburg, Cornelia. 2010. “Imagining City and Country.” In Vincent Van Gogh: Timeless Country – Modern City. Exh. cat., pp. 29-30. Skira.\nJean-Michel Nectoux, “Je veux Écrire mon Songe Musical…,” Debussy: La Musique et les Arts. Exh. cat. (Musée d’Orsay, 2012), p. 26. \n\nJennifer A. Thompson, “Van Gogh and Close-up Techniques in 19th-century French Painting,” Van Gogh: Up Close. Exh. cat. (Yale UP, 2012), p. 69. \n\nJoseph J. Rishel, “Arcadia 1900,” Gauguin, Cézanne, Matisse: Visions of Arcadia Exh. cat (Philadelphia Museum of Art, 2012),  p. 7, p. 48, p. 50, fig. 49.  \n\nMarije Velekoop, Van gogh at Work, exh. cat. (Brussels:Mercatorfonds, 2013), fig. 174.\n\nHélène Eisenberg and François Lespinasse, Peintres de la Seine (Rouen : Éditions des Falaises, 2013), 202 no. 86, 203 (color ill.).\n\nRichard Kendall, Sjraar van Heugten, and Chris Stolwijk, Van Gogh and Nature exh. cat. (New Haven and London: Yale University Press, 2015), 96 fig. 67.\n\nMichelle Foa, Georges Seurat: The Art of Vision (New Haven: Yale University Press, 2015), 63–87.\n\nGavin Parkinson, \"Method and Poetry: Georges Seurat's Surrealist Dialectic,\" The Art Bulletin 99, no. 3 (Sept. 2017), pp. 126–27, 131–33, 145n70, 145n72, fig. 5, fig. 6 (detail).",
+    "exhibition_history": "Paris, Maison Dorée, 1, rue Laffitte, VIIIème Exposition de peinture, May 15–June 15, 1886, cat. 175.\n\nParis, Rue des Tuileries, IIème Exposition de la Société des Artistes Indépendants, August 21–September 21, 1886, cat. 353.\n\nBrussels, Musée de l’Art Modern, IVe exposition annuelle de XX, February, 1887, cat. 1.\n\nParis, Pavillon de la Ville de Paris, VIIIème Exposition de la Société des Artistes Indépendants, March 19–April 27, 1892, cat. 1082.\n\nParis, 23 Boulevard des Italiens, Exposition de La Revue Blanche, Georges Seurat: Oeuvres peintes et dessinées, March 19–April 5, 1900, cat. 17.\n\nParis, Grandes Serres de la Ville de Paris (serre “B” de la Champs de la Reine, Aval-Alma), 21me Exposition de la Société des Artistes Indépendants.  Éxposition Rétrospective Georges Seurat (1859-1891), 1905, cat. 18.\n\nParis, Galeries Bernheim-Jeune et Cie, Georges Seurat (1859-1891), December 14, 1908–January 9, 1909, cat. 58.\n\nParis, Galeries Bernheim-Jeune, Exposition Georges Seurat, January 15–31, 1920, cat. 23.\n\nMinneapolis Institute of Arts, Exhibition of Modern French Paintings from the Birch-Bartlett Collection, April–September, 1925, checklist no. 9.\n\nBoston Art Club, Birch-Bartlett Collection of Modern French Paintings, December 9-16, 1925, checklist no. 26.\n\nArt Institute of Chicago, A Century of Progress Exhibition of Paintings and Sculpture, June 1–November 1, 1933, cat. 370.\n\nArt Institute of Chicago, A Century of Progress Exhibition of Paintings and Sculpture, June 1–November 1, 1934, cat. 324.\n\nArt Institute of Chicago, Art of the United Nations, November 16, 1944–January 1, 1945, no cat. no.\n\nArt Institute of Chicago, Seurat: Paintings and Drawings, January 16–March 7, 1958, cat. 101, traveled to New York, The Museum of Modern Art, Seurat: Paintings and Drawings, March 24–May 11, 1958. \n\nArt Institute of Chicago, The Art of the Edge: European Frames 1300-1900, October 17–December 14, 1986, not included in the catalogue.\n\nArt Institute of Chicago, Chicago’s Dream, A World’s Treasure: The Art Institute of Chicago 1893-1993, November 1–January 9, 1994, no cat. no, pl. 21.\n\nArt Institute of Chicago, Seurat and the Making of ‘La Grande Jatte,’ June 16-September 19, 2004, cat. 80.",
+    "provenance_text": "By descent to Mme. Seurat, the artist’s mother (died 1899), Paris, 1891; by descent to Emile Seurat, the artist’s brother; sold for 800 francs to Casimir Brû, Paris, 1900; given by him to his daughter, Lucie, Paris, 1900; Lucie Brû Cousturier and Edmond Cousturier, Paris; sold for $20,000 possibly through Charles Vildrac, Paris to Frederic Clay and Helen Birch Bartlett, Chicago, 1924; given to the Art Institute, 1926.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 14,
+    "fiscal_year": 1926,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": true,
+    "is_zoomable": true,
+    "max_zoom_window_size": -1,
+    "copyright_notice": null,
+    "has_multimedia_resources": true,
+    "has_educational_resources": true,
+    "has_advanced_imaging": false,
+    "colorfulness": 0,
+    "color": {
+    "h": 59,
+    "l": 52,
+    "s": 12,
+    "percentage": 0.002095873918287094,
+    "population": 1217
+    },
+    "latitude": 41.8795894858483,
+    "longitude": -87.623031400144,
+    "latlon": "41.879589485848,41.879589485848",
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 240",
+    "gallery_id": 2147478672,
+    "nomisma_id": null,
+    "artwork_type_title": "Painting",
+    "artwork_type_id": 1,
+    "department_title": "Painting and Sculpture of Europe",
+    "department_id": "PC-10",
+    "artist_id": 40810,
+    "artist_title": "Georges Seurat",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    40810
+    ],
+    "artist_titles": [
+    "Georges Seurat"
+    ],
+    "category_ids": [
+    "PC-10",
+    "PC-109",
+    "PC-831"
+    ],
+    "category_titles": [
+    "Painting and Sculpture of Europe",
+    "Art Institute Icons",
+    "Essentials"
+    ],
+    "term_titles": [
+    "oil on canvas",
+    "oil painting",
+    "oil paint (paint)",
+    "Impressionism",
+    "Century of Progress",
+    "animals",
+    "painting (image making)",
+    "Post-Impressionism",
+    "painting",
+    "european painting",
+    "urban life",
+    "weather/seasons",
+    "leisure",
+    "men",
+    "women",
+    "children",
+    "circles",
+    "landscapes",
+    "water",
+    "world's fairs",
+    "Chicago World's Fairs"
+    ],
+    "style_id": "TM-7543",
+    "style_title": "Impressionism",
+    "alt_style_ids": [
+    "TM-7547"
+    ],
+    "style_ids": [
+    "TM-7543",
+    "TM-7547"
+    ],
+    "style_titles": [
+    "Impressionism",
+    "Post-Impressionism"
+    ],
+    "classification_id": "TM-66",
+    "classification_title": "oil on canvas",
+    "alt_classification_ids": [
+    "TM-9",
+    "TM-54"
+    ],
+    "classification_ids": [
+    "TM-66",
+    "TM-9",
+    "TM-54"
+    ],
+    "classification_titles": [
+    "oil on canvas",
+    "painting",
+    "european painting"
+    ],
+    "subject_id": "TM-12169",
+    "alt_subject_ids": [
+    "TM-12218",
+    "TM-10126",
+    "TM-10095",
+    "TM-10094",
+    "TM-10121",
+    "TM-8735",
+    "TM-10118",
+    "TM-8803",
+    "TM-8657",
+    "TM-8681",
+    "TM-11299",
+    "TM-12176"
+    ],
+    "subject_ids": [
+    "TM-12169",
+    "TM-12218",
+    "TM-10126",
+    "TM-10095",
+    "TM-10094",
+    "TM-10121",
+    "TM-8735",
+    "TM-10118",
+    "TM-8803",
+    "TM-8657",
+    "TM-8681",
+    "TM-11299",
+    "TM-12176"
+    ],
+    "subject_titles": [
+    "Century of Progress",
+    "animals",
+    "urban life",
+    "weather/seasons",
+    "leisure",
+    "men",
+    "women",
+    "children",
+    "circles",
+    "landscapes",
+    "water",
+    "world's fairs",
+    "Chicago World's Fairs"
+    ],
+    "material_id": "TM-2451",
+    "alt_material_ids": [],
+    "material_ids": [
+    "TM-2451"
+    ],
+    "material_titles": [
+    "oil paint (paint)"
+    ],
+    "technique_id": "TM-4273",
+    "alt_technique_ids": [
+    "TM-3891"
+    ],
+    "technique_ids": [
+    "TM-4273",
+    "TM-3891"
+    ],
+    "technique_titles": [
+    "oil painting",
+    "painting (image making)"
+    ],
+    "theme_titles": [
+    "Art Institute Icons",
+    "Essentials"
+    ],
+    "image_id": "2d484387-2509-5e8e-2c43-22f9981972eb",
+    "alt_image_ids": [
+    "6782523e-056b-ba22-69f9-b5f1b59efcb6"
+    ],
+    "document_ids": [
+    "d9683532-66fd-67c3-5588-021527d115af",
+    "cd612b0c-3dfd-e213-3927-010b375c77a6"
+    ],
+    "sound_ids": [
+    "d9683532-66fd-67c3-5588-021527d115af",
+    "cd612b0c-3dfd-e213-3927-010b375c77a6"
+    ],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [
+    22
+    ],
+    "suggest_autocomplete_boosted": "A Sunday on La Grande Jatte — 1884",
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1926.224"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "A Sunday on La Grande Jatte — 1884"
+    ],
+    "weight": 975461,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-03-28T10:16:18-05:00",
+    "updated_at": "2024-04-24T23:33:29-05:00",
+    "timestamp": "2024-04-25T01:05:50-05:00"
+    },
+    {
+    "id": 100858,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/100858",
+    "is_boosted": true,
+    "title": "Sky above Clouds IV",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhDwAFAPYAALe9vba+xL/GyLzGzrLC1LvG0bnJ1r7L17nM277M3MDJzMLLz8PLz9LOy9PPz8XM0cXN0cbM0MPM1cTN1MTO1cnP1MHP28DP3szS1cHR3sLR38LS38TR3MbT38nS2szT2MvU283U2snU3dfU09fW1tjW1tnX19nX2dTZ3NXb3tbb39vZ2dza2tza29vb39zb3Nzb3djc39zc3t7d3sPT4cnW4MnW4crW4s3Y4c/Z4M3Z48/Z4tDa4dHa4dLa4NPa4dPb4tXc4dXc49bd4tfd4tbd5Nrd4Njf5tzg493h49/i5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAPAAUAAAdNgAACCgsQDwwRFR8hHhIDAQ0jJCUmKywtLzMwMi4nDhgoKikxRklISkRDRUdCIBQiPzlBPjxAOD07NzYdBxMGFggcGTo1Ghs0FwkEBYEAOw==",
+    "width": 19415,
+    "height": 6418,
+    "alt_text": "Horizontal painting in pastel tones of a series of abstract clouds in a gridlike formation like loose bricks, larger at the bottom of the painting and receding away at a horizon line near the top of the painting. Behind them, a blue sky gets progressively lighter. At the horizon line is a loose pink gradient that progresses to white and returns to blue at the very top of the work."
+    },
+    "main_reference_number": "1983.821",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1965,
+    "date_end": 1965,
+    "date_display": "1965",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Georgia O'Keeffe (American, 1887–1986)",
+    "place_of_origin": "United States",
+    "description": "<p>Painted in the summer of 1965, when Georgia O’Keeffe was 77 years old, this monumental work culminates a series inspired by the artist’s experiences as an airplane passenger during the 1950s. Working in Abiquiu, New Mexico, O’Keeffe began around 1963 to capture the endless expanses of clouds she had observed from airplane windows during trips all over the world. Beginning with a relatively realistic depiction of small white clouds on a three-by-four-foot canvas, she progressed to more stylized images of the motif on larger surfaces. O’Keeffe wrote:</p>\n<p>&quot;I painted a painting eight feet high and twenty-four feet wide—it kept me working every minute from six a.m. till eight or nine at night as I had to be finished before it was cold—I worked in the garage and it had no heat—Such a size is of course ridiculous but I had it in my head as something I wanted to do for a couple of years.&quot;</p>\n<p>In 1970 <em>Sky above Clouds IV</em> was scheduled to be included in a retrospective of O’Keeffe’s work at the Whitney Museum of American Art, New York, the Art Institute of Chicago, and the San Francisco Museum of Art. After being shown in New York and Chicago, the painting was determined to be too large to enter the doors of the museum in San Francisco. It thus remained on loan to the Art Institute for more than a decade, while the artist and public-minded collectors of her art arranged for it to join the museum’s permanent collection.</p>\n<p>The special relationship between O’Keeffe and the Art Institute began in 1905, when she enrolled as a student at the School of the Art Institute. Her first museum retrospective was organized here in 1943. Later, as the executor for the estate of her husband, the pioneering American photographer and art dealer Alfred Stieglitz, O’Keeffe presented the Art Institute with an important group of modernist works, including a number of her own, many of which are on view in the galleries of American art. She continued to make significant additions to this bequest until her death, at age 98, in 1986.</p>\n",
+    "short_description": "Painted in the summer of 1965, when Georgia O’Keeffe was 77 years old, this monumental work is the final painting in a series the artist made based on her experiences as an airplane passenger. Because of its size and its status as an icon of the museum's collection, the work has not left the Art Institute since it came into the building in 1983.",
+    "dimensions": "243.8 × 731.5 cm (96 × 288 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": 731,
+    "height": 243,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Oil on canvas",
+    "inscriptions": null,
+    "credit_line": "Purchased with funds provided by the Paul and Gabriella Rosenbaum Foundation; gift of Georgia O'Keeffe",
+    "catalogue_display": "<p>Lynes 1999 1498</p>",
+    "publication_history": "Henry Seldis, \"Georgia O'Keeffe at 78: Tough-Minded Romatic,\" <em>Los Angeles Times</em>, Jan. 22, 1967, A14.\n\nBarbara Buhler Lynes, <em>Georgia O'Keeffe: Catalogue Raisonné</em>, vol. 2 (Washington, DC: National Gallery of Art; Abiquiu, NM: Georgia O'Keeffe Foundation; New Haven: Yale University Press, 1999), no. 1498.\n\nHunter Drohojowska-Philp, <em>Full Bloom: The Art and Life of Georgia O'Keeffe</em> (New York: W. W. Norton & Company, 2004), 492–3, 505.\n\nRené Paul Barilleaux and Sarah Whitaker Peters, eds., <em>Georgia O'Keeffe: Color and Conservation</em>, exh. cat. (Jackson, MS, and State College, PA: Mississippi Museum of Art and Penn State University Press, 2006), 100.\n\nSarah Rovang, \"How John Deere and Eero Saarinen Inspired Georgia O’Keeffe’s Largest Painting,\" <em>Hyperallergic</em>, last modified April 2, 2020, <a href=\"https://hyperallergic.com/548956/how-john-deere-and-eero-saarinen-inspired-georgia-okeeffes-largest-painting\">ttps://hyperallergic.com/548956/how-john-deere-and-eero-saarinen-inspired-georgia-okeeffes-largest-painting</a>, (ill.).\n\nPhilip Kennicott and Matthew Cappucci, \"Examining the Elements of Breathtaking Art: Weather patterns can help us understand what’s going on in these classic images,\" <em>The Washington Post</em>, last modified July 16, 2021, <a href=\"https://www.washingtonpost.com/arts-entertainment/interactive/2021/weather-patterns-in-art/\">https://www.washingtonpost.com/arts-entertainment/interactive/2021/weather-patterns-in-art</a>, (ill.).",
+    "exhibition_history": "Fort Worth, Amon Carter Museum of Western Art, <em>Georgia O'Keeffe</em>, Mar. 17–May 8, 1966, as <em>Above the Clouds IV</em>, no cat. no.\n\nMuseum of Fine Arts, Houston, <em>Georgia O'Keeffe Exhibition</em>, May 28–July 3, 1966, as <em>Above the Clouds IV</em>.\n\nLos Angeles, Rolf Nelson Gallery, late 1966–early 1967, no cat.\n\nWhitney Museum of American Art, <em>Georgia O'Keeffe Retrospective Exhibition</em>, Oct. 8–Nov. 29, 1970; the Art Institute of Chicago, Jan. 6–Feb. 7, 1971; San Francisco Museum of Art, Mar. 15–Apr. 30, 1971, cover (ill.), cat. 120 (New York and Chicago only).\n\nWashington DC, National Gallery of Art, <em>Georgia O'Keeffe: Art and Letters</em>, Nov. 1, 1987–Feb. 21, 1988; the Art Institute of Chicago, Mar. 5–June 19, 1988; Dallas Museum of Art, July 31–Oct. 16, 1988; Metropolitan Museum of Art, Nov. 19, 1988–Feb. 5, 1989, cat. 120 (Washington DC and Chicago only).",
+    "provenance_text": "Georgia O’Keeffe (1887–1986), New Mexico, 1965; partially sold and given to the Art Institute of Chicago, 1983.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 21,
+    "fiscal_year": 1984,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": true,
+    "max_zoom_window_size": 1280,
+    "copyright_notice": "© The Art Institute of Chicago",
+    "has_multimedia_resources": false,
+    "has_educational_resources": true,
+    "has_advanced_imaging": false,
+    "colorfulness": 33.5016,
+    "color": {
+    "h": 198,
+    "l": 45,
+    "s": 80,
+    "percentage": 0.0739805354660136,
+    "population": 174
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 249",
+    "gallery_id": 2147479697,
+    "nomisma_id": null,
+    "artwork_type_title": "Painting",
+    "artwork_type_id": 1,
+    "department_title": "Arts of the Americas",
+    "department_id": "PC-3",
+    "artist_id": 36062,
+    "artist_title": "Georgia O'Keeffe",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    36062
+    ],
+    "artist_titles": [
+    "Georgia O'Keeffe"
+    ],
+    "category_ids": [
+    "PC-825",
+    "PC-831",
+    "PC-154",
+    "PC-827",
+    "PC-3"
+    ],
+    "category_titles": [
+    "Women artists",
+    "Essentials",
+    "Chicago Artists",
+    "SAIC Alumni and Faculty",
+    "Arts of the Americas"
+    ],
+    "term_titles": [
+    "oil paint (paint)",
+    "painting",
+    "Modernism",
+    "oil painting",
+    "landscapes",
+    "canvas",
+    "modern and contemporary art",
+    "painting (image making)",
+    "Chicago"
+    ],
+    "style_id": "TM-5981",
+    "style_title": "Modernism",
+    "alt_style_ids": [],
+    "style_ids": [
+    "TM-5981"
+    ],
+    "style_titles": [
+    "Modernism"
+    ],
+    "classification_id": "TM-9",
+    "classification_title": "painting",
+    "alt_classification_ids": [
+    "TM-155"
+    ],
+    "classification_ids": [
+    "TM-9",
+    "TM-155"
+    ],
+    "classification_titles": [
+    "painting",
+    "modern and contemporary art"
+    ],
+    "subject_id": "TM-8657",
+    "alt_subject_ids": [
+    "TM-12075"
+    ],
+    "subject_ids": [
+    "TM-8657",
+    "TM-12075"
+    ],
+    "subject_titles": [
+    "landscapes",
+    "Chicago"
+    ],
+    "material_id": "TM-2451",
+    "alt_material_ids": [
+    "TM-3124"
+    ],
+    "material_ids": [
+    "TM-2451",
+    "TM-3124"
+    ],
+    "material_titles": [
+    "oil paint (paint)",
+    "canvas"
+    ],
+    "technique_id": "TM-4273",
+    "alt_technique_ids": [
+    "TM-3891"
+    ],
+    "technique_ids": [
+    "TM-4273",
+    "TM-3891"
+    ],
+    "technique_titles": [
+    "oil painting",
+    "painting (image making)"
+    ],
+    "theme_titles": [
+    "Women artists",
+    "Essentials",
+    "Chicago Artists",
+    "SAIC Alumni and Faculty"
+    ],
+    "image_id": "8fa4d1dd-b05f-eb8d-b83f-7b5dd65642db",
+    "alt_image_ids": [],
+    "document_ids": [
+    "92a80080-7a67-c6aa-5fd8-1a294240f49c"
+    ],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [
+    "92a80080-7a67-c6aa-5fd8-1a294240f49c"
+    ],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_boosted": "Sky above Clouds IV",
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1983.821"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Sky above Clouds IV"
+    ],
+    "weight": 93549,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-03-22T17:14:18-05:00",
+    "updated_at": "2024-04-24T23:32:06-05:00",
+    "timestamp": "2024-04-25T01:05:50-05:00"
+    },
+    {
+    "id": 65244,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/65244",
+    "is_boosted": false,
+    "title": "Statue of a Seated Woman",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhBAAFAPQAAAsMDg0NDRMTExUWGCsoJDg1L0lFPk1GPFNLP0RCQFZPRVhRSFxYU29oXXZvY4l+aqiUdqeVeLymgtvEngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAEAAUAAAURYCAsBFBMyPBIhxFBCuM0SQgAOw==",
+    "width": 1718,
+    "height": 2250,
+    "alt_text": "A work made of marble."
+    },
+    "main_reference_number": "1986.1060",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 101,
+    "date_end": 200,
+    "date_display": "2nd century",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Roman",
+    "place_of_origin": "Roman Empire",
+    "description": "<p>Roman sculptors often adapted the forms of earlier Greek artworks for use in entirely new contexts. This statue evokes the figures of seated, draped goddesses displayed in the pediments of the Parthenon, the renowned temple on the Acropolis in Athens. Among the Romans, this statue type was widely used for sculptures of female deities such as Juno (the Greek Hera), the consort of Jupiter (the Greek Zeus), as well as for portraits of empresses and other prominent women. Here the figure’s head and arms, now missing, were made separately and attached by means of dowels, the holes for which are visible.</p>\n",
+    "short_description": "Roman sculptors often adapted the forms of earlier Greek artworks for use in entirely new contexts. This statue evokes the figures of seated, draped goddesses displayed at the Parthenon, the renowned temple on the Acropolis in Athens. Among the Romans, this statue type was used for sculptures of female deities such as Juno (Hera to the Greeks), the consort of Jupiter (Zeus to the Greeks), as well as for portraits of empresses and other women.",
+    "dimensions": "82 × 63.5 × 38.2 cm (32 3/8 × 25 × 15 in.)",
+    "dimensions_detail": [
+    {
+    "depth": 38,
+    "width": 63,
+    "height": 82,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Marble",
+    "inscriptions": null,
+    "credit_line": "Katherine K. Adler Memorial Fund",
+    "catalogue_display": null,
+    "publication_history": "Art Institute of Chicago, “Acquisitions,” Art Institute of Chicago Annual Report 1986–1987 (Art Institute of Chicago, 1987), p. 58.\n\nArt Institute of Chicago, “Report of the Director,” Art Institute of Chicago Annual Report 1986–1987 (Art Institute of Chicago, 1987), p. 23, fig. 11.\n\nLouise Berge, “‘A Lady Seated on a Rock . . .’ Now in the Art Institute of Chicago,” Ancient World 15, 3–4 (1987), cover, p. 50 (ill.).\n\nCornelius C. Vermeule III, “Roman Art,” in “Ancient Art at the Art Institute of Chicago,” special issue, Art Institute of Chicago Museum Studies 20, 1 (1994), pp. 71–72, cat. 49 (ill.).\n\nKaren B. Alexander, \"From Plaster to Stone: Ancient Art at the Art Institute of Chicago,\" in Karen Manchester, Recasting the Past: Collecting and Presenting Antiquities at the Art Institute of Chicago (Chicago: Art Institute of Chicago; New Haven: Yale University Press, 2012), p. 39, no. 134.\n\nKatharine A. Raff, “Cat. 12 Statue of a Seated Woman: Curatorial Entry,” in Roman Art at the Art Institute of Chicago (Art Institute of Chicago, 2016).\n\nRachel C. Sabino, with contributions by Lorenzo Lazzarini, “Cat. 12 Statue of a Seated Woman: Technical Report,” in Roman Art at the Art Institute of Chicago (Art Institute of Chicago, 2016).",
+    "exhibition_history": "Art Institute of Chicago, Myth and Legend in Classical Art, Gallery 101A, March 1, 1987-August 31, 1987.\n\nArt Institute of Chicago, Sculpture from the Classical Collection, September 1, 1987–August 31, 1988.\n\nArt Institute of Chicago, Ancient Art Galleries, Gallery 156, April 20, 1994-February 6, 2012.\n\nArt Institute of Chicago, Of Gods and Glamour: The Mary and Michael Jaharis Galleries of Greek, Roman, and Byzantine Art, November 11, 2012-present.",
+    "provenance_text": "Bindell Family collection, Germany, from the 19th century [according to correspondence in curatorial object file]; McAlpine Ancient Art, London, England, by 1986; sold to Art Institute of Chicago, 1986.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 941,
+    "fiscal_year": 1987,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": true,
+    "is_zoomable": true,
+    "max_zoom_window_size": -1,
+    "copyright_notice": null,
+    "has_multimedia_resources": true,
+    "has_educational_resources": false,
+    "has_advanced_imaging": true,
+    "colorfulness": 28.0887,
+    "color": {
+    "h": 38,
+    "l": 53,
+    "s": 19,
+    "percentage": 0.06790792029845101,
+    "population": 632
+    },
+    "latitude": 41.8794017640776,
+    "longitude": -87.621864639223,
+    "latlon": "41.879401764078,41.879401764078",
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 154",
+    "gallery_id": 26777,
+    "nomisma_id": null,
+    "artwork_type_title": "Sculpture",
+    "artwork_type_id": 3,
+    "department_title": "Arts of the Ancient Mediterranean and Byzantium",
+    "department_id": "PC-4",
+    "artist_id": 51349,
+    "artist_title": "Ancient Roman",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    51349
+    ],
+    "artist_titles": [
+    "Ancient Roman"
+    ],
+    "category_ids": [
+    "PC-4"
+    ],
+    "category_titles": [
+    "Arts of the Ancient Mediterranean and Byzantium"
+    ],
+    "term_titles": [
+    "marble",
+    "marble",
+    "carving",
+    "imperial (roman)",
+    "goddesses",
+    "metamorphic rock",
+    "rock",
+    "inorganic material",
+    "stone",
+    "sculpture",
+    "ancient art",
+    "mythology",
+    "gods (deities)",
+    "ancient",
+    "woman"
+    ],
+    "style_id": "TM-4441",
+    "style_title": "imperial (roman)",
+    "alt_style_ids": [
+    "TM-8542"
+    ],
+    "style_ids": [
+    "TM-4441",
+    "TM-8542"
+    ],
+    "style_titles": [
+    "imperial (roman)",
+    "ancient"
+    ],
+    "classification_id": "TM-199",
+    "classification_title": "marble",
+    "alt_classification_ids": [
+    "TM-96",
+    "TM-13",
+    "TM-1392"
+    ],
+    "classification_ids": [
+    "TM-199",
+    "TM-96",
+    "TM-13",
+    "TM-1392"
+    ],
+    "classification_titles": [
+    "marble",
+    "stone",
+    "sculpture",
+    "ancient art"
+    ],
+    "subject_id": "TM-12067",
+    "alt_subject_ids": [
+    "TM-8766",
+    "TM-12066",
+    "TM-13813"
+    ],
+    "subject_ids": [
+    "TM-12067",
+    "TM-8766",
+    "TM-12066",
+    "TM-13813"
+    ],
+    "subject_titles": [
+    "goddesses",
+    "mythology",
+    "gods (deities)",
+    "woman"
+    ],
+    "material_id": "TM-2435",
+    "alt_material_ids": [
+    "TM-2798",
+    "TM-2796",
+    "TM-2600"
+    ],
+    "material_ids": [
+    "TM-2435",
+    "TM-2798",
+    "TM-2796",
+    "TM-2600"
+    ],
+    "material_titles": [
+    "marble",
+    "metamorphic rock",
+    "rock",
+    "inorganic material"
+    ],
+    "technique_id": "TM-3863",
+    "alt_technique_ids": [],
+    "technique_ids": [
+    "TM-3863"
+    ],
+    "technique_titles": [
+    "carving"
+    ],
+    "theme_titles": [],
+    "image_id": "d3094c55-68e5-9aab-5eaf-9f2a3a9edda1",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [
+    480209
+    ],
+    "section_titles": [
+    "Cat. 12  Statue of a Seated Woman, 2nd century A.D."
+    ],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1986.1060"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Statue of a Seated Woman"
+    ],
+    "weight": 5131,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-03-31T00:15:19-05:00",
+    "updated_at": "2024-04-24T23:31:44-05:00",
+    "timestamp": "2024-04-25T01:05:50-05:00"
+    },
+    {
+    "id": 151424,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/151424",
+    "is_boosted": true,
+    "title": "Inventions of the Monsters",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhCAAFAPUAADUoKTI1LjszKz42Lzw5LzM3MTc3MjM5Mjk4MDs7NDs8NDw8OUE1LEA3LU03KkA5L049L0c9Mks9ME0+ME0/NUZANkVDPUtEOU5IPVRCM1hOPFtRP2ZSNGpYOHZhPk9NQklYT1FSSV5ZTV1fT2ZbQWlcRG1sWGFzYgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAIAAUAAAYlwIUFdBptKJXQ50LyTBgDTYcjcTQIiExJBBEEDgUAxhR5KBKGIAA7",
+    "width": 11822,
+    "height": 7650,
+    "alt_text": "A painting of strange and surreal scene in a desert landscape with mountains in the background. The scene features a giraffe that is on fire, disembodied forms and faces, and skeletal figures."
+    },
+    "main_reference_number": "1943.798",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1937,
+    "date_end": 1937,
+    "date_display": "1937",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Salvador Dalí\nSpanish, 1904–1989",
+    "place_of_origin": "Spain",
+    "description": "<p>Salvador Dalí, Surrealism’s most publicized practitioner, created monstrous visions of a world turned inside out, which he made even more compelling through his extraordinary technical skills. When the Art Institute acquired <em>Inventions of the Monsters</em> in 1943, the artist wrote his congratulations and explained:</p>\n<p>&quot;According to Nostradamus the apparition of monsters presages the outbreak of war. The canvas was painted in the Semmering mountains near Vienna a few months before the Anschluss [the 1938 political union of Austria and Germany] and has a prophetic character. Horse women equal maternal river monsters.  Flaming giraffe equals masculine apocalyptic monster. Cat angel equals divine heterosexual monster. Hourglass equals metaphysical monster. Gala and Dalí equal sentimental monster. The little blue dog is not a true monster.&quot;</p>\n<p><em>Inventions of the Monsters</em> has an ominous mood. It is rife with threats of danger, from the menacing fire in the distance to the sibylline figure in the foreground with an hourglass and a butterfly, both symbols of the inevitability of death. Next to this figure sit Dalí and his wife and muse, Gala. With his native Catalonia embroiled in the Spanish Civil War, the artist surely felt great anxiety over a world without a safe haven, a world that indeed had allowed for the invention of monsters.</p>\n",
+    "short_description": null,
+    "dimensions": "51.4 × 78.4 cm (20 1/4 × 30 7/8 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": 78,
+    "height": 51,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Oil on canvas",
+    "inscriptions": "none",
+    "credit_line": "Joseph Winterbotham Collection",
+    "catalogue_display": null,
+    "publication_history": "James Thrall Soby, Paintings, Drawings, Prints: Salvador Dalí, exh. cat. (New York: Museum of Modern Art, 1941),  26, 28, 62, cat. 33 (ill), as Inventions of the monsters.\n\n“Dalí’s Heterosexual Monster Invades Chicago,” Art Digest 18 (Oct. 1943), 13, as Inventions of the Monsters.\n\nSydney J. Harris, “It’s Confusing, It’s Amusing—It’s Dali’s Art,” Daily News (Chicago, Oct. 8, 1943), as Inventions of the Monsters.\n\n“Recent Dalí Canvas at the Art Institute Stirs Mixture of Emotions,” Chicago Tribune (Oct. 9, 1943), 17, as Inventions of the Monsters.\n\n“Reports of the Departments for 1943,” Bulletin of the Art Institute of Chicago 38.3 (Mar. 1944), 9, 142 (ill.), as Inventions of the Monsters.\n\nJames Thrall Soby and Museum of Modern Art, Salvador Dalí (New York: The Museum of Modern Art, 1946), 21, 23, 62 (ill.).\n\nThe Winterbotham Collection, exh. cat. (Chicago: Art Institute of Chicago, 1947), 12, 13 (ill.).\n\nThe Modern Artist and His World, exh. cat. (Denver: Denver Art Museum, 1949), 11 (ill.). \n\nJuan Antonio Nuño, Salvador Dalí. Con cuartro ilustraciones en color y cuarenta y ocho en negro (Barcelona: Ediciones Omega, 1950), fig. 27.\n\n“Salvador Dalí, Die Erfindung der Ungeheuer,” Du 11 (Nov. 1952), 34.\n\nCatalog of Works by Salvador Dalí in Public Museum Collections (Cleveland: Privately printed for the Reynolds-Morse Foundation, 1956 ), 41 (ill.).\n\nPaintings in the Art Institute of Chicago (Chicago: Art Institute of Chicago, 1961), 112-113, as Inventions of the Monsters.\n\nArt Institute of Chicago, El Mundo de los Museos: Instituto de arte de Chicago: presentación de Charles C. Cunningham (Buenos Aires: Picadilly Press, 1967), 15, 75, 76-7 (ill.), fig. 71, as Inventos de los monstruos.\n\nHarvard H. Arnason, History of Modern Art (New York: Harry N. Abrams, 1968), 360, 375, cat. 163 (ill.).\n\nR. Hammacher Van den Brande and L. Brandt Corstius, Dali, exh. cat. (Rotterdam, Netherlands: Museum Boymans-van Beuningen, 1970), cat. 56 (ill.), as De uitvindingen van de monsters.\n\nDali: Gemälde, Zeichn., Objekte, Schmuck exh. cat. (Baden-Baden, Germany: Staatliche Kunsthalle, 1971), 128-9, cat. 44 (ill.) as Die Erfindung der Ungeheuer. \n\nAlan G. Artner, “ A Flowering Show of Landscapes,” Chicago Tribune (August 18, 1974), 5 (ill.).\n\nSalvador Dalí: A Guide to His Works in Public Museums (Cleveland: The Dalí Museum for the Reynolds Morse Foundation, 1974), 44 (ill.).\n\nTadeo Ogura and Robert Descharnes, Dalí, (Tokyo: Shueisha, 1974), 112 (ill) cat 42 (ill.), as Les Inventions des Monstres. \n\nRobert Descharnes and Salvador Dalí, The Library of Great Painters (New York: Harry N. Abrams), 120, cat. 28 (ill.).\n\nConroy Maddox, Dalí (New York: Crown, 1979), 58-9, cat. 39 (ill.). \n\nWhitney Chadwick, Myth in Surrealist Painting 1929-1939 (Ann Arbor, MI: UMI Research Press, 1980), 38.\n\nPontus Hulten, Salvador Dalí. Retrospective, exh. cat, (Paris: Centre Georges Pompidou, 1980), 309, cat. 249 (ill.), as L’Invention des monstres. \n\nDalí. La obra y la personalidad de un opintor en tantos aspectos desconcertante (Barcelona, 1980), no. 19.\n\nA. M. Hammacher, Phantoms of the Imagination (New York: Harry N. Abrams, 1981), 307, cat. 283 (ill.).\n\nRobert Descarnes, Salvador Dalí: The Work, the Man (New York: Harry N. Abrams, 1984), 213 (ill.).\n\nMeryle Secrest, Salvador Dalí (New York: E. P. Dutton, 1986), 217.\n\nJames Wood, The Joseph Winterbotham Collection: A Living Tradition (Chicago: Art Institute of Chicago, 1986), 11, 34 (ill.).\n\nPierre Théberge, ed. Salvador Dalí, exh. cat. (Montreal: Montreal Museum of Fine Arts, 1990), 93, cat. 39, as The Invention of Monsters.\n\nWieland Schmied, Salvador Dalí. Das Rätsel der Begierde (Munich: Piper, 1991), 52, fig. 11 (ill.).\n\nRobert Descharnes and Gilles Néret, Salvador Dalí 1904-1989. Das Malerische Werk, vol. 1 (Köln: Benedikt Taschen Verlag, 1993), 292 (ill), cat. 650 (ill.).\n\nJames Wood, ed. Treasures of 19th- and 20th-century Painting, the Art Institute of Chicago, exh. cat. (Chicago: The Art Institute of Chicago, 1993), 242 (ill.).\n\nJaime Brihuega, Miró y Dalí: Los grandes surrealistas (Grupo Anaya, 1993), p. 13 (ill.), as La invención de los monstruos. \n\nMargherita Andreotti, “The Joseph Winterbotham Collection,” in The Art Institute of Chicago Museum Studies 20, no. 2 (1994), 169 (ill.).\n\nFiona Bradley, “Doubling and Dédoublement: Gala in Dalí,” Art History 17, no. 4 (December 1994), 612-30, 618 (ill.).\t\n\nMasterworks of Modern Art from The Art Institute of Chicago, exh. cat. (Tokyo: Asahi Shinbunsha, 1994), 126-127, cat. 39 (ill.).\n\nSandy Ballatore, Romantic Modernism, 100 Years (Santa Fe, NM: Museum of Fine Arts, Museum of New Mexico, 1994), 9 (ill.).\n\nMartica Sawin, Surrealism in Exile (Cambridge, MA: MIT Press, 1995), 41-2 (ill.).\n\nDawn Ades, Dalí (New York: Thames & Hudson, 1995), 114, cat. 89 (ill.)\n\nHaim Finkelstein, Salvador Dalí’s Art and Writing, 1927-1942 (Cambridge, England: Cambridge University Press, 1996), 240, fig. 75 (ill.).\n\nEdmund Swinglehurst, Salvador Dalí: Exploring the Irrational (New York: Todtri, 1996), 78 (ill.), as The Invention of Monsters.\n\nIan Gibson, The Shameful Life of Salvador Dalí (London: Faber and Faber, 1997) 376, as Invention of Monsters.\n\nRobert Descharnes and Gilles Néret, Salvador Dalí, 1904-1989: The Paintings (Köln: Taschen, 1997), 292, 757, cat. 650 (ill.), as The Invention of the Monsters.\n\nDawn Ades, ed. Dalí’s Optical Illusions (New Haven, CT: Yale University Press, 2000), 53, 58, 61, as The Invention of the Monsters.\n\nDawn Ades and Michael R. Taylor, Dalí, exh. cat. (Philadelphia: Philadelphia Museum of Art, 2004), 274-275, cat. 169 (ill.).\n\nGerhard Kolberg, Salvador Dalí: La Gare de Perpignan Pop, Op, Yes-yes, Pompier, exh. cat., (Köln: Museum Ludwig Köln, 2006)  51, cat. 56 (ill.), as L’invention des monstres. \n\nMatthew Gale, ed. Dalí and Film exh. cat. (New York: Tate, 2007), 143, 153.\n\nEric Shanes, The Life and Masterworks of Salvador Dalí (New York: Parkstone International, 2010),  180-181 (ill.), as Invention of the Monsters. \n\nDouglas Druick, Master Paintings In the Art Institute of Chicago (New Haven, CT: Yale University Press, 2013), 132 (ill.).\n\nSalvador Dalí Catalogue Raisonné of Paintings (1910-1964) (Gala-Salvador Dalí Foundation, 2014: http://www.salvador-dali.org/cataleg_raonat), Cat. 457 (ill.), as Invention de monstres. \n\nKyle MacMillan, “Art Institute Exhibit Hoping to Rescue Salvador Dali’s Artistic Reputation,” Chicago Sun Times, Feb. 15, 2002, 21.\n\nJacqui Palumbo, “Two art curators had a mystery on their hands. Was an unusual Dalí painting actually his?” CNN Style, Feb. 24, 2023, http://edition.cnn.com/style/article/salvador-dali-art-institute-of-chicago-dream-of-venus/index.html",
+    "exhibition_history": "Paris, Renou et Colle, Dali,  July 6-30, 1937, no cat.\n\nHartford, Wadsworth Atheneum, Paintings in the Collection of Mr. and Mrs. James Thrall Soby, Nov. 1940, no cat.\n\nNew York, Museum of Modern Art, Paintings, Drawings, Prints: Salvador Dalí, Nov. 19, 1941–Jan. 11, 1942, cat. 33.\n\nArt Institute of Chicago, The Winterbotham Collection, May 23–June 22, 1947, no cat. no.\n\nDenver Art Museum, The Modern Artist and His World, March 6–April 27, 1949, no cat. no.\n\nDallas Museum of Fine Arts (now Dallas Museum of Art), The Winterbotham Collection of 20th Century Art, Oct. 8–Nov. 6, 1949, no cat.\n\nMinneapolis, Walker Art Center, Reality and Fantasy, 1900-1954, May 23–July 2, 1954, cat. 44.\n\nNew York, Gallery of Modern Art, Salvador Dalí 1910-1965, Dec. 18 1965–Feb. 28, 1966, cat. 86\n\nRotterdam, Netherlands, Museum Boymans-van Beuningen, Dalí, Nov. 21, 1970–Jan. 10, 1971, cat. 56.\n\nBaden-Baden, Germany, Staatliche Kunsthalle Baden-Baden, Dalí. Gemälde, Zeichnungen, Objekte, Schmuck, Jan. 29–Apr. 18, 1971, cat. 44.\n\nParis, Centre Georges Pompidou, Musée national d’art moderne, Salvador Dalí: rétrospective 1920–1980, Dec. 18, 1979–Apr. 21, 1980, cat. 249.\n\nStuttgart, Germany, Staatsgalerie Stuttgart, Salvador Dalí, May 12–July 23, 1989, cat. 196; Kunsthaus Zürich, Aug. 18–Oct. 22, 1989; Humlebæk, Denmark, Louisiana Museum of Modern Art, Dec. 16, 1989–Mar. 11, 1990; Montreal Museum of Fine Arts, April 13–July 29, 1990.\n\nNagaoka, Japan, Niigata Prefectural Museum of Modern Art, Masterworks of Modern Art from The Art Institute of Chicago, Apr. 20, 1994–May 29, cat 39; Nagoya, Japan, Aichi Prefectural Museum of Art, June 10–July 24, 1994; Yokohama, Japan, Yokohama Museum of Art, Aug. 6 1994–Sept. 25, 1994.\n\nVenice, Palazzo Grassi, Salvador Dalí, Sept. 12, 2004–Jan. 16, 2005; Philadelphia Museum of Art, Feb. 6–May 15, 2005 (Philadelphia only). \n\nFort Worth, Kimbell Art Museum, The Age of Picasso and Matisse: Modern Masters from the Art Institute of Chicago, Oct. 6 2013–Feb. 16, 2014, no cat. no. \n\nThe Art Institute of Chicago, Salvador Dalí: The Image Disappears, Feb. 18–June 12, 2023, no cat.",
+    "provenance_text": "James T. Soby (1906–1979) and Eleanor H. Bruce (born Eleanor Howland, 1905-1999, married, 1938-1952), Farmington, CT, by 1940 [Hartford 1940]. Durlacher Brothers, New York, by May 27, 1943 [letter from Daniel Catton Rich to Durlacher Brothers, May 27, 1943; copy in curatorial object file]; sold by partial exchange to the Art Institute of Chicago, 1943.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 246,
+    "fiscal_year": null,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": true,
+    "max_zoom_window_size": 1280,
+    "copyright_notice": "© Salvador Dalí, Fundació Gala-Salvador Dalí / Artists Rights Society (ARS), New York,\n2018",
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 0,
+    "color": {
+    "h": 39,
+    "l": 39,
+    "s": 76,
+    "percentage": 0.00004091187030273679,
+    "population": 37
+    },
+    "latitude": 41.880604915683,
+    "longitude": -87.6216748181356,
+    "latlon": "41.880604915683,41.880604915683",
+    "is_on_view": false,
+    "on_loan_display": null,
+    "gallery_title": null,
+    "gallery_id": null,
+    "nomisma_id": null,
+    "artwork_type_title": "Painting",
+    "artwork_type_id": 1,
+    "department_title": "Modern Art",
+    "department_id": "PC-11",
+    "artist_id": 34123,
+    "artist_title": "Salvador Dalí",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    34123
+    ],
+    "artist_titles": [
+    "Salvador Dalí"
+    ],
+    "category_ids": [
+    "PC-11",
+    "PC-834",
+    "PC-831"
+    ],
+    "category_titles": [
+    "Modern Art",
+    "Halloween",
+    "Essentials"
+    ],
+    "term_titles": [
+    "painting",
+    "oil paint (paint)",
+    "oil painting",
+    "Surrealism",
+    "landscapes",
+    "animals",
+    "monsters",
+    "dreams",
+    "prophecies",
+    "human figures",
+    "fire",
+    "deserts",
+    "insects",
+    "angels",
+    "hourglasses",
+    "Surrealism Highlights",
+    "canvas",
+    "painting (image making)",
+    "Joseph Winterbotham Collection"
+    ],
+    "style_id": "TM-7551",
+    "style_title": "Surrealism",
+    "alt_style_ids": [],
+    "style_ids": [
+    "TM-7551"
+    ],
+    "style_titles": [
+    "Surrealism"
+    ],
+    "classification_id": "TM-9",
+    "classification_title": "painting",
+    "alt_classification_ids": [
+    "TM-14412"
+    ],
+    "classification_ids": [
+    "TM-9",
+    "TM-14412"
+    ],
+    "classification_titles": [
+    "painting",
+    "Surrealism Highlights"
+    ],
+    "subject_id": "TM-8657",
+    "alt_subject_ids": [
+    "TM-12218",
+    "TM-12263",
+    "TM-12264",
+    "TM-12265",
+    "TM-12225",
+    "TM-12266",
+    "TM-12267",
+    "TM-8918",
+    "TM-12268",
+    "TM-12269",
+    "TM-14413"
+    ],
+    "subject_ids": [
+    "TM-8657",
+    "TM-12218",
+    "TM-12263",
+    "TM-12264",
+    "TM-12265",
+    "TM-12225",
+    "TM-12266",
+    "TM-12267",
+    "TM-8918",
+    "TM-12268",
+    "TM-12269",
+    "TM-14413"
+    ],
+    "subject_titles": [
+    "landscapes",
+    "animals",
+    "monsters",
+    "dreams",
+    "prophecies",
+    "human figures",
+    "fire",
+    "deserts",
+    "insects",
+    "angels",
+    "hourglasses",
+    "Joseph Winterbotham Collection"
+    ],
+    "material_id": "TM-2451",
+    "alt_material_ids": [
+    "TM-3124"
+    ],
+    "material_ids": [
+    "TM-2451",
+    "TM-3124"
+    ],
+    "material_titles": [
+    "oil paint (paint)",
+    "canvas"
+    ],
+    "technique_id": "TM-4273",
+    "alt_technique_ids": [
+    "TM-3891"
+    ],
+    "technique_ids": [
+    "TM-4273",
+    "TM-3891"
+    ],
+    "technique_titles": [
+    "oil painting",
+    "painting (image making)"
+    ],
+    "theme_titles": [
+    "Halloween",
+    "Essentials"
+    ],
+    "image_id": "be9551d4-860f-37a0-1408-086617f1824e",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_boosted": "Inventions of the Monsters",
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1943.798"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Inventions of the Monsters"
+    ],
+    "weight": 78739,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-02-12T12:49:18-06:00",
+    "updated_at": "2024-04-24T23:28:16-05:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 146930,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/146930",
+    "is_boosted": false,
+    "title": "Mosaic Disk with a Mythological and Historical Scene",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhBQAFAPQAAEA/QEdGR1lZVV9fWl5eXGdlYm1tbnFvbHFzanZyb3d2b4F7cISBfoWCf4iDfI6NfoGBgpGWiZecjp2ajJ2ej5iilZ+lmZylna2uoQAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAFAAUAAAUVICAgQ0BElVQo1oU5x0NNjZEsDBQCADs=",
+    "width": 2380,
+    "height": 2250,
+    "alt_text": "A work made of turquoise, earthenware, stucco, spondylus shell, mother of pearl, and iron pyrite, with pigment."
+    },
+    "main_reference_number": "1997.57",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1401,
+    "date_end": 1500,
+    "date_display": "1400–1500",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Mixtec\nNorthern Oaxaca, Mexico",
+    "place_of_origin": "Oaxaca state",
+    "description": "<p>Turquoise and shell mosaics were a specialty of the Mixtecs of northern Oaxaca, whose artists worked in the imperial Aztec (Mexica) capital, Tenochtitlan, after the mid-15th century. This disk commemorates historical events using calendrical and mythological imagery. In Mixtec culture, as elsewhere in ancient Mesoamerica, the history of the world was conceived in terms of cosmic cycles of creation, destruction, and re-creation. Each cycle, known as a “sun,” lasted many centuries. On a smaller scale within each cycle, time was organized into repeating 52-year periods whose end and renewal were marked by equinox sunsets and sunrises in rituals of transition.</p>\n<p>On this disk, the sign for “year” and the date “3 Flint- Knife” (A.D. 1456) are associated with the image of the sun on the left; the date “4 House” (A.D. 1457) is linked by footsteps to the sun on the right. These dates mark the end of one 52-year cycle and the beginning of a new one. In the center, crossed darts symbolize a military alliance. Alliance members are represented by the skeletal figure at the left and the animal figure at the right. Below, a prone human form (damaged) signifies a sacrifice to confirm the association. The imagery of the disk stems from a long-established Mixtec tradition of pictorial manuscripts.</p>\n",
+    "short_description": null,
+    "dimensions": "Diam.: 30.5 cm (12 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": null,
+    "height": null,
+    "diameter": 30,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Turquoise, earthenware, stucco, spondylus shell, mother of pearl, and iron pyrite, with pigment",
+    "inscriptions": null,
+    "credit_line": "Through prior gift of Louise A. and Ruth G. Allen, and Mrs. Daniel Catton Rich",
+    "catalogue_display": null,
+    "publication_history": "Byron Ellsworth Hamann, \"Heirlooms and Ruins: High Culture, Mesoamerican Civilization, and the Postclassic Oaxacan Tradition,\" in After Monte Alban: Transformation and Negotiation in Oaxaca, Mexico, ed. Jeffrey P. Blomster (University Press of Colorado. 2008), pg. 129, fig. 4.4. \n\nRichard Townsend with Elizabeth Pope, <em>Indian Art of the Americas at the Art Institute of Chicago</em> (Chicago: Art Institute of Chicago with Yale University Press, 2016), 188-189, cat. 154 (ill. and drawing).",
+    "exhibition_history": "Los Angeles County Museum of Art, The Road to Aztlan: Art from Mythic Homeland, May 4, 2003–August 26, 2001.",
+    "provenance_text": "Possibly Raul Kamfer, Mexico City and New York, by late 1960s [correspondence in curatorial file]; private collector, Belgium [correspondence in curatorial file]. Alphonse Jax, New York, by 1970s [documentation in curatorial file]; sold to the Art Institute, 1997.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 21,
+    "fiscal_year": 1997,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": true,
+    "is_zoomable": true,
+    "max_zoom_window_size": -1,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 19.3248,
+    "color": {
+    "h": 189,
+    "l": 44,
+    "s": 65,
+    "percentage": 0.00476281905306227,
+    "population": 32
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 136",
+    "gallery_id": 2147475440,
+    "nomisma_id": null,
+    "artwork_type_title": "Religious/Ritual Object",
+    "artwork_type_id": 24,
+    "department_title": "Arts of the Americas",
+    "department_id": "PC-3",
+    "artist_id": 30122,
+    "artist_title": "Mixtec",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    30122
+    ],
+    "artist_titles": [
+    "Mixtec"
+    ],
+    "category_ids": [
+    "PC-3",
+    "PC-829"
+    ],
+    "category_titles": [
+    "Arts of the Americas",
+    "Latin American"
+    ],
+    "term_titles": [
+    "turquoise",
+    "mosaic",
+    "mixtec",
+    "mythology",
+    "ritual objects",
+    "decorative object/ornament",
+    "metal",
+    "inorganic material",
+    "ceramic",
+    "mineral",
+    "shell (animal material)",
+    "oaxacan",
+    "mesoamerican",
+    "Pre-Columbian",
+    "americas",
+    "art of the americas",
+    "warriors",
+    "mosaic",
+    "mirror",
+    "Arts of the Americas",
+    "feline",
+    "skeletons",
+    "dates",
+    "weapons",
+    "sacrifice",
+    "sun",
+    "crèation",
+    "mythological figures",
+    "mosaic"
+    ],
+    "style_id": "TM-6688",
+    "style_title": "mixtec",
+    "alt_style_ids": [
+    "TM-6604",
+    "TM-6522",
+    "TM-6516",
+    "TM-6515",
+    "TM-13488"
+    ],
+    "style_ids": [
+    "TM-6688",
+    "TM-6604",
+    "TM-6522",
+    "TM-6516",
+    "TM-6515",
+    "TM-13488"
+    ],
+    "style_titles": [
+    "mixtec",
+    "oaxacan",
+    "mesoamerican",
+    "Pre-Columbian",
+    "americas",
+    "Arts of the Americas"
+    ],
+    "classification_id": "TM-12318",
+    "classification_title": "ritual objects",
+    "alt_classification_ids": [
+    "TM-30",
+    "TM-13487",
+    "TM-985",
+    "TM-278"
+    ],
+    "classification_ids": [
+    "TM-12318",
+    "TM-30",
+    "TM-13487",
+    "TM-985",
+    "TM-278"
+    ],
+    "classification_titles": [
+    "ritual objects",
+    "decorative object/ornament",
+    "art of the americas",
+    "mosaic",
+    "mirror"
+    ],
+    "subject_id": "TM-8766",
+    "alt_subject_ids": [
+    "TM-12154",
+    "TM-12873",
+    "TM-9250",
+    "TM-12475",
+    "TM-12304",
+    "TM-11332",
+    "TM-13682",
+    "TM-14332",
+    "TM-12704",
+    "TM-12875"
+    ],
+    "subject_ids": [
+    "TM-8766",
+    "TM-12154",
+    "TM-12873",
+    "TM-9250",
+    "TM-12475",
+    "TM-12304",
+    "TM-11332",
+    "TM-13682",
+    "TM-14332",
+    "TM-12704",
+    "TM-12875"
+    ],
+    "subject_titles": [
+    "mythology",
+    "warriors",
+    "feline",
+    "skeletons",
+    "dates",
+    "weapons",
+    "sacrifice",
+    "sun",
+    "crèation",
+    "mythological figures",
+    "mosaic"
+    ],
+    "material_id": "TM-2506",
+    "alt_material_ids": [
+    "TM-2568",
+    "TM-2600",
+    "TM-2432",
+    "TM-2756",
+    "TM-2585"
+    ],
+    "material_ids": [
+    "TM-2506",
+    "TM-2568",
+    "TM-2600",
+    "TM-2432",
+    "TM-2756",
+    "TM-2585"
+    ],
+    "material_titles": [
+    "turquoise",
+    "metal",
+    "inorganic material",
+    "ceramic",
+    "mineral",
+    "shell (animal material)"
+    ],
+    "technique_id": "TM-3888",
+    "alt_technique_ids": [],
+    "technique_ids": [
+    "TM-3888"
+    ],
+    "technique_titles": [
+    "mosaic"
+    ],
+    "theme_titles": [
+    "Latin American"
+    ],
+    "image_id": "19443b96-d83b-062c-16bf-a2133a706f15",
+    "alt_image_ids": [
+    "69477d8d-3815-290c-c135-fcddeb3f79be"
+    ],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1997.57"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Mosaic Disk with a Mythological and Historical Scene"
+    ],
+    "weight": 2354,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-03-28T15:35:54-05:00",
+    "updated_at": "2024-03-28T15:41:41-05:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 206379,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/206379",
+    "is_boosted": false,
+    "title": "Islands (Shimatachi)",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhCAAFAPUAAEQrE3JjUXhnVHRxamFqc357dHN8e319e45wV5B8XIZ9cmyCenuIdoqBeo+HfpaIdZmKdpeKfZyQfIWHh5eQhp2Wj5OUl5+bmZ+fn6Kbl6a5prmzraWosaqttq+yuquyvrS7uru+xcrV0djZ3t7i5ers7/P09PH0+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAIAAUAAAYlwEmBoRGdSKaBYQEaVTYlggLROAAEH4skEXBEMqEL5QHBcDqeIAA7",
+    "width": 3000,
+    "height": 2000,
+    "alt_text": "A work made of japanese basalt."
+    },
+    "main_reference_number": "2011.47",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1995,
+    "date_end": 2005,
+    "date_display": "2000",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Izumi Masatoshi\nJapanese, born 1938",
+    "place_of_origin": "Japan",
+    "description": "<p>A work in three parts, <em>Islands</em> is made out of Japanese basalt (<em>dorokaburi</em>, or “mud-covered basalt”) quarried in the Tohoku region. Together its pieces weigh about 12,000 pounds. For all of his works, Izumi Masatoshi scouts out the stone he wants to use, sometimes spending many months looking for suitable materials. Here he selected a basalt with an exterior of fossilized mud in tones of yellow, brown, and gold and a blackish-gray interior. He cleaved all three parts of the sculpture from one large stone, which is evident in the way their contours fit together. Though the finished product may still appear to be raw, Izumi amplified the natural character of the stone by meticulously cutting or polishing every surface. Islands is thus a contemporary work that recalls a Japanese tradition of reverence for natural materials.</p>\n<p>Generations of the Izumi family were stonemasons in the town of Mure on the island of Shikoku. Izumi Masatoshi began to focus on stonecutting as an artistic medium at an early age. In 1964 he began a decades-long collaboration with Isamu Noguchi, whose stone sculptures he executed until Noguchi’s death in 1988.</p>\n",
+    "short_description": "With all of his works, Izumi Masatoshi carefully scouts for the stone he wants to use. For <em>Islands</em>, he cleaved one large stone, weighing about 12,000 pounds, into the three-part sculpture. While the finished work may still appear raw, meticulously cutting and polishing has amplified the natural character of the stone. And while the work was made quite recently, it recalls the traditional Japanese reverence for natural materials.",
+    "dimensions": "(A) 99 × 121.8 × 121.8 cm (39 × 48 × 48 in.); (B) 99 × 91.5 × 101.7 cm (39 × 36 × 40 in.); (C) 96.6 × 71 × 114.3 cm (38 × 28 × 45 in.)",
+    "dimensions_detail": [],
+    "medium_display": "Japanese basalt",
+    "inscriptions": null,
+    "credit_line": "Purchased with funds provided by Roger L. Weston and Fred Eychaner",
+    "catalogue_display": null,
+    "publication_history": null,
+    "exhibition_history": null,
+    "provenance_text": null,
+    "edition": null,
+    "publishing_verification_level": "Web Basic",
+    "internal_department_id": 8,
+    "fiscal_year": 2011,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": true,
+    "max_zoom_window_size": 1280,
+    "copyright_notice": "© 2000 Izumi Masatoshi.",
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 23.2661,
+    "color": {
+    "h": 125,
+    "l": 52,
+    "s": 24,
+    "percentage": 0.008654061287639889,
+    "population": 41
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 135",
+    "gallery_id": 2147474874,
+    "nomisma_id": null,
+    "artwork_type_title": "Sculpture",
+    "artwork_type_id": 3,
+    "department_title": "Arts of Asia",
+    "department_id": "PC-7",
+    "artist_id": 111351,
+    "artist_title": "Izumi Masatoshi",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    111351
+    ],
+    "artist_titles": [
+    "Izumi Masatoshi"
+    ],
+    "category_ids": [
+    "PC-7"
+    ],
+    "category_titles": [
+    "Arts of Asia"
+    ],
+    "term_titles": [
+    "basalt (basic igneous rock)",
+    "sculpture",
+    "Japanese (culture or style)",
+    "stone",
+    "21st Century"
+    ],
+    "style_id": "TM-13407",
+    "style_title": "Japanese (culture or style)",
+    "alt_style_ids": [
+    "TM-12913"
+    ],
+    "style_ids": [
+    "TM-13407",
+    "TM-12913"
+    ],
+    "style_titles": [
+    "Japanese (culture or style)",
+    "21st Century"
+    ],
+    "classification_id": "TM-13",
+    "classification_title": "sculpture",
+    "alt_classification_ids": [],
+    "classification_ids": [
+    "TM-13"
+    ],
+    "classification_titles": [
+    "sculpture"
+    ],
+    "subject_id": null,
+    "alt_subject_ids": [],
+    "subject_ids": [],
+    "subject_titles": [],
+    "material_id": "TM-2445",
+    "alt_material_ids": [
+    "TM-2434"
+    ],
+    "material_ids": [
+    "TM-2445",
+    "TM-2434"
+    ],
+    "material_titles": [
+    "basalt (basic igneous rock)",
+    "stone"
+    ],
+    "technique_id": null,
+    "alt_technique_ids": [],
+    "technique_ids": [],
+    "technique_titles": [],
+    "theme_titles": [],
+    "image_id": "b4815153-1a1d-ac4b-d76c-fc5b19cb596f",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "2011.47"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Islands (Shimatachi)"
+    ],
+    "weight": 837,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2023-06-03T00:15:14-05:00",
+    "updated_at": "2024-03-12T13:51:13-05:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 197585,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/197585",
+    "is_boosted": false,
+    "title": "Plank Mask",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhBwAFAPUAAFVVWlhXWlRYXFtZWGxdUGFbWF9eZF9gYmhnZ2FlaGdlaGppaWlpam5qampsbH5tYnBra3JtbXd0c3R1dnFyeXFzeX9+foNxZI58b4B9e5SAc4iGg4iIhoSGjoWHjoyOlZmXlJqZl5ybmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAHAAUAAAYhwMPEkpEgAg5OSATaLAYEzQNzKSQYEUhDYRBUOh8PBRAEADs=",
+    "width": 3001,
+    "height": 2250,
+    "alt_text": "A work made of wood and pigment."
+    },
+    "main_reference_number": "2008.190",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1900,
+    "date_end": 1975,
+    "date_display": "Early/mid–20th century",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Bwa\nDossi, Burkina Faso\nNorthern Africa and the Sahel",
+    "place_of_origin": "Burkina Faso",
+    "description": "<p>The size and weight of this butterfly-shaped mask required great strength and skill from its performer. Worn with a costume of long raffia fibers, Bwa masks of different types typically appear in the dry season at community events, such as men’s and women’s initiations, annual renewal ceremonies, burials, and market days.</p>\n<p>The geometric patterns on this mask’s surface have been interpreted in different ways in accordance with a viewer’s depth of knowledge. The deeply incised concentric circles can be read as eyes or as rippling pools of water around which butterflies appear in the spring. The hooked nose-like protrusion above the mouth-like opening has been described as a reference to the circumcised penis of a newly initiated boy, and also as the beak of the hornbill, a bird that the Bwa associate with magical powers.</p>\n",
+    "short_description": null,
+    "dimensions": "52.1 × 238.8 × 26.7 cm (20 1/2 × 94 × 10 1/2 in.)",
+    "dimensions_detail": [
+    {
+    "depth": 26,
+    "width": 238,
+    "height": 52,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Wood and pigment",
+    "inscriptions": null,
+    "credit_line": "Charles H. and Mary F. Worcester Collection Fund",
+    "catalogue_display": null,
+    "publication_history": "Clara Granzotto and Ken Sutherland. 2023. \"Black, Red and White: Characterization of Painting Materials on a Group of Bwa Masks from Burkina Faso\" Applied Sciences 13, no. 22: 12240.\nhttps://doi.org/10.3390/app132212240",
+    "exhibition_history": null,
+    "provenance_text": "Maurice Nicaud (died 2004), Paris; sold to Marceau Rivière, Paris, about the 1980s; sold to Merton Simpson (died 2013), Merton D. Simpson Gallery, New York, N.Y., about the 1980s; on consignment to Donald Morris Gallery, Birmingham, Mich., 1992; sold to Ruth Wainger Hurwitz (Mrs. Solomon C. Hurwitz), Bloomfield, Mich., 1992; by inheritance to her children, 2000; on consignment to John Buxton, Shango Galleries, Dallas, Tex., 2008; sold to the Art Institute, 2008.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 43,
+    "fiscal_year": 2009,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": false,
+    "max_zoom_window_size": 843,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 16.8382,
+    "color": {
+    "h": 239,
+    "l": 42,
+    "s": 1,
+    "percentage": 0.9300343859333003,
+    "population": 4955
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Gallery 137",
+    "gallery_id": 2147470998,
+    "nomisma_id": null,
+    "artwork_type_title": "Mask",
+    "artwork_type_id": 7,
+    "department_title": "Arts of Africa",
+    "department_id": "PC-1",
+    "artist_id": 29891,
+    "artist_title": "Bwa",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    29891
+    ],
+    "artist_titles": [
+    "Bwa"
+    ],
+    "category_ids": [
+    "PC-1"
+    ],
+    "category_titles": [
+    "Arts of Africa"
+    ],
+    "term_titles": [
+    "masks",
+    "wood (plant material)",
+    "masks",
+    "bwa",
+    "carving",
+    "Northern Africa and the Sahel",
+    "arts of Africa",
+    "Arts of Africa",
+    "painting (coating)",
+    "pigment",
+    "performance",
+    "african art",
+    "butterflies",
+    "ceremonial mask",
+    "african Art",
+    "ritual",
+    "renewal",
+    "Initiation",
+    "communities",
+    "skill",
+    "strength"
+    ],
+    "style_id": "TM-6342",
+    "style_title": "bwa",
+    "alt_style_ids": [
+    "TM-13551",
+    "TM-14183",
+    "TM-13489"
+    ],
+    "style_ids": [
+    "TM-6342",
+    "TM-13551",
+    "TM-14183",
+    "TM-13489"
+    ],
+    "style_titles": [
+    "bwa",
+    "Northern Africa and the Sahel",
+    "Arts of Africa",
+    "african Art"
+    ],
+    "classification_id": "TM-245",
+    "classification_title": "masks",
+    "alt_classification_ids": [
+    "TM-14182",
+    "TM-13486",
+    "TM-12149"
+    ],
+    "classification_ids": [
+    "TM-245",
+    "TM-14182",
+    "TM-13486",
+    "TM-12149"
+    ],
+    "classification_titles": [
+    "masks",
+    "arts of Africa",
+    "african art",
+    "ceremonial mask"
+    ],
+    "subject_id": "TM-12113",
+    "alt_subject_ids": [
+    "TM-12949",
+    "TM-11223",
+    "TM-12859",
+    "TM-14353",
+    "TM-13596",
+    "TM-12093",
+    "TM-14188",
+    "TM-13445"
+    ],
+    "subject_ids": [
+    "TM-12113",
+    "TM-12949",
+    "TM-11223",
+    "TM-12859",
+    "TM-14353",
+    "TM-13596",
+    "TM-12093",
+    "TM-14188",
+    "TM-13445"
+    ],
+    "subject_titles": [
+    "masks",
+    "performance",
+    "butterflies",
+    "ritual",
+    "renewal",
+    "Initiation",
+    "communities",
+    "skill",
+    "strength"
+    ],
+    "material_id": "TM-2431",
+    "alt_material_ids": [
+    "TM-2509"
+    ],
+    "material_ids": [
+    "TM-2431",
+    "TM-2509"
+    ],
+    "material_titles": [
+    "wood (plant material)",
+    "pigment"
+    ],
+    "technique_id": "TM-3863",
+    "alt_technique_ids": [
+    "TM-4005"
+    ],
+    "technique_ids": [
+    "TM-3863",
+    "TM-4005"
+    ],
+    "technique_titles": [
+    "carving",
+    "painting (coating)"
+    ],
+    "theme_titles": [],
+    "image_id": "1da0d423-9061-36d1-be66-22855db8d712",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "2008.190"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Plank Mask"
+    ],
+    "weight": 2291,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2024-02-16T15:16:50-06:00",
+    "updated_at": "2024-02-16T15:21:11-06:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 17856,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/17856",
+    "is_boosted": false,
+    "title": "Snuff Bottle with Various Fish",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhBAAFAPQAAH5xYoFzYpB9a5qCbMnDvM3GwMzJxc3KxtHR0NbV1dna2tvc3Nzc3ODh4ODh4uHi4+Hj4+Lj5OTl5Ofo5wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAAAAAAALAAAAAAEAAUAAAURIPM4C0QUESIMSRMAynQYUggAOw==",
+    "width": 1672,
+    "height": 2250,
+    "alt_text": "A work made of crystal with carved and inside-painted decoration."
+    },
+    "main_reference_number": "1925.1195",
+    "has_not_been_viewed_much": true,
+    "boost_rank": null,
+    "date_start": 1909,
+    "date_end": 1909,
+    "date_display": "Qing dynasty (1644–1911), dated 1909",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Meng Zishou\nChina",
+    "place_of_origin": "China",
+    "description": null,
+    "short_description": null,
+    "dimensions": "5.3 × 4.1 × 0.3 cm (2 1/16 × 1 5/8 × 13/16 in.)",
+    "dimensions_detail": [
+    {
+    "depth": null,
+    "width": 4,
+    "height": 5,
+    "diameter": null,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Crystal with carved and inside-painted decoration",
+    "inscriptions": null,
+    "credit_line": "Lucy Maud Buckingham Collection",
+    "catalogue_display": null,
+    "publication_history": null,
+    "exhibition_history": null,
+    "provenance_text": null,
+    "edition": null,
+    "publishing_verification_level": "Web Basic",
+    "internal_department_id": 8,
+    "fiscal_year": null,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": false,
+    "max_zoom_window_size": 843,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 18.813,
+    "color": {
+    "h": 100,
+    "l": 86,
+    "s": 0,
+    "percentage": 0.4021080335829249,
+    "population": 3844
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": false,
+    "on_loan_display": null,
+    "gallery_title": null,
+    "gallery_id": null,
+    "nomisma_id": null,
+    "artwork_type_title": "Vessel",
+    "artwork_type_id": 23,
+    "department_title": "Arts of Asia",
+    "department_id": "PC-7",
+    "artist_id": 115974,
+    "artist_title": "Meng Zishou",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    115974
+    ],
+    "artist_titles": [
+    "Meng Zishou"
+    ],
+    "category_ids": [
+    "PC-7"
+    ],
+    "category_titles": [
+    "Arts of Asia"
+    ],
+    "term_titles": [
+    "snuff bottle",
+    "quartz",
+    "stone",
+    "asian art",
+    "vessel"
+    ],
+    "style_id": null,
+    "style_title": null,
+    "alt_style_ids": [],
+    "style_ids": [],
+    "style_titles": [],
+    "classification_id": "TM-452",
+    "classification_title": "snuff bottle",
+    "alt_classification_ids": [
+    "TM-96",
+    "TM-26",
+    "TM-27"
+    ],
+    "classification_ids": [
+    "TM-452",
+    "TM-96",
+    "TM-26",
+    "TM-27"
+    ],
+    "classification_titles": [
+    "snuff bottle",
+    "stone",
+    "asian art",
+    "vessel"
+    ],
+    "subject_id": null,
+    "alt_subject_ids": [],
+    "subject_ids": [],
+    "subject_titles": [],
+    "material_id": "TM-2587",
+    "alt_material_ids": [],
+    "material_ids": [
+    "TM-2587"
+    ],
+    "material_titles": [
+    "quartz"
+    ],
+    "technique_id": null,
+    "alt_technique_ids": [],
+    "technique_ids": [],
+    "technique_titles": [],
+    "theme_titles": [],
+    "image_id": "d8cbe0c9-cc22-ed01-20cb-b6d9a7aeaf9f",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1925.1195"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Snuff Bottle with Various Fish"
+    ],
+    "weight": 1,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2022-09-21T19:18:48-05:00",
+    "updated_at": "2023-12-21T00:00:42-06:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 156538,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/156538",
+    "is_boosted": true,
+    "title": "Chicago Stock Exchange Trading Room: Reconstruction at the Art Institute of Chicago",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhBgAFAPQAADIYADwoH0wlAVEqBEAoElovHl0zF2U2EWk5E244Flk4JnVDJ2NEMm5MMG5MN3pHMJhVJ4NXNJZZOIxfRY5jTIxtVZFuU590W6doRKRuR710TalyWcSAX8iFZwAAAAAAACH5BAAAAAAALAAAAAAGAAUAAAUYIAEIA3I1R2RVGWMoRUA5yfJI2wRpHYeFADs=",
+    "width": 5544,
+    "height": 4398,
+    "alt_text": "A grand, double-height room with wood paneling, stenciled wall patterns, four hexagonal columns, and an interior balcony with guardrail at left."
+    },
+    "main_reference_number": "RX23310/0002",
+    "has_not_been_viewed_much": false,
+    "boost_rank": null,
+    "date_start": 1893,
+    "date_end": 1894,
+    "date_display": "1893/94 (original built)\n1972 (original demolished)\n1976/77 (reconstructed)",
+    "date_qualifier_title": "Built",
+    "date_qualifier_id": 51,
+    "artist_display": "Adler & Sullivan, original architects; American, 1883-1896\nVinci & Kenny, reconstruction architects; American, 1970-1977",
+    "place_of_origin": "Art Institute of Chicago",
+    "description": "<p>The metal-frame Chicago Stock Exchange building was one of  Dankmar Adler and Louis H. Sullivan’s most distinctive commercial structures. The centerpiece of this thirteen-story building was the Trading Room, a dramatic, double-height space that was designed for the daily operations of the Stock Exchange and filled with Sullivan’s lush organic ornament and stenciled patterns. Despite the singular beauty of this room, it served its original function for just fourteen years and was occupied only sporadically thereafter. In the late 1960s, the building was targeted for demolition and became the focus of an important, although ultimately unsuccessful, preservation battle. During the course of demolition, photographer and activist Richard Nickel was working to salvage ornament from the building when the unstable structure collapsed and he was tragically killed. As a tribute to Nickel and Sullivan, sections of the Trading Room stencils, molded pilaster capitals, and art glass were preserved and in 1977 the Art Institute created a complete reconstruction of this significant room in a new wing of the museum. At the same time, the monumental entry arch of the Stock Exchange was erected on the museum grounds near the corner of Monroe Street and Columbus Drive.</p>\n",
+    "short_description": null,
+    "dimensions": "Room is roughly 5,704 square feet (not including gallery)",
+    "dimensions_detail": [],
+    "medium_display": "Mixed media recreation of room",
+    "inscriptions": null,
+    "credit_line": "Gift of Three Oaks Wrecking Company",
+    "catalogue_display": null,
+    "publication_history": "Vinci, John, ed. 1989. The Trading Room: Louis Sullivan and The Chicago Stock Exchange. Art Institute of Chicago.\n\nArt Institute of Chicago. 1990. Fragments of Chicago's Past: The Collection of Architectural Fragments at The Art Institute of Chicago. Exh. cat. Art Institute of Chicago, cat. no. 68, pp. 139-141.\n\nZukowsky, John, and Martha Thorne.  2004.  Masterpieces of Chicago Architecture. Art Institute of Chicago/Rizzoli, pp. 44–45.",
+    "exhibition_history": "Space open to the public in the museum's Rubloff Building.",
+    "provenance_text": null,
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 25,
+    "fiscal_year": 1972,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": true,
+    "is_zoomable": true,
+    "max_zoom_window_size": -1,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 50.7388,
+    "color": {
+    "h": 9,
+    "l": 69,
+    "s": 35,
+    "percentage": 0.01808616461601477,
+    "population": 102
+    },
+    "latitude": 41.8795712072259,
+    "longitude": -87.6212815392107,
+    "latlon": "41.879571207226,41.879571207226",
+    "is_on_view": true,
+    "on_loan_display": null,
+    "gallery_title": "Stock Exchange Trading Room",
+    "gallery_id": 346,
+    "nomisma_id": null,
+    "artwork_type_title": "Installation",
+    "artwork_type_id": 16,
+    "department_title": "Architecture and Design",
+    "department_id": "PC-5",
+    "artist_id": 30393,
+    "artist_title": "Adler & Sullivan, Architects",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    30393
+    ],
+    "artist_titles": [
+    "Adler & Sullivan, Architects"
+    ],
+    "category_ids": [
+    "PC-5",
+    "PC-154",
+    "PC-831"
+    ],
+    "category_titles": [
+    "Architecture and Design",
+    "Chicago Artists",
+    "Essentials"
+    ],
+    "term_titles": [
+    "architectural fragment",
+    "wood (plant material)",
+    "Chicago",
+    "construction",
+    "plant material",
+    "plaster",
+    "coating (material)",
+    "paint",
+    "chairs",
+    "architecture",
+    "clocks",
+    "architecture",
+    "installation",
+    "architectural details",
+    "columns",
+    "details",
+    "pattern",
+    "reproduction",
+    "room"
+    ],
+    "style_id": null,
+    "style_title": null,
+    "alt_style_ids": [],
+    "style_ids": [],
+    "style_titles": [],
+    "classification_id": "TM-184",
+    "classification_title": "architectural fragment",
+    "alt_classification_ids": [
+    "TM-103",
+    "TM-1152"
+    ],
+    "classification_ids": [
+    "TM-184",
+    "TM-103",
+    "TM-1152"
+    ],
+    "classification_titles": [
+    "architectural fragment",
+    "architecture",
+    "installation"
+    ],
+    "subject_id": "TM-12075",
+    "alt_subject_ids": [
+    "TM-12404",
+    "TM-12085",
+    "TM-12360",
+    "TM-15261",
+    "TM-11232",
+    "TM-14941",
+    "TM-14922",
+    "TM-14821",
+    "TM-14873"
+    ],
+    "subject_ids": [
+    "TM-12075",
+    "TM-12404",
+    "TM-12085",
+    "TM-12360",
+    "TM-15261",
+    "TM-11232",
+    "TM-14941",
+    "TM-14922",
+    "TM-14821",
+    "TM-14873"
+    ],
+    "subject_titles": [
+    "Chicago",
+    "chairs",
+    "architecture",
+    "clocks",
+    "architectural details",
+    "columns",
+    "details",
+    "pattern",
+    "reproduction",
+    "room"
+    ],
+    "material_id": "TM-2431",
+    "alt_material_ids": [
+    "TM-3478",
+    "TM-2439",
+    "TM-3238",
+    "TM-2577"
+    ],
+    "material_ids": [
+    "TM-2431",
+    "TM-3478",
+    "TM-2439",
+    "TM-3238",
+    "TM-2577"
+    ],
+    "material_titles": [
+    "wood (plant material)",
+    "plant material",
+    "plaster",
+    "coating (material)",
+    "paint"
+    ],
+    "technique_id": "TM-4287",
+    "alt_technique_ids": [],
+    "technique_ids": [
+    "TM-4287"
+    ],
+    "technique_titles": [
+    "construction"
+    ],
+    "theme_titles": [
+    "Chicago Artists",
+    "Essentials"
+    ],
+    "image_id": "47b28b55-ced6-502d-f111-fbe0033f8dc8",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_boosted": "Chicago Stock Exchange Trading Room: Reconstruction at the Art Institute of Chicago",
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "RX23310/0002"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Chicago Stock Exchange Trading Room: Reconstruction at the Art Institute of Chicago"
+    ],
+    "weight": 32807,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2022-12-09T11:36:49-06:00",
+    "updated_at": "2023-12-20T13:27:45-06:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    },
+    {
+    "id": 25062,
+    "api_model": "artworks",
+    "api_link": "https://api.artic.edu/api/v1/artworks/25062",
+    "is_boosted": false,
+    "title": "Goldweight Depicting a Catfish",
+    "alt_titles": null,
+    "thumbnail": {
+    "lqip": "data:image/gif;base64,R0lGODlhCAAFAPQAAFpKM3FjT3RnVX5zZYN3aIuBcomCeJiQhZ2ZlaWela6on6umoL68usHAvcLCwcLCwsbGxcfHx8jIyMnJycnJysrKysrKy8rLy8zNzs3Oz87P0c7Q0c/Q0dDR09HT1QAAACH5BAAAAAAALAAAAAAIAAUAAAUgoBRtXaZZIrYMhNJQFxMYApBw3FF4D+JUEgkkUuFMJCEAOw==",
+    "width": 2304,
+    "height": 1376,
+    "alt_text": "A work made of copper alloy."
+    },
+    "main_reference_number": "1966.82",
+    "has_not_been_viewed_much": true,
+    "boost_rank": null,
+    "date_start": 1750,
+    "date_end": 1925,
+    "date_display": "Early 18th/early 20th century",
+    "date_qualifier_title": "",
+    "date_qualifier_id": null,
+    "artist_display": "Asante or related Akan-speaking peoples\nGhana\nCoastal West Africa",
+    "place_of_origin": "Ghana",
+    "description": "<p>The Akan used the lost-wax technique to create brass-cast weights for economic transactions involving gold. Although it is not clear when the convention of weights was first introduced, there is evidence that the Akan people traded gold with Islamized merchants from the West African interior grasslands many centuries before the arrival of Europeans. Some goldweights correspond to the Islamic weight system of North Africa, and appear to be fundamentally linked to the trans-Saharan trade, in which Arabs were deeply involved.<br>Stylistic studies of goldweights have yielded relative dates for these works that can be divided broadly into early and late periods. Abstract goldweights are assigned to sometime between 1500 and 1720. Akan artists also employed an assortment of figurative motifs in executing such miniature brass castings. These forms, which are less common than the abstract weights and are remarkably ornate, appear to have been modeled in the period of hegemony of the Asante kingdom, from 1700 through 1874. Regardless of weather the figures are single or part of a larger composition, their intention seems to have been to communicate a message of a collective or personal nature. This catfish goldweight may evoke the following saying:  “If the catfish [mudfish] in the stream grows fat, it does so to the benefit of the crocodile,” which means the master always stands to benefit from the servant’s prosperity. However, given the fact that here the catfish is depicted alone and not with the crocodile, another meaning may have been intended. The well-known capacity of this fish type to survive the most arid conditions may suggests its symbolic implications for longevity.</p>\n<p>—Revised from Nii Otokunor Quarcoopome, “Art of the Akan,” <em>African Art at the Art Institute of Chicago, Museum Studies,</em> 23, no. 2 (1997), p. 144.</p>\n",
+    "short_description": null,
+    "dimensions": "1.1 × 2.1 × 3.9 cm (1/2 × 15/16 × 3/4 in.)",
+    "dimensions_detail": [
+    {
+    "depth_cm": 3.9,
+    "depth_in": 0.75,
+    "width_cm": 2.1,
+    "width_in": 0.9375,
+    "height_cm": 1.1,
+    "height_in": 0.5,
+    "diameter_cm": 0,
+    "diameter_in": 0,
+    "clarification": null
+    }
+    ],
+    "medium_display": "Copper alloy",
+    "inscriptions": null,
+    "credit_line": "Gift of Alfred Wolkenberg",
+    "catalogue_display": null,
+    "publication_history": "George M. Irwin and Allen Wardwell, African Sculpture, exh. cat. (Illinois Arts Council, Chicago: Huron Press, 1970), n. pag., cat. 20e.\n\nNii Otokunor Quarcoopome, \"Art of the Akan,” African Art at the Art Institute of Chicago, Art Institute of Chicago Museum Studies 23, 2 (1997), p. 144, fig. 20.\n\nWilliam J. Dewey, The World Moves, We Follow: Celebrating African Art, exh. cat. (Knoxville, Tenn.: Frank H. McClung Museum, University of Tennessee, 2003), p. 24, pl. 17; p. 58.",
+    "exhibition_history": "Chicago, Ill., South Side Community Arts Center, Aug. 1- Sept. 15, 1968, no cat.\n\nIllinois Arts Council, African Sculpture, June 26, 1969-Dec. 29, 1970; traveled around the state of Illinois, cat. 20e.\n\nKnoxville, Tenn., Frank H. McClung Museum, The World Moves, We Follow: Celebrating African Art, Jan. 10–May 18, 2003.",
+    "provenance_text": "Alfred Wolkenberg (d. 1990), New York, N.Y., by 1966; given to the Art Institute, 1966.",
+    "edition": null,
+    "publishing_verification_level": "Web Cataloged",
+    "internal_department_id": 43,
+    "fiscal_year": null,
+    "fiscal_year_deaccession": null,
+    "is_public_domain": false,
+    "is_zoomable": false,
+    "max_zoom_window_size": 843,
+    "copyright_notice": null,
+    "has_multimedia_resources": false,
+    "has_educational_resources": false,
+    "has_advanced_imaging": false,
+    "colorfulness": 15.4896,
+    "color": {
+    "h": 37,
+    "l": 50,
+    "s": 23,
+    "percentage": 0.01061248169346908,
+    "population": 45
+    },
+    "latitude": null,
+    "longitude": null,
+    "latlon": null,
+    "is_on_view": false,
+    "on_loan_display": null,
+    "gallery_title": null,
+    "gallery_id": null,
+    "nomisma_id": null,
+    "artwork_type_title": "Sculpture",
+    "artwork_type_id": 3,
+    "department_title": "Arts of Africa",
+    "department_id": "PC-1",
+    "artist_id": 29867,
+    "artist_title": "Asante",
+    "alt_artist_ids": [],
+    "artist_ids": [
+    29867
+    ],
+    "artist_titles": [
+    "Asante"
+    ],
+    "category_ids": [
+    "PC-1"
+    ],
+    "category_titles": [
+    "Arts of Africa"
+    ],
+    "term_titles": [
+    "gold-weight",
+    "copper alloy",
+    "asante",
+    "metal",
+    "arts of Africa",
+    "Arts of Africa",
+    "nonferrous metal",
+    "metal",
+    "inorganic material",
+    "akan",
+    "measure",
+    "african art",
+    "african Art",
+    "miniature",
+    "sculpture",
+    "Coastal West Africa"
+    ],
+    "style_id": "TM-6280",
+    "style_title": "asante",
+    "alt_style_ids": [
+    "TM-14183",
+    "TM-6278",
+    "TM-13489",
+    "TM-13566"
+    ],
+    "style_ids": [
+    "TM-6280",
+    "TM-14183",
+    "TM-6278",
+    "TM-13489",
+    "TM-13566"
+    ],
+    "style_titles": [
+    "asante",
+    "Arts of Africa",
+    "akan",
+    "african Art",
+    "Coastal West Africa"
+    ],
+    "classification_id": "TM-11877",
+    "classification_title": "gold-weight",
+    "alt_classification_ids": [
+    "TM-33",
+    "TM-14182",
+    "TM-312",
+    "TM-13486",
+    "TM-591",
+    "TM-13"
+    ],
+    "classification_ids": [
+    "TM-11877",
+    "TM-33",
+    "TM-14182",
+    "TM-312",
+    "TM-13486",
+    "TM-591",
+    "TM-13"
+    ],
+    "classification_titles": [
+    "gold-weight",
+    "metal",
+    "arts of Africa",
+    "measure",
+    "african art",
+    "miniature",
+    "sculpture"
+    ],
+    "subject_id": null,
+    "alt_subject_ids": [],
+    "subject_ids": [],
+    "subject_titles": [],
+    "material_id": "TM-2694",
+    "alt_material_ids": [
+    "TM-2683",
+    "TM-2568",
+    "TM-2600"
+    ],
+    "material_ids": [
+    "TM-2694",
+    "TM-2683",
+    "TM-2568",
+    "TM-2600"
+    ],
+    "material_titles": [
+    "copper alloy",
+    "nonferrous metal",
+    "metal",
+    "inorganic material"
+    ],
+    "technique_id": null,
+    "alt_technique_ids": [],
+    "technique_ids": [],
+    "technique_titles": [],
+    "theme_titles": [],
+    "image_id": "6be71826-178d-a1dd-8e60-f513153af3fe",
+    "alt_image_ids": [],
+    "document_ids": [],
+    "sound_ids": [],
+    "video_ids": [],
+    "text_ids": [],
+    "section_ids": [],
+    "section_titles": [],
+    "site_ids": [],
+    "suggest_autocomplete_all": [
+    {
+    "input": [
+    "1966.82"
+    ],
+    "contexts": {
+    "groupings": [
+    "accession"
+    ]
+    }
+    },
+    {
+    "input": [
+    "Goldweight Depicting a Catfish"
+    ],
+    "weight": 165,
+    "contexts": {
+    "groupings": [
+    "title"
+    ]
+    }
+    }
+    ],
+    "source_updated_at": "2023-04-03T14:03:17-05:00",
+    "updated_at": "2023-12-18T14:36:19-06:00",
+    "timestamp": "2024-04-25T01:05:51-05:00"
+    }
+    ],
+    "info": {
+    "license_text": "The `description` field in this response is licensed under a Creative Commons Attribution 4.0 Generic License (CC-By) and the Terms and Conditions of artic.edu. All other data in this response is licensed under a Creative Commons Zero (CC0) 1.0 designation and the Terms and Conditions of artic.edu.",
+    "license_links": [
+    "https://creativecommons.org/publicdomain/zero/1.0/",
+    "https://www.artic.edu/terms"
+    ],
+    "version": "1.10"
+    },
+    "config": {
+    "iiif_url": "https://www.artic.edu/iiif/2",
+    "website_url": "http://www.artic.edu"
+    }
+    }

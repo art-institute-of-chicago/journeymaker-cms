@@ -19,11 +19,13 @@ class Theme extends Model implements Sortable
         'position',
         'title',
         'intro',
+        'journey_guide',
     ];
 
     public $translatedAttributes = [
         'title',
         'intro',
+        'journey_guide',
     ];
 
     public $mediasParams = [
