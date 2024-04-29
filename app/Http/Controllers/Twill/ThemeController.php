@@ -93,7 +93,11 @@ class ThemeController extends ModuleController
         $table = parent::getIndexTableColumns();
 
         $table->splice(1, 0, [
-            Image::make()->field('icon'),
+            Image::make()
+                ->field('icon')
+                ->role('icon')
+                ->crop('default')
+                ->rounded(),
         ]);
 
         return $table;
