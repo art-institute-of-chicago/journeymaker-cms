@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('app:cache-json')->everyFiveMinutes();
+        $schedule
+            ->command('app:cache-json')
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
     }
 
     /**
