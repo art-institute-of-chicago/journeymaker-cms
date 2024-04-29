@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Schema::create('theme_prompt_artworks', function (Blueprint $table) {
             createDefaultTableFields($table, true, false);
+            $table->string('title')->nullable();
             $table->integer('position')->unsigned()->nullable();
             $table->integer('activity_template')->nullable();
 

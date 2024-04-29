@@ -17,6 +17,7 @@ class ThemePromptArtwork extends Model implements Sortable
     protected $fillable = [
         'theme_prompt_id',
         'artwork_id',
+        'title',
         'detail_narrative',
         'viewing_description',
         'activity_instructions',

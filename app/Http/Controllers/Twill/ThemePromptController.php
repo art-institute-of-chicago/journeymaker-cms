@@ -14,6 +14,7 @@ use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Forms\InlineRepeater;
 use App\Models\ActivityTemplate;
 use App\Repositories\ThemeRepository;
+use App\Support\Forms\Fields\Hidden;
 
 class ThemePromptController extends ModuleController
 {
@@ -67,8 +68,12 @@ class ThemePromptController extends ModuleController
                         InlineRepeater::make()
                             ->label('Artwork')
                             ->name('artwork')
+                            ->hideTitlePrefix()
+                            ->titleField('title')
                             ->allowBrowser()
                             ->fields([
+                                Hidden::make()
+                                    ->name('title'),
                                 Browser::make()
                                     ->name('artwork')
                                     ->label('Artwork')

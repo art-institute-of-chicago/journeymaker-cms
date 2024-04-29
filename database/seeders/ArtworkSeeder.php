@@ -68,6 +68,7 @@ class ArtworkSeeder extends Seeder
             $artwork->translations()->update(['active' => true]);
 
             $themePromptArtwork = ThemePromptArtwork::factory()->create([
+                'title' => $rawArtwork['title'],
                 'detail_narrative' => $rawArtwork['detailNarrative'],
                 'viewing_description' => $rawArtwork['viewingDescription'],
                 'activity_instructions' => $rawArtwork['activityInstructions'],
