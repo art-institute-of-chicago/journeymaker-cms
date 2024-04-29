@@ -42,6 +42,10 @@ class ThemeController extends ModuleController
             ->withFieldSets(new Fieldsets([
                 Fieldset::make()->title('Content')->id('content')->fields([
                     Input::make()
+                        ->name('title')
+                        ->maxLength(23)
+                        ->translatable(),
+                    Input::make()
                         ->type('textarea')
                         ->name('intro')
                         ->label('Intro')

@@ -52,6 +52,10 @@ class ThemePromptController extends ModuleController
                     ->id('content')
                     ->fields([
                         Input::make()
+                            ->name('title')
+                            ->maxLength(255)
+                            ->translatable(),
+                        Input::make()
                             ->name('subtitle')
                             ->label('Subtitle')
                             ->translatable(),

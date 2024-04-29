@@ -10,7 +10,7 @@ class ThemeRequest extends Request
     public function rulesForCreate()
     {
         return [
-            'title.*' => 'required|max:23',
+            'title.*' => 'max:23',
         ];
     }
 
@@ -29,17 +29,15 @@ class ThemeRequest extends Request
                 }
             },
         ], [
-            'title' => 'required|max:23',
-            'intro' => 'required|max:255',
+            'title' => 'max:23',
+            'intro' => 'max:255',
         ]);
     }
 
     public function messages()
     {
         return [
-            'title.*.required' => 'Title is required',
             'title.*.max' => 'Title can be a maximum of 23 characters',
-            'intro.*.required' => 'Intro is required',
             'intro.*.max' => 'Intro can be a maximum 255 characters',
         ];
     }
