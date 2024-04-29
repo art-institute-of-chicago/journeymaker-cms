@@ -30,6 +30,8 @@ class ArtworkController extends ModuleController
         $this->disableBulkPublish();
         $this->disableBulkRestore();
         $this->disableBulkForceDelete();
+
+        $this->setSearchColumns(['title', 'artist_display']);
     }
 
     public function getCreateForm(): Form
@@ -52,57 +54,44 @@ class ArtworkController extends ModuleController
 
     public function getForm(TwillModelContract $model): Form
     {
-        $content = Form::make()
-            ->merge($this->additionalFormFields($model));
+        $apiArtwork = $model->getArtworkApiData();
+        $apiGallery = $model->getGalleryApiData($apiArtwork->gallery_id);
 
         return parent::getForm($model)
             ->addFieldset(
                 Fieldset::make()
                     ->title('Content')
                     ->id('content')
-                    ->fields($content->toArray())
-            );
-    }
-
-    protected function additionalFormFields($object): Form
-    {
-        $apiArtwork = $object->getArtworkApiData();
-        $apiGallery = $object->getGalleryApiData($apiArtwork->gallery_id);
-
-        return Form::make()
-            ->add(
-                BladePartial::make()
-                    ->view('forms.image')
-                    ->withAdditionalParams([
-                        'src' => DamsImageService::getUrl($object->image_id, $object->mediasParams['iiif']['default'][0]),
-                    ])
-            )
-            ->add(
-                Medias::make()
-                    ->name('override')
-                    ->label('Override Image')
-                    ->note('This will replace the image above')
-            )
-            ->add(
-                Input::make()
-                    ->name('artist_display')
-            )
-            ->add(
-                Input::make()
-                    ->type('textarea')
-                    ->name('location_directions')
-                    ->label('Location Directions (Journey Guide)')
-                    ->translatable()
-            )
-            ->add(
-                BladePartial::make()
-                    ->view('forms.object-info')
-                    ->withAdditionalParams([
-                        'isOnView' => $object->is_on_view ?? false,
-                        'datahubId' => $object->datahub_id ?? '',
-                        'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
-                        'gallery' => $apiGallery->title ?? '',
-                        'floor' => $apiGallery->floor ?? '',
+                    ->fields([
+                        Input::make()
+                            ->name('title')
+                            ->maxLength(255)
+                            ->translatable(),
+                        BladePartial::make()
+                            ->view('forms.image')
+                            ->withAdditionalParams([
+                                'src' => DamsImageService::getUrl($model->image_id, $model->mediasParams['iiif']['default'][0]),
+                            ]),
+                        Medias::make()
+                            ->name('override')
+                            ->label('Override Image')
+                            ->note('This will replace the image above'),
+                        Input::make()
+                            ->name('artist_display'),
+                        Input::make()
+                            ->type('textarea')
+                            ->name('location_directions')
+                            ->label('Location Directions (Journey Guide)')
+                            ->translatable(),
+                        BladePartial::make()
+                            ->view('forms.object-info')
+                            ->withAdditionalParams([
+                                'isOnView' => $model->is_on_view ?? false,
+                                'datahubId' => $model->datahub_id ?? '',
+                                'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
+                                'gallery' => $apiGallery->title ?? '',
+                                'floor' => $apiGallery->floor ?? '',
+                            ])
                     ])
             );
     }
