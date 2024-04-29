@@ -37,7 +37,7 @@ class ThemePromptRepository extends ModuleRepository
         $model->load('artworks.artwork');
 
         $fields['repeaterBrowsers']['artwork'] = $model->artworks->mapWithKeys(fn ($artwork) => [
-            'blocks[artworks-'.$artwork->position.'][artwork]' => [
+            'blocks[artworks-'.$artwork->id.'][artwork]' => [
                 [
                     'thumbnail' => $artwork->artwork->image('override'),
                     'id' => $artwork->artwork->id,
