@@ -7,6 +7,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemePromptArtwork extends Model implements Sortable
@@ -14,7 +15,6 @@ class ThemePromptArtwork extends Model implements Sortable
     use HasFactory, HasPosition, HasRevisions, HasTranslation;
 
     protected $fillable = [
-        'published',
         'theme_prompt_id',
         'artwork_id',
         'detail_narrative',
@@ -33,5 +33,14 @@ class ThemePromptArtwork extends Model implements Sortable
     public function artwork()
     {
         return $this->belongsTo(Artwork::class);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query
+            ->whereDoesntHave('translations', fn (Builder $query) => $query->where('active', false))
+            ->whereDoesntHave('artwork.translations', fn (Builder $query) => $query->where('active', false))
+            ->whereRelation('artwork', 'is_on_view', true)
+            ->whereRelation('artwork', 'published', true);
     }
 }

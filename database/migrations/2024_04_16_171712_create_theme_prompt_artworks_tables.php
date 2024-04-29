@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Artwork;
+use App\Models\ThemePrompt;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,16 +11,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('theme_prompt_artworks', function (Blueprint $table) {
-            createDefaultTableFields($table);
+            createDefaultTableFields($table, true, false);
             $table->integer('position')->unsigned()->nullable();
             $table->integer('activity_template')->nullable();
 
-            $table->foreignIdFor(\App\Models\ThemePrompt::class)
+            $table->foreignIdFor(ThemePrompt::class)
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-            $table->foreignIdFor(\App\Models\Artwork::class)
+            $table->foreignIdFor(Artwork::class)
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');

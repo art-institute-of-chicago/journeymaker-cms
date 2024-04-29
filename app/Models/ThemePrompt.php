@@ -7,6 +7,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemePrompt extends Model implements Sortable
@@ -34,5 +35,12 @@ class ThemePrompt extends Model implements Sortable
     public function artworks()
     {
         return $this->hasMany(ThemePromptArtwork::class)->orderBy('position');
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query
+            ->published()
+            ->whereDoesntHave('translations', fn (Builder $query) => $query->where('active', false));
     }
 }

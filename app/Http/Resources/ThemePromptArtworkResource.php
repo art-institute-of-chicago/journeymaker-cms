@@ -20,16 +20,12 @@ class ThemePromptArtworkResource extends JsonResource
         $override = $this->artwork->imageObject('override')?->toCmsArray();
 
         $images = $override
-            ? $this->getCmsImages($override)
+            ? $this->getOverrideImages($override)
             : $this->getApiImages($this->artwork->image_id);
 
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'img' => null,
-            'artwork_thumbnail' => null,
-            'img_medium' => null,
-            'img_large' => null,
+            'title' => $this->artwork->title,
             ...$images,
             'artist' => $this->artwork->artist_display,
             'year' => $this->artwork->date_display,
@@ -49,7 +45,7 @@ class ThemePromptArtworkResource extends JsonResource
         ];
     }
 
-    private function getCmsImages(array $image): array
+    private function getOverrideImages(array $image): array
     {
         return [
             'img' => [
@@ -123,6 +119,8 @@ class ThemePromptArtworkResource extends JsonResource
         $width = $newWidth;
         $height = round($newWidth / $aspectRatio);
 
+        // If the height is still greater than the max height
+        // Set the height to the max height
         if ($height > static::IMAGE_SIZES['img']) {
             $height = static::IMAGE_SIZES['img'];
             $width = round(static::IMAGE_SIZES['img'] * $aspectRatio);

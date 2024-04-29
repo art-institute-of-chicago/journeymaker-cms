@@ -51,7 +51,7 @@ class ArtworkSeeder extends Seeder
                 $this->command->warn('No translations found for: '.$rawArtwork['id'].' - '.$rawArtwork['title']);
             }
 
-            if($artwork->translations()->count() === 1) {
+            if ($artwork->translations()->count() === 1) {
                 collect($rawArtwork['translations'])->each(
                     fn ($translation, $locale) => $this->addTranslation(
                         $artwork,
@@ -74,7 +74,6 @@ class ArtworkSeeder extends Seeder
                 'theme_prompt_id' => $themePrompt->id,
                 'artwork_id' => $artwork->id,
                 'activity_template' => $rawArtwork['activityTemplate'],
-                'published' => true,
             ]);
 
             collect($rawArtwork['translations'])->each(

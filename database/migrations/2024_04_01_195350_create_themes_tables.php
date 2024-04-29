@@ -18,6 +18,7 @@ return new class extends Migration
             createDefaultTranslationsTableFields($table, 'theme');
             $table->string('title', 200)->nullable();
             $table->text('intro')->nullable();
+            $table->text('journey_guide')->nullable();
         });
 
         Schema::create('theme_revisions', function (Blueprint $table) {
