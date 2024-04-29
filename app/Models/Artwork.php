@@ -28,6 +28,7 @@ class Artwork extends Model
     public const ARTWORK_API_FIELDS = [
         'id',
         'main_reference_number',
+        'artist_title',
         'artist_display',
         'medium_display',
         'date_display',
@@ -50,7 +51,7 @@ class Artwork extends Model
         'published',
         'datahub_id',
         'title',
-        'artist_display',
+        'artist',
         'location_directions',
         'is_on_view',
         'image_id',
@@ -64,7 +65,7 @@ class Artwork extends Model
 
     public $translatedAttributes = [
         'title',
-        'artist_display',
+        'artist',
         'location_directions',
     ];
 

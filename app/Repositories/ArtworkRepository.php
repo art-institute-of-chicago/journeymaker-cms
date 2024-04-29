@@ -8,7 +8,7 @@ use A17\Twill\Repositories\Behaviors\HandleTranslations;
 use A17\Twill\Repositories\ModuleRepository;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use App\Models\Artwork;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class ArtworkRepository extends ModuleRepository
 {
@@ -38,9 +38,12 @@ class ArtworkRepository extends ModuleRepository
             $apiFields['floor'] = $galleryFields['floor'] ?? null;
         }
 
+        $artist = Str::of($apiFields['artist_title'] ?: $apiFields['artist_display'])
+            ->before("\n")->trim()->__toString();
+
         $translatedFields = [
-            'artist_display' => [
-                'en' => Arr::pull($apiFields, 'artist_display'),
+            'artist' => [
+                'en' => $artist,
             ],
         ];
 

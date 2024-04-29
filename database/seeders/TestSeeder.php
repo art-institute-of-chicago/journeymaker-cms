@@ -60,7 +60,7 @@ class TestSeeder extends Seeder
                         ['datahub_id' => $artwork->id],
                         [
                             'title' => $artwork->title,
-                            'artist_display' => $artwork->artist_display,
+                            'artist' => $artwork->artist_title,
                             'location_directions' => 'Test Location Directions',
                             'is_on_view' => $artwork->is_on_view,
                             'image_id' => $artwork->image_id,
@@ -70,7 +70,7 @@ class TestSeeder extends Seeder
 
                 $artworks->each(fn ($artwork) => $this->addTranslations(
                     $artwork,
-                    ['title', 'artist_display', 'location_directions']
+                    ['title', 'artist', 'location_directions']
                 )
                 );
 

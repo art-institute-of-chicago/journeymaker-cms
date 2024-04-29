@@ -18,6 +18,7 @@ use Exception;
 use Facades\App\Libraries\DamsImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ArtworkController extends ModuleController
 {
@@ -31,7 +32,7 @@ class ArtworkController extends ModuleController
         $this->disableBulkRestore();
         $this->disableBulkForceDelete();
 
-        $this->setSearchColumns(['title', 'artist_display']);
+        $this->setSearchColumns(['title', 'artist']);
     }
 
     public function getCreateForm(): Form
@@ -77,7 +78,7 @@ class ArtworkController extends ModuleController
                             ->label('Override Image')
                             ->note('This will replace the image above'),
                         Input::make()
-                            ->name('artist_display'),
+                            ->name('artist'),
                         Input::make()
                             ->type('textarea')
                             ->name('location_directions')
@@ -91,7 +92,7 @@ class ArtworkController extends ModuleController
                                 'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
                                 'gallery' => $apiGallery->title ?? '',
                                 'floor' => $apiGallery->floor ?? '',
-                            ])
+                            ]),
                     ])
             );
     }
@@ -119,7 +120,7 @@ class ArtworkController extends ModuleController
     {
         return parent::additionalIndexTableColumns()
             ->add(Text::make()
-                ->field('artist_display'))
+                ->field('artist'))
             ->add(Boolean::make()
                 ->field('is_on_view'))
             ->add(Text::make()
@@ -140,8 +141,11 @@ class ArtworkController extends ModuleController
                     ],
                     'minimum_should_match' => 1,
                 ]])
-                ->get(['id', 'title', 'artist_display', 'image_id'], '/api/v1/artworks/search')
+                ->get(['id', 'main_reference_number', 'is_on_view', 'title', 'artist_title', 'artist_display', 'image_id'], '/api/v1/artworks/search')
                 ->map(function ($artwork) {
+                    $artwork->artist = Str::of($artwork->artist_title?: $artwork->artist_display)
+                        ->before("\n")->trim()->__toString();
+
                     $artwork->thumbnail = $artwork->image_id
                         ? DamsImageService::getUrl($artwork->image_id, [
                             'name' => 'thumbnail',

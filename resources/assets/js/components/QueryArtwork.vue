@@ -23,7 +23,8 @@
         </div>
         <transition name="fade_search-overlay">
             <div
-                class="relative mt-2 overflow-y-scroll bg-white border border-gray-300 rounded-md shadow-sm max-h-96"
+                class="relative mt-2 bg-white border border-gray-300 rounded-md shadow-sm max-h-96"
+                :class="{'overflow-y-scroll': queryResults.length > 4}"
                 v-show="readyToShowResult"
             >
                 <ul role="list" class="divide-y divide-gray-100">
@@ -36,9 +37,13 @@
                         <div class="flex-none w-12 h-12">
                             <img v-if="artwork.thumbnail" :src="artwork.thumbnail" class="w-full h-full bg-gray-50" alt="{{ artwork.title }}" />
                         </div>
-                        <div class="min-w-0">
+                        <div class="w-full">
                             <p class="text-sm font-semibold leading-6 text-gray-900">{{ artwork.title }}</p>
-                            <p class="mt-1 text-xs leading-5 text-gray-500 truncate">{{ artwork.artist_display }}</p>
+                            <div class="flex justify-between">
+                                <p class="mt-1 text-xs leading-5 text-gray-500 truncate">{{ artwork.artist }}</p>
+                                <span v-if="artwork.is_on_view" class="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md">✅ On View</span>
+                                <span v-else class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-md">❌ On View</span>
+                            </div>
                         </div>
                     </li>
                     <li class="px-5 py-5 bg-slate-100" v-show="loading">Loading...</li>
