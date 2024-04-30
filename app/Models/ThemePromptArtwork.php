@@ -31,6 +31,13 @@ class ThemePromptArtwork extends Model implements Sortable
         'activity_instructions',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('position');
+        });
+    }
+
     public function artwork()
     {
         return $this->belongsTo(Artwork::class);

@@ -27,6 +27,13 @@ class ThemePrompt extends Model implements Sortable
         'subtitle',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('position');
+        });
+    }
+
     public function theme()
     {
         return $this->belongsTo(Theme::class);
@@ -34,7 +41,7 @@ class ThemePrompt extends Model implements Sortable
 
     public function artworks()
     {
-        return $this->hasMany(ThemePromptArtwork::class)->orderBy('position');
+        return $this->hasMany(ThemePromptArtwork::class);
     }
 
     public function scopeActive(Builder $query): void

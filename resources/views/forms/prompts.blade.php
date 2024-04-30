@@ -7,9 +7,17 @@
 @endphp
 
 <div class="custom">
-    <ul class="py-2">
+    <ul class="py-2 text-lg">
+        <li>
+            <a
+                class="block p-2 hover:bg-slate-100"
+                href="{{ route('twill.themes.prompts.index', $theme->id) }}"
+            >
+                ALL PROMPTS
+            </a>
+        </li>
         @foreach($theme->prompts()->orderBy('position')->get() as $prompt)
-            <li class="text-lg">
+            <li>
                 <a
                     @class(['block p-2  hover:bg-slate-100', 'font-semibold' => $prompt->id == $currentPromptId])
                     href="{{ route('twill.themes.prompts.show', [$theme->id, $prompt->id]) }}"

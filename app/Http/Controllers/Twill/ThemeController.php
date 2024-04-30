@@ -25,6 +25,8 @@ class ThemeController extends ModuleController
         $this->disableBulkPublish();
         $this->disableBulkRestore();
         $this->disableBulkForceDelete();
+        $this->disableSortable();
+        $this->enableReorder();
     }
 
     public function getCreateForm(): Form

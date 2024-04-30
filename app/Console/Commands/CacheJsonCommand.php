@@ -42,11 +42,20 @@ class CacheJsonCommand extends Command
                         $this->themeRepository->active()->with(
                             [
                                 'prompts' => fn (Builder $query) => $query->active(),
-                                'prompts.artworks' => fn (Builder $query) => $query->active()->limit(8),
+                                'prompts.artworks' => fn (Builder $query) => $query->active(),
                             ]
                         )->get()
                     ),
                 ];
+
+                // Limit the number of artworks per prompt to 8
+                // This can be removed once we upgrade to Laravel 11
+                // https://github.com/laravel/framework/pull/49695
+                foreach ($data['themes'] as $themeKey => $theme) {
+                    foreach ($theme['prompts'] as $promptKey => $prompt) {
+                        $data['themes'][$themeKey]['prompts'][$promptKey]['artworks'] = $prompt['artworks']->take(8);
+                    }
+                }
 
                 Cache::put($key, json_encode($data));
             });

@@ -30,6 +30,8 @@ class ThemePromptController extends ModuleController
         $this->disableBulkPublish();
         $this->disableBulkRestore();
         $this->disableBulkForceDelete();
+        $this->disableSortable();
+        $this->enableReorder();
 
         if (request('theme')) {
             $this->setBreadcrumbs(
