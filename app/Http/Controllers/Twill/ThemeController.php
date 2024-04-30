@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Twill;
 
 use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Services\Forms\BladePartial;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
 use A17\Twill\Services\Forms\Fieldset;
@@ -34,6 +35,20 @@ class ThemeController extends ModuleController
                 ->maxLength(23)
                 ->translatable()
         );
+    }
+
+    public function getSideFieldsets(TwillModelContract $model): Form
+    {
+        return parent::getSideFieldsets($model)
+            ->withFieldSets(new Fieldsets([
+                Fieldset::make()->title('Prompts')->id('prompts')->fields([
+                    BladePartial::make()
+                        ->view('forms.prompts')
+                        ->withAdditionalParams([
+                            'theme' => $model,
+                        ]),
+                ]),
+            ]));
     }
 
     public function getForm(TwillModelContract $model): Form

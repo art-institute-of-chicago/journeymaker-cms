@@ -143,7 +143,7 @@ class ArtworkController extends ModuleController
                 ]])
                 ->get(['id', 'main_reference_number', 'is_on_view', 'title', 'artist_title', 'artist_display', 'image_id'], '/api/v1/artworks/search')
                 ->map(function ($artwork) {
-                    $artwork->artist = Str::of($artwork->artist_title?: $artwork->artist_display)
+                    $artwork->artist = Str::of($artwork->artist_title ?: $artwork->artist_display)
                         ->before("\n")->trim()->__toString();
 
                     $artwork->thumbnail = $artwork->image_id

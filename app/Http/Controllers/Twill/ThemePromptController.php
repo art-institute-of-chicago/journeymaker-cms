@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Twill;
 use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Breadcrumbs\NestedBreadcrumbs;
+use A17\Twill\Services\Forms\BladePartial;
 use A17\Twill\Services\Forms\Fields\Browser;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Select;
@@ -42,6 +43,21 @@ class ThemePromptController extends ModuleController
                     ->label('Prompts')
             );
         }
+    }
+
+    public function getSideFieldsets(TwillModelContract $model): Form
+    {
+        return parent::getSideFieldsets($model)
+            ->withFieldSets(new Fieldsets([
+                Fieldset::make()->title('Prompts')->id('prompts')->fields([
+                    BladePartial::make()
+                        ->view('forms.prompts')
+                        ->withAdditionalParams([
+                            'theme' => $model->theme,
+                            'currentPromptId' => $model->id,
+                        ]),
+                ]),
+            ]));
     }
 
     public function getForm(TwillModelContract $model): Form

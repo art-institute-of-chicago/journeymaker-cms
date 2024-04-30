@@ -587,8 +587,16 @@ video {
   margin-top: 2rem;
 }
 
+.custom :is(.mr-2) {
+  margin-right: 0.5rem;
+}
+
 .custom :is(.block) {
   display: block;
+}
+
+.custom :is(.inline-block) {
+  display: inline-block;
 }
 
 .custom :is(.flex) {
@@ -607,6 +615,10 @@ video {
   height: 100%;
 }
 
+.custom :is(.h-6) {
+  height: 1.5rem;
+}
+
 .custom :is(.max-h-96) {
   max-height: 24rem;
 }
@@ -617,6 +629,10 @@ video {
 
 .custom :is(.w-full) {
   width: 100%;
+}
+
+.custom :is(.w-6) {
+  width: 1.5rem;
 }
 
 .custom :is(.min-w-0) {
@@ -665,6 +681,11 @@ video {
 .custom :is(.divide-gray-100 > :not([hidden]) ~ :not([hidden])) {
   --tw-divide-opacity: 1;
   border-color: rgb(243 244 246 / var(--tw-divide-opacity));
+}
+
+.custom :is(.divide-gray-200 > :not([hidden]) ~ :not([hidden])) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(229 231 235 / var(--tw-divide-opacity));
 }
 
 .custom :is(.overflow-hidden) {
@@ -728,6 +749,14 @@ video {
   padding: 2rem;
 }
 
+.custom :is(.p-2) {
+  padding: 0.5rem;
+}
+
+.custom :is(.p-4) {
+  padding: 1rem;
+}
+
 .custom :is(.px-2) {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -746,6 +775,16 @@ video {
 .custom :is(.py-5) {
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
+}
+
+.custom :is(.py-4) {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.custom :is(.py-2) {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .custom :is(.text-4xl) {
@@ -768,12 +807,21 @@ video {
   line-height: 1rem;
 }
 
+.custom :is(.text-lg) {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
 .custom :is(.font-medium) {
   font-weight: 500;
 }
 
 .custom :is(.font-semibold) {
   font-weight: 600;
+}
+
+.custom :is(.font-bold) {
+  font-weight: 700;
 }
 
 .custom :is(.leading-5) {
@@ -818,6 +866,11 @@ video {
   color: rgb(21 128 61 / var(--tw-text-opacity));
 }
 
+.custom :is(.text-blue-500) {
+  --tw-text-opacity: 1;
+  color: rgb(59 130 246 / var(--tw-text-opacity));
+}
+
 .custom :is(.shadow-sm) {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
@@ -840,4 +893,23 @@ video {
 .custom :is(.hover\:bg-slate-200:hover) {
   --tw-bg-opacity: 1;
   background-color: rgb(226 232 240 / var(--tw-bg-opacity));
+}
+
+.custom :is(.hover\:bg-slate-300:hover) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(203 213 225 / var(--tw-bg-opacity));
+}
+
+.custom :is(.hover\:bg-slate-100:hover) {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
+
+.custom :is(.hover\:text-blue-800:hover) {
+  --tw-text-opacity: 1;
+  color: rgb(30 64 175 / var(--tw-text-opacity));
+}
+
+.custom :is(.hover\:underline:hover) {
+  text-decoration-line: underline;
 }
