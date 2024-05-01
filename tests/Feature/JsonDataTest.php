@@ -197,7 +197,7 @@ class JsonDataTest extends TestCase
             ->assertJson(fn (AssertableJson $json) => $json
                 ->where('themes.0.prompts.0.artworks.0.id', 1)
                 ->where('themes.0.prompts.0.artworks.0.title', 'A13: New England Bedroom, 1750-1850')
-                ->where('themes.0.prompts.0.artworks.0.artist', "Designed by Narcissa Niblack Thorne\nAmerican, 1882-1966")
+                ->where('themes.0.prompts.0.artworks.0.artist', 'Narcissa Niblack Thorne')
                 ->whereType('themes.0.prompts.0.artworks.0.img', 'array')
                 ->whereType('themes.0.prompts.0.artworks.0.artwork_thumbnail', 'array')
                 ->whereType('themes.0.prompts.0.artworks.0.img_medium', 'array')

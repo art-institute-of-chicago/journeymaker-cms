@@ -40,7 +40,7 @@ class ArtworkSeeder extends Seeder
                 ['datahub_id' => $apiFields['datahub_id']],
                 [
                     'title' => $rawArtwork['title'],
-                    'artist_display' => $rawArtwork['artist'],
+                    'artist' => $rawArtwork['artist'],
                     'location_directions' => $rawArtwork['locationDirections'],
                     'published' => true,
                     ...$apiFields,
@@ -57,7 +57,7 @@ class ArtworkSeeder extends Seeder
                         $artwork,
                         [
                             'title' => $translation['title'],
-                            'artist_display' => $translation['artist'],
+                            'artist' => $translation['artist'],
                             'location_directions' => $translation['locationDirections'],
                         ],
                         $locale
@@ -68,6 +68,7 @@ class ArtworkSeeder extends Seeder
             $artwork->translations()->update(['active' => true]);
 
             $themePromptArtwork = ThemePromptArtwork::factory()->create([
+                'title' => $rawArtwork['title'],
                 'detail_narrative' => $rawArtwork['detailNarrative'],
                 'viewing_description' => $rawArtwork['viewingDescription'],
                 'activity_instructions' => $rawArtwork['activityInstructions'],

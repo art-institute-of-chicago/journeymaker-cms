@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Twill;
 use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Breadcrumbs\NestedBreadcrumbs;
+use A17\Twill\Services\Forms\BladePartial;
 use A17\Twill\Services\Forms\Fields\Browser;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Select;
@@ -14,6 +15,7 @@ use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Forms\InlineRepeater;
 use App\Models\ActivityTemplate;
 use App\Repositories\ThemeRepository;
+use App\Support\Forms\Fields\Hidden;
 
 class ThemePromptController extends ModuleController
 {
@@ -43,6 +45,21 @@ class ThemePromptController extends ModuleController
         }
     }
 
+    public function getSideFieldsets(TwillModelContract $model): Form
+    {
+        return parent::getSideFieldsets($model)
+            ->withFieldSets(new Fieldsets([
+                Fieldset::make()->title('Prompts')->id('prompts')->fields([
+                    BladePartial::make()
+                        ->view('forms.prompts')
+                        ->withAdditionalParams([
+                            'theme' => $model->theme,
+                            'currentPromptId' => $model->id,
+                        ]),
+                ]),
+            ]));
+    }
+
     public function getForm(TwillModelContract $model): Form
     {
         return parent::getForm($model)
@@ -51,6 +68,10 @@ class ThemePromptController extends ModuleController
                     ->title('Content')
                     ->id('content')
                     ->fields([
+                        Input::make()
+                            ->name('title')
+                            ->maxLength(255)
+                            ->translatable(),
                         Input::make()
                             ->name('subtitle')
                             ->label('Subtitle')
@@ -63,8 +84,12 @@ class ThemePromptController extends ModuleController
                         InlineRepeater::make()
                             ->label('Artwork')
                             ->name('artwork')
+                            ->hideTitlePrefix()
+                            ->titleField('title')
                             ->allowBrowser()
                             ->fields([
+                                Hidden::make()
+                                    ->name('title'),
                                 Browser::make()
                                     ->name('artwork')
                                     ->label('Artwork')

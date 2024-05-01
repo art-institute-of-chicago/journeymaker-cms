@@ -17,6 +17,16 @@ class ThemePromptRepository extends ModuleRepository
         $this->model = $model;
     }
 
+    public function prepareFieldsBeforeSave(TwillModelContract $object, array $fields): array
+    {
+        $fields['repeaters']['artwork'] = collect($fields['repeaters']['artwork'] ?? [])->map(fn ($artwork) => [
+            ...$artwork,
+            'title' => $artwork['browsers']['artwork'][0]['name'] ?? null,
+        ])->toArray();
+
+        return parent::prepareFieldsBeforeSave($object, $fields);
+    }
+
     public function afterSave(TwillModelContract $model, array $fields): void
     {
         $fields['repeaters']['artwork'] = collect($fields['repeaters']['artwork'] ?? [])->map(fn ($artwork) => [
@@ -37,7 +47,7 @@ class ThemePromptRepository extends ModuleRepository
         $model->load('artworks.artwork');
 
         $fields['repeaterBrowsers']['artwork'] = $model->artworks->mapWithKeys(fn ($artwork) => [
-            'blocks[artworks-'.$artwork->position.'][artwork]' => [
+            'blocks[artworks-'.$artwork->id.'][artwork]' => [
                 [
                     'thumbnail' => $artwork->artwork->image('override'),
                     'id' => $artwork->artwork->id,

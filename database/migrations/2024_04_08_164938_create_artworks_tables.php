@@ -18,7 +18,7 @@ return new class extends Migration
         Schema::create('artwork_translations', function (Blueprint $table) {
             createDefaultTranslationsTableFields($table, 'artwork');
             $table->string('title')->nullable();
-            $table->string('artist_display')->nullable();
+            $table->string('artist')->nullable();
             $table->string('location_directions')->nullable();
         });
 

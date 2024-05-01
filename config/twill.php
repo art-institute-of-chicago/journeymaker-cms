@@ -19,7 +19,7 @@ return [
                 'activity' => true,
                 'draft' => true,
                 'search' => true,
-                'search_fields' => ['title', 'artist_display'],
+                'search_fields' => ['title', 'artist'],
             ],
         ],
     ],

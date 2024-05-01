@@ -37,6 +37,7 @@ class TestSeeder extends Seeder
 
             $this->addTranslations($theme, ['title', 'intro', 'journey_guide']);
 
+            $this->addImage($theme, base_path('tests/data/images/theme-shape-face.png'), 'shape_face');
             $this->addImage($theme, base_path('tests/data/images/theme-icon.png'), 'icon');
             $this->addImage($theme, base_path('tests/data/images/theme-cover.png'), 'cover');
             $this->addImage($theme, base_path('tests/data/images/theme-cover-home.png'), 'cover_home');
@@ -59,7 +60,7 @@ class TestSeeder extends Seeder
                         ['datahub_id' => $artwork->id],
                         [
                             'title' => $artwork->title,
-                            'artist_display' => $artwork->artist_display,
+                            'artist' => $artwork->artist_title,
                             'location_directions' => 'Test Location Directions',
                             'is_on_view' => $artwork->is_on_view,
                             'image_id' => $artwork->image_id,
@@ -69,7 +70,7 @@ class TestSeeder extends Seeder
 
                 $artworks->each(fn ($artwork) => $this->addTranslations(
                     $artwork,
-                    ['title', 'artist_display', 'location_directions']
+                    ['title', 'artist', 'location_directions']
                 )
                 );
 
