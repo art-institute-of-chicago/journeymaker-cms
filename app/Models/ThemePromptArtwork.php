@@ -34,7 +34,7 @@ class ThemePromptArtwork extends Model implements Sortable
     protected static function booted(): void
     {
         static::addGlobalScope('order', function (Builder $builder) {
-            $builder->orderBy('position');
+            $builder->orderBy((new static)->getTable() . '.position');
         });
     }
 
