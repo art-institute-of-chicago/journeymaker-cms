@@ -49,4 +49,24 @@ class ArtworkRepository extends ModuleRepository
 
         return parent::prepareFieldsBeforeCreate([...$fields, ...$apiFields, ...$translatedFields]);
     }
+
+    public function getCountVisible(): int
+    {
+        return $this->model->active()->count();
+    }
+
+    public function getCountHidden(): int
+    {
+        return $this->model->notActive()->count();
+    }
+
+    public function getCountOnView(): int
+    {
+        return $this->model->onView()->count();
+    }
+
+    public function getCountOffView(): int
+    {
+        return $this->model->offView()->count();
+    }
 }

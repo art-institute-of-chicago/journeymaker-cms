@@ -12,6 +12,8 @@ use A17\Twill\Services\Forms\Fieldsets;
 use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Listings\Columns\Image;
 use A17\Twill\Services\Listings\Columns\NestedData;
+use A17\Twill\Services\Listings\Filters\QuickFilter;
+use A17\Twill\Services\Listings\Filters\QuickFilters;
 use A17\Twill\Services\Listings\TableColumns;
 
 class ThemeController extends ModuleController
@@ -129,5 +131,15 @@ class ThemeController extends ModuleController
         );
 
         return $table;
+    }
+
+    public function quickFilters(): QuickFilters
+    {
+        return new QuickFilters([
+            QuickFilter::make()
+                ->label(twillTrans('twill::lang.listing.filter.all-items'))
+                ->queryString('all')
+                ->amount(fn () => $this->repository->getCountByStatusSlug('all')),
+        ]);
     }
 }

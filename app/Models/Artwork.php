@@ -118,9 +118,34 @@ class Artwork extends Model
 
     public function scopeActive(Builder $query): void
     {
-        $query
-            ->published()
-            ->where('is_on_view', true);
+        $query->published()->onView()->translated();
+    }
+
+    public function scopeNotActive(Builder $query): void
+    {
+        $query->where('published', false)
+            ->orWhere->offView()
+            ->orWhere->missingTranslations();
+    }
+
+    public function scopeTranslated(Builder $query): void
+    {
+        $query->whereDoesntHave('translations', fn (Builder $query) => $query->where('active', false));
+    }
+
+    public function scopeMissingTranslations(Builder $query): void
+    {
+        $query->whereHas('translations', fn (Builder $query) => $query->where('active', false));
+    }
+
+    public function scopeOnView(Builder $query): void
+    {
+        $query->where('is_on_view', true);
+    }
+
+    public function scopeOffView(Builder $query): void
+    {
+        $query->where('is_on_view', false);
     }
 
     /**
