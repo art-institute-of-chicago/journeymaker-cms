@@ -11,8 +11,14 @@ use A17\Twill\Services\Forms\Fieldset;
 use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Listings\Columns\Boolean;
 use A17\Twill\Services\Listings\Columns\Text;
+use A17\Twill\Services\Listings\Filters\BelongsToFilter;
+use A17\Twill\Services\Listings\Filters\BooleanFilter;
+use A17\Twill\Services\Listings\Filters\QuickFilter;
+use A17\Twill\Services\Listings\Filters\QuickFilters;
+use A17\Twill\Services\Listings\Filters\TableFilters;
 use A17\Twill\Services\Listings\TableColumns;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Models\Theme;
 use App\Support\Forms\Fields\QueryArtwork;
 use Exception;
 use Facades\App\Libraries\DamsImageService;
@@ -128,6 +134,35 @@ class ArtworkController extends ModuleController
                 ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')
                     ->map(fn ($theme) => '<a href="/admin/themes/'.$theme->id.'/edit">'.$theme->title.'</a>')
                     ->join(', ')));
+    }
+
+    public function quickFilters(): QuickFilters
+    {
+        return QuickFilters::make([
+            QuickFilter::make()
+                ->label(twillTrans('twill::lang.listing.filter.all-items'))
+                ->queryString('all')
+                ->amount(fn () => $this->repository->getCountByStatusSlug('all')),
+            QuickFilter::make()
+                ->label('Visible')
+                ->queryString('visible')
+                ->scope('active')
+                ->amount(fn () => $this->repository->getCountVisible()),
+            QuickFilter::make()
+                ->label('Hidden')
+                ->queryString('hidden')
+                ->scope('notActive')
+                ->amount(fn () => $this->repository->getCountHidden()),
+        ]);
+    }
+
+    public function filters(): TableFilters
+    {
+        return TableFilters::make([
+            BelongsToFilter::make()->field('themePrompts.theme')->label('Theme')->model(Theme::class),
+            BooleanFilter::make()->field('is_on_view')->label('On View'),
+            BooleanFilter::make()->field('published')->label('Published'),
+        ]);
     }
 
     public function queryArtwork(Request $request, ApiQueryBuilder $api): JsonResponse
