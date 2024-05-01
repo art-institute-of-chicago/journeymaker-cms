@@ -18,10 +18,10 @@ use A17\Twill\Services\Listings\Filters\QuickFilters;
 use A17\Twill\Services\Listings\Filters\TableFilters;
 use A17\Twill\Services\Listings\TableColumns;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
+use App\Models\Artwork;
 use App\Models\Theme;
 use App\Support\Forms\Fields\QueryArtwork;
 use Exception;
-use Facades\App\Libraries\DamsImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -77,7 +77,7 @@ class ArtworkController extends ModuleController
                         BladePartial::make()
                             ->view('forms.image')
                             ->withAdditionalParams([
-                                'src' => DamsImageService::getUrl($model->image_id, $model->mediasParams['iiif']['default'][0]),
+                                'src' => $model->getDimImageUrl($model->mediasParams['iiif']['default'][0]),
                             ]),
                         Medias::make()
                             ->name('override')
@@ -181,13 +181,11 @@ class ArtworkController extends ModuleController
                     $artwork->artist = Str::of($artwork->artist_title ?: $artwork->artist_display)
                         ->before("\n")->trim()->__toString();
 
-                    $artwork->thumbnail = $artwork->image_id
-                        ? DamsImageService::getUrl($artwork->image_id, [
-                            'name' => 'thumbnail',
-                            'height' => 112,
-                            'width' => 112,
-                        ])
-                        : null;
+                    $artwork->thumbnail = Artwork::make((array) $artwork)->getDimImageUrl([
+                        'name' => 'thumbnail',
+                        'height' => 112,
+                        'width' => 112,
+                    ]);
 
                     return $artwork;
                 });
