@@ -62,18 +62,19 @@ class ThemeController extends ModuleController
                 Fieldset::make()->title('Content')->id('content')->fields([
                     Input::make()
                         ->name('title')
-                        ->maxLength(23)
+                        ->maxLength(23+5)
                         ->translatable(),
                     Input::make()
                         ->type('textarea')
                         ->name('intro')
                         ->label('Intro')
-                        ->maxLength(225)
+                        ->maxLength(226+10)
+                        ->note('Limit is 226 characters + 5 for padding.')
                         ->translatable(),
                     Input::make()
                         ->name('journey_guide')
                         ->label('Journey Guide Cover Title')
-                        ->maxLength(25)
+                        ->maxLength(25+5)
                         ->translatable(),
                 ]),
                 Fieldset::make()->title('Media')->id('media')->fields([

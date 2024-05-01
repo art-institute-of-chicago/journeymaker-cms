@@ -9,9 +9,7 @@ class ThemeRequest extends Request
 {
     public function rulesForCreate()
     {
-        return [
-            'title.*' => 'max:23',
-        ];
+        return [];
     }
 
     public function rulesForUpdate()
@@ -28,17 +26,6 @@ class ThemeRequest extends Request
                     $fail('The icon must be at least 75x75 pixels.');
                 }
             },
-        ], [
-            'title' => 'max:23',
-            'intro' => 'max:255',
-        ]);
-    }
-
-    public function messages()
-    {
-        return [
-            'title.*.max' => 'Title can be a maximum of 23 characters',
-            'intro.*.max' => 'Intro can be a maximum 255 characters',
-        ];
+        ], []);
     }
 }

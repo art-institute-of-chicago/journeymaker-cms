@@ -88,6 +88,7 @@ class ArtworkController extends ModuleController
                         Input::make()
                             ->type('textarea')
                             ->name('location_directions')
+                            ->maxLength(145+10)
                             ->label('Location Directions (Journey Guide)')
                             ->translatable(),
                         BladePartial::make()

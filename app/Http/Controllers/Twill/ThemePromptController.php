@@ -72,10 +72,11 @@ class ThemePromptController extends ModuleController
                     ->fields([
                         Input::make()
                             ->name('title')
-                            ->maxLength(255)
+                            ->maxLength(21+5)
                             ->translatable(),
                         Input::make()
                             ->name('subtitle')
+                            ->maxLength(100+10)
                             ->label('Subtitle')
                             ->translatable(),
                     ]),
@@ -101,11 +102,13 @@ class ThemePromptController extends ModuleController
                                 Input::make()
                                     ->type('textarea')
                                     ->name('detail_narrative')
+                                    ->maxLength(100+10)
                                     ->label('Detail Narrative (Interface)')
                                     ->translatable(),
                                 Input::make()
                                     ->type('textarea')
                                     ->name('viewing_description')
+                                    ->maxLength(125+10)
                                     ->label('Look Again (Journey Guide)')
                                     ->translatable(),
                                 Select::make()
@@ -120,6 +123,7 @@ class ThemePromptController extends ModuleController
                                 Input::make()
                                     ->type('textarea')
                                     ->name('activity_instructions')
+                                    ->maxLength(128+10)
                                     ->label('Activity Instructions (Journey Guide)')
                                     ->translatable(),
                             ]),
