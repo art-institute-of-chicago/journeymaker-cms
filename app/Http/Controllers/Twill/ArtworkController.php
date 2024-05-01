@@ -89,6 +89,7 @@ class ArtworkController extends ModuleController
                             ->type('textarea')
                             ->name('location_directions')
                             ->maxLength(145 + 10)
+                            ->note('Limit is 145 characters + 10 for padding.')
                             ->label('Location Directions (Journey Guide)')
                             ->translatable(),
                         BladePartial::make()
