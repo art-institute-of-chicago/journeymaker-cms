@@ -9,36 +9,47 @@ class ThemeRequest extends Request
 {
     public function rulesForCreate()
     {
-        return [
-            'title.*' => 'max:23',
-        ];
+        return [];
     }
 
     public function rulesForUpdate()
     {
         return $this->rulesForTranslatedFields([
-            'medias.icon' => function (string $attribute, mixed $value, Closure $fail) {
-                $icon = $value[0] ?? null;
+            'medias.shape_face' => function (string $attribute, mixed $value, Closure $fail) {
+                $image = $value[0] ?? null;
 
-                if (! $icon) {
-                    $fail('The icon is required.');
+                if ($image['width'] !== 2888) {
+                    $fail('The shape face must be 2888px wide.');
                 }
+            },
+            'medias.icon' => function (string $attribute, mixed $value, Closure $fail) {
+                $image = $value[0] ?? null;
 
-                if ($icon['width'] < 75 || $icon['width'] < 75) {
+                if ($image['width'] < 75 || $image['height'] < 75) {
                     $fail('The icon must be at least 75x75 pixels.');
                 }
             },
-        ], [
-            'title' => 'max:23',
-            'intro' => 'max:255',
-        ]);
-    }
+            'medias.cover' => function (string $attribute, mixed $value, Closure $fail) {
+                $image = $value[0] ?? null;
 
-    public function messages()
-    {
-        return [
-            'title.*.max' => 'Title can be a maximum of 23 characters',
-            'intro.*.max' => 'Intro can be a maximum 255 characters',
-        ];
+                if ($image['width'] !== 1125 || $image['height'] !== 1500) {
+                    $fail('The guide cover art must be 1125x1500 pixels.');
+                }
+            },
+            'medias.cover_home' => function (string $attribute, mixed $value, Closure $fail) {
+                $image = $value[0] ?? null;
+
+                if ($image['width'] !== 1125 || $image['height'] !== 1500) {
+                    $fail('The guide cover art (home companion) must be 1125x1500 pixels.');
+                }
+            },
+            'medias.backgrounds' => function (string $attribute, mixed $value, Closure $fail) {
+                collect($value)->each(function ($image) use ($fail) {
+                    if ($image['width'] < 1920 || $image['height'] < 1080) {
+                        $fail('All background images must be at least 1920x1080 pixels.');
+                    }
+                });
+            },
+        ], []);
     }
 }
