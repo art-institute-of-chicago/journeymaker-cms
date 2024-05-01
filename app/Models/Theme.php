@@ -91,6 +91,13 @@ class Theme extends Model implements Sortable
         ],
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('position');
+        });
+    }
+
     public function prompts()
     {
         return $this->hasMany(ThemePrompt::class);
