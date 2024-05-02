@@ -9,9 +9,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class ThemePromptArtworkResource extends JsonResource
 {
     public const IMAGE_SIZES = [
-        'img' => 3000,
-        'small' => 200,
-        'medium' => 843,
+        'img' => 1686,
+        'small' => 1686,
+        'medium' => 1686,
         'large' => 1686,
     ];
 
