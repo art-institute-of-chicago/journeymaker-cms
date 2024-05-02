@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use Facades\App\Libraries\DamsImageService;
+use App\Models\Artwork;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,7 +21,7 @@ class ThemePromptArtworkResource extends JsonResource
 
         $images = $override
             ? $this->getOverrideImages($override)
-            : $this->getApiImages($this->artwork->image_id);
+            : $this->getApiImages($this->artwork);
 
         return [
             'id' => $this->id,
@@ -80,13 +80,16 @@ class ThemePromptArtworkResource extends JsonResource
         ];
     }
 
-    private function getApiImages(?string $id): array
+    private function getApiImages(Artwork $artwork): array
     {
-        if (! $id) {
-            return [];
+        if (! $artwork->thumbnail) {
+            return [
+                'img' => null,
+                'artwork_thumbnail' => null,
+                'img_medium' => null,
+                'img_large' => null,
+            ];
         }
-
-        $dimensions = DamsImageService::getDimensions($id);
 
         return collect([
             'img' => static::IMAGE_SIZES['img'],
@@ -94,10 +97,10 @@ class ThemePromptArtworkResource extends JsonResource
             'img_medium' => static::IMAGE_SIZES['medium'],
             'img_large' => static::IMAGE_SIZES['large'],
         ])->map(fn ($size) => [
-            'url' => $this->getApiImageUrl($id, $size),
+            'url' => $this->getApiImageUrl($artwork->id, $size),
             ...$this->getDimensions(
-                $dimensions['width'],
-                $dimensions['height'],
+                $artwork->thumbnail->width,
+                $artwork->thumbnail->height,
                 $size
             ),
         ])->toArray();

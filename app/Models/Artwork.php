@@ -10,7 +10,6 @@ use A17\Twill\Models\Model;
 use A17\Twill\Services\MediaLibrary\ImageService;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use Exception;
-use Facades\App\Libraries\DamsImageService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -28,6 +27,7 @@ class Artwork extends Model
     public const ARTWORK_API_FIELDS = [
         'id',
         'main_reference_number',
+        'thumbnail',
         'artist_title',
         'artist_display',
         'medium_display',
@@ -172,13 +172,34 @@ class Artwork extends Model
         }
 
         if ($this->image_id) {
-            return DamsImageService::getUrl(
-                $this->image_id,
+            return $this->getDimImageUrl(
                 $this->getMediasParams()['iiif'][$crop][0] + $params
             );
         }
 
         return ImageService::getTransparentFallbackUrl();
+    }
+
+    public function getDimImageUrl(array $params = []): ?string
+    {
+        if (! $this->image_id) {
+            return null;
+        }
+
+        $width = $params['width'] ?? '';
+        $height = $params['height'] ?? '';
+        $size = $params['size'] ?? 'full';
+
+        $dimensions = '!3000,3000';
+
+        if ($width != '' || $height != '') {
+            $dimensions = '!'.$width.','.$height;
+        }
+
+        $baseUrl = config('dams.cdn_enabled') ? config('dams.base_url_cdn') : config('dams.base_url');
+        $version = config('dams.version');
+
+        return $baseUrl.$version.'/'.$this->image_id.'/'.$size.'/'.$dimensions.'/0/default.jpg';
     }
 
     public function getArtworkApiData(): stdClass
