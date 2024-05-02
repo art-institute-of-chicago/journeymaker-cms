@@ -97,7 +97,7 @@ class ThemePromptArtworkResource extends JsonResource
             'img_medium' => static::IMAGE_SIZES['medium'],
             'img_large' => static::IMAGE_SIZES['large'],
         ])->map(fn ($size) => [
-            'url' => $this->getApiImageUrl($artwork->id, $size),
+            'url' => $this->getApiImageUrl($artwork->image_id, $size),
             ...$this->getDimensions(
                 $artwork->thumbnail->width,
                 $artwork->thumbnail->height,
