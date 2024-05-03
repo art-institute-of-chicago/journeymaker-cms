@@ -44,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
             NavigationLink::make()->forModule('artworks')
         );
 
+        TwillNavigation::addLink(
+            NavigationLink::make()->title('Directory')->forRoute('twill.directory')
+        );
+
         $this->app->singleton(ApiQueryBuilder::class, function () {
             $connection = new AicConnection();
 
