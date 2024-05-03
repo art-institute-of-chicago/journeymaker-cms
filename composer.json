@@ -12,7 +12,8 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
-        "laravel/tinker": "^2.8"
+        "laravel/tinker": "^2.8",
+        "sapientpro/image-comparator": "^1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.0",
@@ -20,7 +21,6 @@
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
         "phpunit/phpunit": "^10.1",
-        "sapientpro/image-comparator": "^1.0",
         "spatie/laravel-ignition": "^2.0",
         "spatie/ray": "^1.41"
     },
