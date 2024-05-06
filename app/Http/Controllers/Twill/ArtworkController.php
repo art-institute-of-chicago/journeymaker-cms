@@ -115,7 +115,6 @@ class ArtworkController extends ModuleController
         $table->splice(1, 0, [
             Text::make()
                 ->field('Image')
-
                 ->customRender(fn ($artwork) => view(
                     'admin.artwork-image',
                     [
