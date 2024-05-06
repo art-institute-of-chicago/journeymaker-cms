@@ -109,9 +109,13 @@ class ArtworkController extends ModuleController
     {
         $table = parent::getIndexTableColumns();
 
+        // Sort title asc by default
+        $table[1]->sortByDefault();
+
         $table->splice(1, 0, [
             Text::make()
                 ->field('Image')
+
                 ->customRender(fn ($artwork) => view(
                     'admin.artwork-image',
                     [
