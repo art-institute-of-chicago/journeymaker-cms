@@ -19,19 +19,16 @@ class ValidateSeeder extends Command
 
     public function __construct(
         private Collection $themes,
-        private ThemeSeeder $themeSeeder,
         private ImageComparator $imageComparator = new ImageComparator()
     ) {
         parent::__construct();
-
-        $this->themeSeeder = App::make(ThemeSeeder::class);
-
-        $this->themes = (fn () => $this->themes)->call($this->themeSeeder);
     }
 
     public function handle()
     {
-        $this->themes->each(function ($theme) {
+        $themes = (fn () => $this->themes)->call(App::make(ThemeSeeder::class));
+
+        $themes->each(function ($theme) {
             collect($theme['translations'])
                 ->each(fn ($translation, $locale) => $this->checkImg(
                     'icon.url',
