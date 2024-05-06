@@ -117,6 +117,11 @@ class ThemePromptArtworkResource extends JsonResource
             return ['width' => 0, 'height' => 0];
         }
 
+        // Do not upscale images
+        if ($width <= $newWidth) {
+            return ['width' => $width, 'height' => $height];
+        }
+
         $aspectRatio = $width / $height;
 
         $width = $newWidth;
