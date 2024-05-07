@@ -26,7 +26,10 @@ class ThemePromptArtworkResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->artwork->title,
-            ...$images,
+            'img' => $images['img'] ?? null,
+            'artwork_thumbnail' => $images['artwork_thumbnail'] ?? null,
+            'img_medium' => $images['img_medium'] ?? null,
+            'img_large' => $images['img_large'] ?? null,
             'artist' => $this->artwork->artist,
             'year' => $this->artwork->date_display,
             'medium' => $this->artwork->medium_display,
@@ -62,7 +65,7 @@ class ThemePromptArtworkResource extends JsonResource
                 ),
             ],
             'img_medium' => [
-                'url' => $image['original'].'?fm=jpg&q=80&fit=max&dpr=1&w=843',
+                'url' => $image['original'].'?fm=jpg&q=80&fit=max&dpr=1&w='.static::IMAGE_SIZES['medium'],
                 ...$this->getDimensions(
                     $image['width'],
                     $image['height'],
@@ -70,7 +73,7 @@ class ThemePromptArtworkResource extends JsonResource
                 ),
             ],
             'img_large' => [
-                'url' => $image['original'].'?fm=jpg&q=100&fit=max&dpr=1&w=843',
+                'url' => $image['original'].'?fm=jpg&q=100&fit=max&dpr=1&w='.static::IMAGE_SIZES['large'],
                 ...$this->getDimensions(
                     $image['width'],
                     $image['height'],
@@ -96,14 +99,19 @@ class ThemePromptArtworkResource extends JsonResource
             'artwork_thumbnail' => static::IMAGE_SIZES['small'],
             'img_medium' => static::IMAGE_SIZES['medium'],
             'img_large' => static::IMAGE_SIZES['large'],
-        ])->map(fn ($size) => [
-            'url' => $this->getApiImageUrl($artwork->image_id, $size),
-            ...$this->getDimensions(
+        ])->map(function ($size) use ($artwork) {
+            $dimensions = $this->getDimensions(
                 $artwork->thumbnail->width,
                 $artwork->thumbnail->height,
                 $size
-            ),
-        ])->toArray();
+            );
+
+            return [
+                'url' => $this->getApiImageUrl($artwork->image_id, $dimensions['width']),
+                'width' => $dimensions['width'],
+                'height' => $dimensions['height'],
+            ];
+        })->toArray();
     }
 
     private function getApiImageUrl(string $id, string|int $width): string
