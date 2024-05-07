@@ -55,12 +55,11 @@ class Artwork extends Model
         'location_directions',
         'is_on_view',
         'image_id',
+        'gallery_id',
     ];
 
     protected $casts = [
         'is_on_view' => 'boolean',
-        'latitude' => 'decimal:13',
-        'longitude' => 'decimal:14',
     ];
 
     public $translatedAttributes = [
@@ -118,14 +117,15 @@ class Artwork extends Model
 
     public function scopeActive(Builder $query): void
     {
-        $query->published()->onView()->translated();
+        $query->published()->onView()->translated()->notInRegensteinHall();
     }
 
     public function scopeNotActive(Builder $query): void
     {
         $query->where('published', false)
             ->orWhere->offView()
-            ->orWhere->missingTranslations();
+            ->orWhere->missingTranslations()
+            ->orWhere->inRegensteinHall();
     }
 
     public function scopeTranslated(Builder $query): void
@@ -136,6 +136,16 @@ class Artwork extends Model
     public function scopeMissingTranslations(Builder $query): void
     {
         $query->whereHas('translations', fn (Builder $query) => $query->where('active', false));
+    }
+
+    public function scopeInRegensteinHall(Builder $query): void
+    {
+        $query->where('gallery_id', 2147475902);
+    }
+
+    public function scopeNotInRegensteinHall(Builder $query): void
+    {
+        $query->where('gallery_id', '!=', 2147475902);
     }
 
     public function scopeOnView(Builder $query): void
@@ -249,7 +259,7 @@ class Artwork extends Model
 
     public static function cacheArtworkApiData(): void
     {
-        self::all(['id', 'datahub_id', 'is_on_view', 'image_id'])
+        self::all(['id', 'datahub_id', 'is_on_view', 'image_id', 'gallery_id'])
             ->chunk(100)
             ->each(function ($artworks) {
                 $artworkIds = $artworks->pluck('datahub_id')->filter()->unique()->implode(',');
@@ -267,7 +277,8 @@ class Artwork extends Model
                 $artworks->each(function ($artwork) use ($apiArtworks) {
                     $artwork->is_on_view = (bool) $apiArtworks[$artwork->datahub_id]->is_on_view;
                     $artwork->image_id = $apiArtworks[$artwork->datahub_id]->image_id;
-                    if ($artwork->isDirty('is_on_view') || $artwork->isDirty('image_id')) {
+                    $artwork->gallery_id = $apiArtworks[$artwork->datahub_id]->gallery_id;
+                    if ($artwork->isDirty('is_on_view') || $artwork->isDirty('image_id') || $artwork->isDirty('gallery_id')) {
                         $artwork->save();
                     }
                 });

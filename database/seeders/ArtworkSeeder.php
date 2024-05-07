@@ -105,6 +105,7 @@ class ArtworkSeeder extends Seeder
                     'id',
                     'is_on_view',
                     'image_id',
+                    'gallery_id',
                 ], '/api/v1/artworks/'.$id)
                 ->map(fn ($artwork) => [
                     'datahub_id' => $artwork->id,
