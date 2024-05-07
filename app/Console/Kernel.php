@@ -16,6 +16,10 @@ class Kernel extends ConsoleKernel
             ->command('app:cache-json')
             ->everyFiveMinutes()
             ->withoutOverlapping();
+
+        $schedule
+            ->command('app:api-log')
+            ->hourly();
     }
 
     /**
