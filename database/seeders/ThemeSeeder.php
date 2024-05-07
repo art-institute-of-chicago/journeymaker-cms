@@ -4,13 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Theme;
 use Database\Seeders\Behaviors\HasTwillSeeding;
-use Exception;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use SapientPro\ImageComparator\ImageComparator;
 
 class ThemeSeeder extends Seeder
@@ -38,8 +36,6 @@ class ThemeSeeder extends Seeder
 
     public function run(): void
     {
-        $this->checkSources();
-
         $this->themes
             ->each(function ($rawTheme) {
                 $theme = Theme::factory()->create([
@@ -116,67 +112,5 @@ class ThemeSeeder extends Seeder
     private function getJsonFromSource(string $source): array
     {
         return Cache::remember($source, 60 * 60 * 24, fn () => Http::get($source)->json());
-    }
-
-    private function checkSources(): void
-    {
-        $this->themes->each(function ($theme) {
-            collect($theme['translations'])
-                ->each(fn ($translation, $locale) => $this->checkImg(
-                    'icon.url',
-                    'Theme',
-                    $theme,
-                    $translation,
-                    $locale
-                ));
-
-            collect($theme['prompts'])
-                ->each(fn ($prompt) => collect($prompt['artworks'])
-                    ->each(fn ($artwork) => collect($artwork['translations'])
-                        ->each(fn ($translation, $locale) => $this->checkImg(
-                            'img.url',
-                            'Artwork',
-                            $artwork,
-                            $translation,
-                            $locale
-                        ))
-                    )
-                );
-        });
-    }
-
-    private function checkImg(
-        string $field,
-        string $type,
-        array $object,
-        array $translation,
-        string $locale
-    ): void {
-        $url1 = Arr::get($object, $field);
-        $url2 = Arr::get($translation, $field);
-
-        if ($url1 !== $url2) {
-            $similarity = $this->getSimilarity($url1, $url2);
-
-            if ($similarity > 70) {
-                return;
-            }
-
-            $this->command->error($type.' '.$object['id'].' Img:'.$url1);
-            $this->command->error(Str::upper($locale).' '.$type.' '.$translation['id'].' Img:'.$url2);
-            $this->command->error('Similarity: '.$similarity);
-            $this->command->newLine(2);
-        }
-    }
-
-    private function getSimilarity(?string $url1, ?string $url2): int
-    {
-        try {
-            return $url1 && $url2
-                ? $this->imageComparator->compare($url1, $url2)
-                : 0;
-        } catch (Exception) {
-            return 0;
-        }
     }
 }
