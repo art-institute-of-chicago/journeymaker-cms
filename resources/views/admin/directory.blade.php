@@ -1,8 +1,8 @@
 @extends('twill::layouts.free')
 
-@push('extra_css')
+@pushOnce('extra_css')
     <link href="/assets/twill/css/custom.css" rel="stylesheet" />
-@endpush
+@endPushOnce
 
 @section('customPageContent')
     <div class="custom">
