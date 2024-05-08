@@ -7,17 +7,24 @@
 @section('customPageContent')
     <div class="custom">
         @foreach($themes as $theme)
-            <div class="mb-8">
-                <a href="{{ route('twill.themes.edit', $theme->id) }}">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-shrink-0">
+            <div class="mb-8" x-data="{open: false}">
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0">
+                        <a href="{{ route('twill.themes.edit', $theme->id) }}">
                             <img class="w-12 h-12 rounded-full" src="{{ $theme->image('icon') }}" alt="">
-                        </div>
-                        <h1 class="text-base font-semibold leading-6 text-gray-900">{{ $theme->title }}</h1>
+                        </a>
                     </div>
-                </a>
-
-                <div class="flow-root mt-4">
+                    <button x-on:click="open = !open" class="flex items-center gap-4">
+                        <h1 class="text-base font-semibold leading-6 text-gray-900">{{ $theme->title }}</h1>
+                        <svg x-bind:class="{ 'hidden': open }" class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                        <svg x-bind:class="{ 'hidden': ! open }" class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="flow-root mt-4" x-bind:class="{ 'hidden': ! open }" class="overflow-hidden transition-all">
                     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                             <table class="min-w-full">
