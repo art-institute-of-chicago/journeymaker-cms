@@ -109,6 +109,9 @@ class ArtworkController extends ModuleController
     {
         $table = parent::getIndexTableColumns();
 
+        // Sort title asc by default
+        $table[1]->sortByDefault();
+
         $table->splice(1, 0, [
             Text::make()
                 ->field('Image')
@@ -128,9 +131,13 @@ class ArtworkController extends ModuleController
     {
         return parent::additionalIndexTableColumns()
             ->add(Text::make()
-                ->field('artist'))
+                ->field('artist')
+                ->sortable()
+            )
             ->add(Boolean::make()
-                ->field('is_on_view'))
+                ->field('is_on_view')
+                ->sortable()
+            )
             ->add(Text::make()
                 ->field('Themes')
                 ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')
