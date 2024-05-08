@@ -12,6 +12,7 @@ use App\Libraries\Api\Builders\ApiQueryBuilder;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -113,6 +114,11 @@ class Artwork extends Model
             'id',
             'theme_prompt_id'
         );
+    }
+
+    public function apiLog(): HasMany
+    {
+        return $this->hasMany(ApiLog::class, 'datahub_id', 'datahub_id');
     }
 
     public function scopeActive(Builder $query): void
