@@ -48,6 +48,10 @@ class AppServiceProvider extends ServiceProvider
             NavigationLink::make()->title('Directory')->forRoute('twill.directory')
         );
 
+        TwillNavigation::addLink(
+            NavigationLink::make()->title('API Log')->forRoute('twill.api-log')
+        );
+
         $this->app->singleton(ApiQueryBuilder::class, function () {
             $connection = new AicConnection();
 
