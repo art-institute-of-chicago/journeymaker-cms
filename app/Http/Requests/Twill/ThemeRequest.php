@@ -15,13 +15,6 @@ class ThemeRequest extends Request
     public function rulesForUpdate()
     {
         return $this->rulesForTranslatedFields([
-            'medias.shape_face' => function (string $attribute, mixed $value, Closure $fail) {
-                $image = $value[0] ?? null;
-
-                if ($image['width'] !== 2888) {
-                    $fail('The shape face must be 2888px wide.');
-                }
-            },
             'medias.icon' => function (string $attribute, mixed $value, Closure $fail) {
                 $image = $value[0] ?? null;
 
