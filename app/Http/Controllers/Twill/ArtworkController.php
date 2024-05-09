@@ -84,7 +84,8 @@ class ArtworkController extends ModuleController
                             ->label('Override Image')
                             ->note('This will replace the image above'),
                         Input::make()
-                            ->name('artist'),
+                            ->name('artist')
+                            ->translatable(),
                         Input::make()
                             ->type('textarea')
                             ->name('location_directions')
