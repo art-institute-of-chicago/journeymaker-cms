@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use A17\Twill\Models\User;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
-use App\Models\Artwork;
 use App\Models\ThemePrompt;
-use App\Models\ThemePromptArtwork;
+use App\Repositories\ArtworkRepository;
+use App\Repositories\ThemePromptArtworkRepository;
 use Database\Seeders\Behaviors\HasTwillSeeding;
 use Exception;
 use Illuminate\Database\Seeder;
@@ -36,58 +37,62 @@ class ArtworkSeeder extends Seeder
                 return;
             }
 
-            $artwork = Artwork::firstOrCreate(
-                ['datahub_id' => $apiFields['datahub_id']],
-                [
-                    'title' => $rawArtwork['title'],
-                    'artist' => $rawArtwork['artist'],
-                    'location_directions' => $rawArtwork['locationDirections'],
-                    'published' => true,
-                    ...$apiFields,
-                ]
-            );
-
             if (! $rawArtwork['translations']) {
                 $this->command->warn('No translations found for: '.$rawArtwork['id'].' - '.$rawArtwork['title']);
             }
 
-            if ($artwork->translations()->count() === 1) {
-                collect($rawArtwork['translations'])->each(
-                    fn ($translation, $locale) => $this->addTranslation(
-                        $artwork,
-                        [
-                            'title' => $translation['title'],
-                            'artist' => $translation['artist'],
-                            'location_directions' => $translation['locationDirections'],
-                        ],
-                        $locale
-                    )
-                );
+            $artworkData = collect([
+                'en' => [
+                    'title' => $rawArtwork['title'],
+                    'artist' => $rawArtwork['artist'],
+                    'location_directions' => $rawArtwork['locationDirections'] ?? null,
+                ],
+            ])->merge($rawArtwork['translations'])->map(
+                fn ($translation, $locale) => [
+                    'title' => [$locale => $translation['title']],
+                    'artist' => [$locale => $translation['artist']],
+                    'location_directions' => [$locale => $translation['locationDirections'] ?? null],
+                ]
+            )->reduce(function (array $carry, array $translation) {
+                return array_merge_recursive($carry, $translation);
+            }, []);
+
+            $artwork = app()->make(ArtworkRepository::class)->firstOrCreate(
+                ['datahub_id' => $apiFields['datahub_id']],
+                ['published' => true, ...$artworkData, ...$apiFields]
+            );
+
+            if ($artwork->wasRecentlyCreated) {
+                activity()->performedOn($artwork)->causedBy(User::find(1))->log('created');
             }
 
             $artwork->translations()->update(['active' => true]);
 
-            $themePromptArtwork = ThemePromptArtwork::factory()->create([
+            $themePromptArtworkData = collect([
+                'en' => [
+                    'detail_narrative' => $rawArtwork['detailNarrative'] ?? null,
+                    'viewing_description' => $rawArtwork['viewingDescription'] ?? null,
+                    'activity_instructions' => $rawArtwork['activityInstructions'] ?? null,
+                ],
+            ])->merge($rawArtwork['translations'])->map(
+                fn ($translation, $locale) => [
+                    'detail_narrative' => [$locale => $translation['detailNarrative'] ?? null],
+                    'viewing_description' => [$locale => $translation['viewingDescription'] ?? null],
+                    'activity_instructions' => [$locale => $translation['activityInstructions'] ?? null],
+                ]
+            )->reduce(function (array $carry, array $translation) {
+                return array_merge_recursive($carry, $translation);
+            }, []);
+
+            $themePromptArtwork = app()->make(ThemePromptArtworkRepository::class)->create([
+                ...$themePromptArtworkData,
                 'title' => $rawArtwork['title'],
-                'detail_narrative' => $rawArtwork['detailNarrative'],
-                'viewing_description' => $rawArtwork['viewingDescription'],
-                'activity_instructions' => $rawArtwork['activityInstructions'],
                 'theme_prompt_id' => $themePrompt->id,
                 'artwork_id' => $artwork->id,
                 'activity_template' => $rawArtwork['activityTemplate'],
             ]);
 
-            collect($rawArtwork['translations'])->each(
-                fn ($translation, $locale) => $this->addTranslation(
-                    $themePromptArtwork,
-                    [
-                        'detail_narrative' => $translation['detailNarrative'],
-                        'viewing_description' => $translation['viewingDescription'],
-                        'activity_instructions' => $translation['activityInstructions'],
-                    ],
-                    $locale
-                )
-            );
+            activity()->performedOn($themePromptArtwork)->causedBy(User::find(1))->log('created');
 
             $themePromptArtwork->translations()->update(['active' => true]);
         });
@@ -101,14 +106,13 @@ class ArtworkSeeder extends Seeder
 
         try {
             return $this->api
-                ->get([
-                    'id',
-                    'is_on_view',
-                    'image_id',
-                ], '/api/v1/artworks/'.$id)
+                ->get(endpoint: '/api/v1/artworks/'.$id)
                 ->map(fn ($artwork) => [
                     'datahub_id' => $artwork->id,
-                    ...Arr::except((array) $artwork, 'id'),
+                    ...Arr::only((array) $artwork, [
+                        'is_on_view',
+                        'image_id',
+                    ]),
                 ])
                 ->first() ?? [];
         } catch (Exception) {

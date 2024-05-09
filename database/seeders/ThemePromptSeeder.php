@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
+use A17\Twill\Models\User;
 use App\Models\Theme;
-use App\Models\ThemePrompt;
+use App\Repositories\ThemePromptRepository;
 use Database\Seeders\Behaviors\HasTwillSeeding;
 use Illuminate\Database\Seeder;
 
@@ -14,23 +15,27 @@ class ThemePromptSeeder extends Seeder
     public function run(Theme $theme, array $themePrompts): void
     {
         collect($themePrompts)->each(function ($rawThemePrompt) use ($theme) {
-            $themePrompt = ThemePrompt::factory()->create([
-                'title' => $rawThemePrompt['title'],
-                'subtitle' => $rawThemePrompt['subtitle'],
+            $themePromptData = collect([
+                'en' => [
+                    'title' => $rawThemePrompt['title'],
+                    'subtitle' => $rawThemePrompt['subtitle'],
+                ],
+            ])->merge($rawThemePrompt['translations'])->map(
+                fn ($translation, $locale) => [
+                    'title' => [$locale => $translation['title']],
+                    'subtitle' => [$locale => $translation['subtitle']],
+                ]
+            )->reduce(function (array $carry, array $translation) {
+                return array_merge_recursive($carry, $translation);
+            }, []);
+
+            $themePrompt = app()->make(ThemePromptRepository::class)->create([
+                ...$themePromptData,
                 'theme_id' => $theme->id,
                 'published' => true,
             ]);
 
-            collect($rawThemePrompt['translations'])->each(
-                fn ($translation, $locale) => $this->addTranslation(
-                    $themePrompt,
-                    [
-                        'title' => $translation['title'],
-                        'subtitle' => $translation['subtitle'],
-                    ],
-                    $locale
-                )
-            );
+            activity()->performedOn($themePrompt)->causedBy(User::find(1))->log('created');
 
             $themePrompt->translations()->update(['active' => true]);
 
