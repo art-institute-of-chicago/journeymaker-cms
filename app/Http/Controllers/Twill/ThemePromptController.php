@@ -23,6 +23,8 @@ class ThemePromptController extends ModuleController
 
     protected $modelName = 'ThemePrompt';
 
+    protected $previewView = 'site.prompt';
+
     protected function setUpController(): void
     {
         $this->disablePermalink();

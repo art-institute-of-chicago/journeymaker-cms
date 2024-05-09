@@ -1,8 +1,8 @@
 @extends('twill::layouts.free')
 
-@push('extra_css')
+@pushOnce('extra_css')
     <link href="/assets/twill/css/custom.css" rel="stylesheet" />
-@endpush
+@endPushOnce
 
 @section('customPageContent')
     <div class="custom">
@@ -10,7 +10,7 @@
             <div class="mb-8" x-data="{open: false}">
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
-                        <a href="{{ route('twill.themes.edit', $theme->id) }}">
+                        <a class="no-underline" href="{{ route('twill.themes.edit', $theme->id) }}">
                             <img class="w-12 h-12 rounded-full" src="{{ $theme->image('icon') }}" alt="">
                         </a>
                     </div>
@@ -32,7 +32,7 @@
                                     @foreach($theme->prompts as $prompt)
                                         <tr class="">
                                             <th colspan="3" scope="colgroup" class="py-4 pl-4 pr-3 text-sm font-semibold text-left text-gray-900 bg-gray-50 sm:pl-3">
-                                                <a href="{{ route('twill.themes.prompts.edit', [$theme->id, $prompt->id]) }}">
+                                                <a class="no-underline" href="{{ route('twill.themes.prompts.edit', [$theme->id, $prompt->id]) }}">
                                                     {{ $prompt->title }}
                                                 </a>
                                             </th>
@@ -43,7 +43,7 @@
                                                     <img class="w-8 h-8 rounded-lg" src="{{ $artwork->artwork->image('thumbnail') }}" alt="">
                                                 </td>
                                                 <td class="px-3 py-4 text-sm text-gray-600 align-middle whitespace-nowrap">
-                                                    <a href="{{ route('twill.artworks.edit', $artwork->artwork->id) }}">
+                                                    <a class="no-underline" href="{{ route('twill.artworks.edit', $artwork->artwork->id) }}">
                                                         {{ $artwork->title }}
                                                         <br><small class="text-xs text-gray-400">{{ $artwork->artwork->artist }}</small>
                                                     </a>
