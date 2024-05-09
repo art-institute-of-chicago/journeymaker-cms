@@ -29,6 +29,7 @@ You can find information on Laravel 10's requirements [here](https://laravel.com
 * Composer
 * PHP ^8.1
 * Node 20
+* MySQL 8.0+
 
 In addition to Laravel PHP extension requirements you will also need either the [GD](http://php.net/manual/en/book.image.php) or [Imagick](http://php.net/manual/en/book.imagick.php) PHP extension to support the [Glide](https://glide.thephpleague.com/) Image Rendering Service.
 
@@ -36,7 +37,7 @@ In addition to Laravel PHP extension requirements you will also need either the 
 
 The easiest way to get started locally is using [Laravel Herd](https://herd.laravel.com/).
 
-There is some additional content required in order for to get your CMS ready for the client. You'll need to add artworks and tie them to themes. You may see errors until you do this. Please follow the [User Documentation](USER-DOCUMENTATION.md) for further instructions.
+There is some additional content required in order for to get your CMS ready for the client. You'll need to add artworks and tie them to themes. Please follow the [User Documentation](USER-DOCUMENTATION.md) for further instructions.
 
 If you install the JourneyMaker Client, you'll need to provide it the URL to the JSON document produced by the CMS. The following URL should be available with all your content bundled together:
 
