@@ -2,190 +2,169 @@
 
 # JourneyMaker CMS User Documentation
 
-For a broad overview of how to use Drupal 7, please see their documentation on
-[Adminstering Drupal 7 sites](https://www.drupal.org/docs/7/administering-drupal-7-site).
-This documentation doesn't assume you have a basic understanding of how to administer
-content in Drupal 7, but this might be helpful for futher context.
-
+JourneyMaker CMS leverages [Twill](https://twillcms.com/) to build the easy-to-use system to add and edit content.
 
 ## Navigation bar
 
-In the upper left hand corner of the Drupal menu is a "Home" button. This button will
-always take you back to the home screen. Next to the Home Button, you will find three menu
-items highlighted in grey: Manage, Shortcuts, and your username. 
-Home is the most important screen. Here is a description of the management options you have access to: 
+The CMS uses a simple navigation system with straightforward form pages for content entry. The navigation bar is always at the top of the CMS to help direct you from one page to the other.
+
+Upon logging into the CMS, you will see the main navigation menu at the top.
+
+The navigation contains the following links from left to right:
 
 | Menu Item | Description |
 |----------:|-------------|
-| Home | The Home view shows you an at-a-glance summary of recent activity on the project site. |
-| Content | Content Screen |
-| Structure | Not accessible (Ignore) |
-| Configuration | Change content authoring settings, search settings, and shortcuts |
-| Help | Help provides links to specific help sections, pages, and handbooks as needed. |
-| Username | Edit Passwords, View your Profile and Log out |
-| **Grey Line:** | **Shortcuts** |
-| Add content | Add content function |
-| Find content | Search function |
-| Art by Theme | Edit Art by Theme function |
-| Search | The search navigation bar can search the entire CMS for a specific word. Use this when you need a quick way to land upon a specific Theme, Artwork, or Activity. |
-| Edit shortcuts | Make your own shortcuts! |
+| App Name | This links to the index page that shows the user activity log and is not used for content entry (name is configurable).  |
+| Themes | From Themes, you’ll navigate to add or edit themes, prompts, and associate  artworks existing artworks to prompts. |
+| Artworks | Artwork is organized here and can be searched and queried to add new artwork into the CMS. |
+| Directory | Themes and prompts are organized here in a list view as another way to easily review information. This page is not used for content entry. |
+| Media Library | The images that are uploaded to the CMS live here, e.g. if you upload an image on a form page such as an alternate image for artwork–it will live here. |
+| User Profile (‘Admin’) | User profile information lives here. |
+| Search | Global search is opened by clicking on the magnifying glass. |
 
+## Languages
+
+The CMS handles content entry for the following languages:
+
+- English (EN)
+- Spanish (ES)
+- Chinese (ZH)
+
+All translations must be present for the content to be available in JourneyMarker. That includes translations for artwork, prompts, and themes. Themes, Artworks, and Prompts all have a language toggle on the right-hand side of the page to allow content entry in these three languages.
+
+## Publishing Status
+
+When entering new content (e.g. a new artwork ) – that content will need to be published in the CMS when you are ready to take that step.
+
+**Keep in mind**
+
+- Artwork entries must be published to appear in the JSON output which is used by the frontend.
+- If artwork is not on view that will automatically not be available for the frontend.
+- All translations must be entered in the CMS to appear in the JSON output that the frontend uses. If translations are not present, that content will not appear.
+- If an object is located in Regenstein Hall it will not appear in the JSON output.
+
+## Themes (& Associating Prompts and Artworks)
+
+This is one of the main content entry pages.
+
+You can not only add or edit new themes from this page, but also navigate to add or edit prompts, as well as associate artwork to prompts that are already loaded into the CMS.
+
+### New Theme
+
+- To create a new theme, navigate to the Themes page in the top navigation bar.
+- Click on the green ‘Add new’ button’ on the right-hand side of the screen.
+- This will bring up the Title field – to enter in a new theme title (in all three languages). After that is complete, click on the green ‘Create’ button.
+- This will bring up the Theme form with the following fields:
+  - Title (limit of 23 characters + 5 for padding for a total of 28)
+  - Intro (limit of 226 characters + 10 for padding for a total of 236)
+  - Journey Hide Cover: (limit of 25 characters + 5 for padding for a total of 30.)
+  - Guide Covert Art: (1125 x 1500)
+  - Guide Covert Art (Home Companion): (1125 x 1500)
+  - Backgrounds Image: (Min of 1920 x 1080)
+- Keep in mind, some of the above fields have a corresponding Spanish and Chinese translation form that also needs to be filled out with the translated fields. The language toggle lives on the top right of the screen. You can also toggle between languages using the language label next to the form label. Eg Title [EN]
+- Each field needs all three languages to be filled out in order to appear in the output JSON and be available to JourneyMaker.
+
+Once done with the content entry, save as a draft or change the publication status with the toggle.
+
+### New Prompt
+
+- Creating a new prompt first requires that either a new theme is added, or a new prompt is added to an existing theme.
+- Once a theme is created (instructions in the section above), click on the PROMPTS module on the right-hand side. If it’s empty and no prompts are associated with that theme yet, it will say ‘ALL PROMPTS’
+- Click on ‘All Prompts’ if creating a new prompt to go to the prompt navigation, or click on an existing prompt title to edit an existing prompt.
+- For new prompts, once you’ve clicked on the prompt navigation (e.g. 'All Prompts'), click on the green 'Add new' button to add a new prompt title to associate with that theme.
+- The title field for this prompt will also have the language toggle to translate the title into all languages.
+- Once you save the prompt title, click on the  ‘create’ button.’
+- The prompt form will appear with the following fields:
+  - Title: (limit of 21 characters + 5 for padding for a total of 26)
+  - Subtitle (limit of 100 characters + 10 for padding for a total of 110)
+  - Artwork: Add Artwork to a prompt by clicking on the blue ‘Add Artwork’ button
+
+#### Artwork Prompts
+
+- Once you click on the ‘Add Artwork’ button – the artwork form will appear underneath the prompt. The Artwork form contains the following fields:
+  - Artwork - Clicking on Add Artwork here, you can attach an artwork here after searching for it.
+  - Detail Narrative - Interface) (limit of 100 characters + 10 for padding for a total of 110).
+  - Look Again - Journey Guide) (limit of 125 characters + 10 for padding for a total of 135).
+  - Activity Template  - Journey Guide): Dropdown choice.
+  - Activity Instructions - Journey Guide) (limit of 128 characters + 10 for padding for a total of 138).
+- Additional artworks can be added to associate with that artwork and prompt by clicking on the blue ‘Add Artwork’ button at the bottom of the form.
+- As on all form pages:
+  - The translation toggle sits on the top right of the page, so the prompt content can be added in English, Spanish and Chinese.
+  - To save a draft or publish the content use the status sidebar on the top right of the page.
+  - You can remove artwork by using the three dot ellipsis menu to remove an attached artwork.
+
+### Editing
+
+- To edit an existing theme, navigate to the Themes page from the main navigation menu.
+- From the Themes landing page, you’ll see a table that lists the existing theme titles, prompts, and languages.
+- Click into any of the themes (e.g ‘Let’s Play’) to pull up the existing theme to change any of the content entry in the form.
+- Clicking into a theme form will also provide the Prompt navigation, allowing you to make edits to the Prompt form and the artwork it is associated with.
+- Click into the prompt that you would like to edit and the Prompt form will appear.
+- Within prompts, you can add or delete any artwork blocks and drag and drop the order of them as shown in the screenshot below.
 
 ## Artworks
+To add new artwork to the CMS, you will navigate to the Artworks page and pull that artwork into the CMS by running a query. The artwork available in the CMS is also organized here and can be searched.
 
-The CMS is broken up into three content type categories: Activity Template, Artwork, and
-Theme. This section focuses on adding Artwork, which can then be linked to Themes. Once
-linked, the back-end system will automatically output all required image sizes as needed
-throughout various placements in the software interface and Journey Guide. One Artwork
-can be added to multiple Themes, as required. 
+### Query Artwork
 
-### Create an Artwork
+- To query new artwork into the system, click on Artworks from the main navigation menu.
+- Once on the Artworks page, click on the green ‘Add new’ button on the right side of the screen.
+- Artwork can be queried by Object or Reference number. Start typing in either of those numbers, and the results will be to automatically be displayed
+- When you find an artwork you are ready to add into the system:
+  - Select the artwork you want to add
+  - Click the green ‘Create’ button. That will bring up the artwork form page, which allows you to add the following content:
+    - Update artwork Title, if necessary
+    - Add an Override image, if necessary
+    - Update the Artist Name, if necessary
+    - Add Location Directions (Journey Guide) - this has a 145 character limit plus 10 for padding.
+    - As with all forms, the language toggle lives on this form on the right-hand side, so you can update the artwork information in all three available languages.
 
-1. Click "Home," then underneath click the "Add content" link.
-2. Click the "Artwork" link.
-3. A blank Artwork form will appear. In order to save the Item, a title is required (see
-the following table for character count details). This should be the title of the artwork
-and will appear in the front-end of the interactive.
-4. Before clicking "Save," consider if you want this content to be published or not. If
-you are editing content before public opening, this is less crucial. If you are making
-edits after opening and this is live to the public, you’ll want to ensure "Published" is
-left unchecked before saving, otherwise your changes will be shown in the front-end.
-Navigate to the bottom of the page, and click the "Publishing options" tab and make your
-selection. 
-5. Once a title is entered and you've selected your publishing preference, you may click
-"Save," and can revisit this Artwork at any time to continue editing.
-6. If you've created an Artwork by mistake or wish to delete it, you can easily access it
-again using the upper navigation. Click "Manage," then "Content." A list will appear of
-all existing content items. You can sort Items by Title, Type, Author, or Date. If you
-wish to edit, select "edit." If you wish to delete, click "delete." A confirmation will
-appear. Be sure you wish to delete, as this action **cannot be undone**! From the
-confirmation page you can either delete, or cancel and keep your Item.
+### Artwork Search
 
-### Edit an Artwork
+When clicking on ‘Artworks’ page from the main navigation menu, you’ll be on the Artworks landing page, which allows you to search the artwork, see what artwork is on view, see what theme the artwork is associated with (if any), and see which languages the content has been translated in, and filter the artwork by theme and viewable and published status.
 
-1. Click "Home," then "Find Content," "Art by Theme," "Art," or "Search."  A list will
-appear of all existing content items. You can sort items by Title, Type, Author, or Date.
-2. Select the Artwork you'd like to edit. You"ll be taken to that item's page in the CMS.
-Click the "Edit" tab in the upper right corner. 
-3. From here you have an array of fields and selection boxes. See the above table for
-detailed explanations of the fields. Be sure to click "Save" when you’ve completed your
-changes. 
-4. To add italics to any field, place `<em>` where you’d like italics to start, and `</em>` where you’d like italics to stop.
-
-| Field | Description | Character Count/Field Specs |
-|-------|-------------|-----------------------------|
-| Title | The title of the artwork that will appear in the front end. This will be pulled from the API. | N/A |
-| Query API | You'll see this set of fields only if a Collections API has been configured. When adding an artwork it is recommended you utilize your Collections API, which will auto-fill and auto update fields as they are edited from the API itself. Select the term you'd like to search by, either Object ID (recommended), Title, or Artist Name. When you select Query, a list of suggestions will appear. When you see the correct object, select "Populate Form." All available fields will populate. | N/A |
-| Image Override Uploader | If your Collections API does not include an image for your desired object, the object image is low resolution, or is not the view you are desiring, you can override this here. If this is blank, the system will pull the default API image. | Preferred minimum: 1920px in width or 1080px in height.  Maximum: Highest based on quality of source, up to 4000px on the longest side. |
-| Artist | The artist of the artwork that will appear in the front-end. This will be pulled from the API. | N/A |
-| Year | The year the artwork was created that will appear in the front end. This will be pulled from the API. | N/A |
-| Copyright | The copyright of the artwork that will appear in the front end. This will be pulled from the API. | N/A |
-| Detail Narrative (software interface) | When an image is selected within a Theme, this text will appear next to the artwork and explain what the image represents. | Maximum 100 characters. |
-| Look Again (Journey Guide) | This interpretive description text appears in the Journey Guide and prompts the users how to view the artwork they are observing. | Maximum 125 characters. |
-| Activity Template drop-down menu (Journey Guide) | Provided by Bell & Wissell Co., these are the blank canvases that we’re asking Journey Guide users to fill in. You’ll want to select the best option for your activity. See [Activity Templates](#activity-templates) for more information about Activity Templates. | N/A |
-| Activity Instructions (Journey Guide) | These instructions will appear in the Journey Guide and will instruct the user how to complete the activity for this artwork. The text here needs to correspond with the Activity Template selected above—if the Activity Template is a blank space for drawing, the instructions should reflect this. | Maximum 128 characters. |
-| Location Directions (Journey Guide) | Located near the map on the Journey Guide, these instructions offer short orientation instructions as to where the artwork can be found. | Maximum 145 characters. |
-| Map Location Coordinates (X,Y) (Journey Guide) | These coordinates will help determine what order the objects should be listed on the Journey Guide path. If an object is on display, these coordinates will auto populate form the API. | N/A |
-| Floor (Journey Guide) | The floor on which the artwork is located. This will be pulled from the API. | N/A |
+- Clicking on the filter button expands the filter dropdowns as shown in the above screenshot. Use the dropdown to select any filters you’d like to sort by and click on appy. Press ‘Clear’ to remove the filtered view on the page.
+- Clicking on the the ‘All items’ page shows all the artwork available in the CMS
+- Clicking on ‘Visible’ shows artwork that can appear in the JSON output and JourneyMaker. This is artwork that is on view, published, and not in Regenstein Hall
+- Clicking on ‘Hidden’ shows artwork that will not appear in the JSON output. This artwork that is not on view, missing language translations, not published, or it appears in Regenstein Hall.
 
 
-## Themes
+## Directory
 
-Themes can then be linked to Artworks that have been previously created. In addition to text and images of the artwork, designs will need to be created to populate the selector shape and Journey Guide. 
+The Directory page lists all themes, prompts and the associated artworks with links to each. Themes and prompts are organized here and show with a green check mark what is on display, and a red x when it is not on display.
 
-### Create or delete a Theme
+## Media Library
 
-1. Click "Manage," then "Content," then the "Add content" link.
-2. Click the "Theme" link. 
-3. A blank Theme format will appear. In order to save the Theme, a title is required
-(see the following table for character count details).
-4. Before clicking "Save," consider if you want this content published or not. If you
-are editing content before public opening, this is less crucial. If you are making edits
-after opening and this is live to the public, you’ll want to ensure "Published" is left
-unchecked before saving, otherwise your changes will be shown in the front-end. Navigate
-to the bottom of the page, and click the "Publishing options" tab and make your
-selection. 
-5. Once a title is entered and you've selected your publishing preference, you may click
-"Save," and can revisit this Theme at any time to continue editing. 
-6. If you've created a Theme by mistake or wish to delete it, you can easily access it
-again using the upper navigation. Click "Dashboard," then "Content." A list will appear
-of all existing content items. You can sort items by Title, Type, Author, or Date. If
-you wish to edit, select "edit." If you wish to delete, click "delete." A confirmation 
-will appear. Be sure you wish to delete, as this action **cannot be undone**! From the
-confirmation page you can either delete, or cancel and keep your Theme.
+Images uploaded to the CMS are organized here such as alternative images to artwork.
 
-### Edit a Theme
+## User Profile
 
-1. Click "Dashboard," then "Content." A list will appear of all existing content items.
-You can sort items by Title, Type, Author, or Date. Select the Theme you’d like to edit.
-You'll be taken to the Theme page in the CMS. Click the "Edit" tab in the upper right
-corner. 
-2. From here you have an array of fields and selection boxes. See below for details. Be
-sure to click "Save" when you’ve completed your changes. 
-3. To add italics to any field, place `<em>` where you’d like italics to start, and
-`</em>` where you'd like italics to stop. 
+Currently, Twill is configured so that only admin users exist within the CMS.
 
-### Edit Artworks by Theme
+**Admins have:**
 
-After creating your Themes and linking your Artworks, you may want the ability to edit 
-and sort Artworks by Themes. There are two ways to do this. 
-
-#### Approach One – At the Theme Level
-
-1. Select the theme you wish to edit, and go to the "View" tab. 
-2. Scroll down to the prompt section containing the Artwork you want to edit. Hover over
-the upper right corner of the image, and an edit gear will appear. 
-3. Select the edit gear. A drop down menu will appear with the option to either Edit or
-Delete. 
-4. Select Edit. You will be taken directly to that Artworks page and can edit from
-there. 
-
-#### Approach Two – Sorting Shortcut 
-
-1. Select the shortcuts tab in the main menu. 
-2. A drop down menu will appear with the option "Art by Theme." Select this option. 
-3. You will be shown a list of Artworks sorted by Theme and Prompts. From here you can
-view or edit Artworks directly. 
+- Access privileges to update and publish any piece of content within the CMS.
+- Ability to update their email and preferred language under the ‘Profile’ tab by clicking the down arrow on their username.
 
 
-| Field | Description | Character Count/Field Specs |
-|-------|-------------|-----------------------------|
-| Title | Theme title, as it will appear on the Theme selector page and subsequent pages as users build their Journey Guide. | Maximum 23 characters. |
-| Theme Intro | Theme subtitle, as it will appear on Theme selector page. | Maximum 226 characters. |
-| Shape Face (image uploader) | Animated Theme icon as it will appear on the Theme selector shape. | N/A |
-| Icon (image uploader) | Simplified Theme icon as it will appear on subsequent pages as users build their Journey Guide. | N/A |
-| Guide Cover Art (image uploader) | Customized art cover that appears on the Journey Guide to correspond with the selected Theme. | N/A |
-| Journey Guide Cover Title | Customized text that appears on the Journey Guide to correspond with the selected Theme. To correspond with a users name, ex: [User]’s [Journey Guide Cover Title] | Maximum 25 characters. |
-| Background (image uploader) | The background images that will appear behind the Theme on the Theme selector page. Multiple images can be added here, and they will fade as appropriate. You can upload manually (recommended) or pull from an API Query. If pulling from the API, please ensure the image is a minimum of 1920x1080 and in landscape format. | 1920x1080 |
-| Prompt Title | For each of the five Artwork selection steps per Theme, a prompt title and subtitle will appear to give the user context of why these objects are there. This title appears when its corresponding prompt step is selected, and on the lower navigation. | Maximum 21 characters. Minimum 5 titles per theme. |
-| Prompt Subtitle | Appearing below the corresponding prompt title. | Maximum 100 characters. Minimum 5 subtitles per theme. |
-| Prompt Artwork (selector) | This is where artworks created previously can be linked to themes.  If you’re adding an artwork that is in the system multiple times, be sure to match the node ID to the correct artwork. The node ID can be found in the URL of the artwork. Example: in the URL http://journeymaker.institution.org/?q=node/519 the node ID is 519. When you add artwork in the prompt artwork field, you'll see the artworks name and its corresponding node ID. For example, "Fish Plate (nid 519)." | N/A |
+## Search
 
-## Activity Templates
+Global search lives here by clicking in the magnifying glass. Keep in mind that search doesn’t account for things like typos or fuzzy search the provided term. As an example, to find a work of art titled 'Sunny day Frog-Man' you will need to search 'Frog-man' and not 'frogman'.
 
-Activity Templates can be linked to Artworks. Once linked, the back-end system will
-automatically output all required image sizes and colors for both the Kiosk and Home
-Companion Journey Guides. One Activity Template can be added to multiple Artworks. 
+## JSON Output
 
-This distribution has created five activity templates created by Belle & Wissel Co.
-Creating a new Activity Template does require some hard coding in the system, so new
-templates cannot be added without an update to the build. 
+The JSON output is a result of the CMS entry and what the frontend uses to inform what renders on the frontend.
 
-## Other General Tools
+**Important Reminders**
 
-The below features may be of use to your team for this project, although aren’t
-necessary for data entry.
+For the JSON output, there are a few important reminders to keep in mind:
 
-### Create Content Footers
-
-When adding or editing content, standard options appear at the bottom of each
-page. While not necessary for content editing, they may be used to help track changes or
-add comments and questions for the team. 
-
-|   |   |
-|---|---|
-| Revision Information | Over time as edits are made to content, the revisions tab allows you to track differences between multiple versions of your content, and revert back to older versions. When making an edit that you want to track, check the "Create new revision" box and add a description of the change you made. To see a list of past revisions select the "Revisions" tab. From here you can revert back to an old change if needed. |
-| URL path settings | While not applicable to this project, this allows you to specify an alternative URL by which this content can be accessed. |
-| Comment settings | This is where the ability to leave comments can be turned on or off. Comments are shown on the "View" tab and can add notes to other users about required updates, thoughts, or questions. It is recommended comments remain "Open" throughout editing. |
-| Authoring Information | This is the username and date stamp of the person who is editing the content, and the date and time in which the edit was made. |
-| Publishing Options | This notes whether the content should be published, or shown in the front-end. Anything you’d like to appear in the front-end should be marked "Published." |
+- All content will need to be published before it appears in the JSON output. Please ensure all desired content is published including artwork, themes, and prompts.
+- If a theme is not published it will not appear in the JSON output along with any of the theme’s prompts and prompt’s artwork.
+- Artwork added to a published prompt will not appear in the JSON if it has not been published
+- All fields must have their translations present for the content to be available in JourneyMarker. That includes translations for artwork, prompts, and themes that are slated for JourneyMaker.
+- If a theme is missing a translation it will not appear in the JSON output along with any of the theme’s prompts and prompt’s artwork.
+- If a prompt is missing a translation it will not appear in the JSON output along with the prompt’s artwork.
+- Artwork missing translations will not appear in any prompts.
+- Artwork that is not ‘on view’ will not appear in the JSON output.
+- Artwork that is in Regenstein Hall will not appear in the JSON output
