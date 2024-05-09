@@ -157,7 +157,7 @@ class Artwork extends Model
     public function defaultCmsImage($params = [])
     {
         // If requesting a thumbnail, return the thumbnail image
-        if ($params = ['w' => 100, 'h' => 100]) {
+        if ($params == ['w' => 100, 'h' => 100]) {
             return $this->image('override', 'thumbnail', $params, false, true, $this->medias->first());
         }
 
