@@ -69,15 +69,22 @@ class ThemeSeeder extends Seeder
 
                 $theme->translations()->update(['active' => true]);
 
-                $this->call(ThemePromptSeeder::class, false, [
-                    'theme' => $theme,
-                    'themePrompts' => $rawTheme['prompts'],
-                ]);
-
                 $this->addImage($theme, $rawTheme['icon']['url'], 'icon');
                 $this->addImage($theme, $rawTheme['guideCoverArt']['url'], 'cover');
                 $this->addImage($theme, $rawTheme['guideCoverArtHome']['url'], 'cover_home');
                 collect($rawTheme['bgs'])->each(fn ($bg) => $this->addImage($theme, $bg['url'], 'backgrounds'));
+
+                $medias = app()->make(ThemeRepository::class)->getFormFieldsHandleMedias($theme, [])['medias'] ?? [];
+
+                $revision = $theme->revisions()->first();
+                $payload = json_decode($revision->payload);
+                $payload->medias = $medias;
+                $revision->update(['payload' => json_encode($payload)]);
+
+                $this->call(ThemePromptSeeder::class, false, [
+                    'theme' => $theme,
+                    'themePrompts' => $rawTheme['prompts'],
+                ]);
             });
     }
 
