@@ -154,6 +154,22 @@ class Artwork extends Model
         $query->where('is_on_view', false);
     }
 
+    public function defaultCmsImage($params = [])
+    {
+        // If requesting a thumbnail, return the thumbnail image
+        if ($params = ['w' => 100, 'h' => 100]) {
+            return $this->image('override', 'thumbnail', $params, false, true, $this->medias->first());
+        }
+
+        $media = $this->medias->first();
+
+        if ($media) {
+            return $this->image(null, null, $params, true, true, $media) ?? ImageService::getTransparentFallbackUrl();
+        }
+
+        return ImageService::getTransparentFallbackUrl();
+    }
+
     /**
      * Returns the URL of the attached image for a role and crop.
      */
