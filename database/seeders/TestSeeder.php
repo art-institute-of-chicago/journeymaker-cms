@@ -37,7 +37,6 @@ class TestSeeder extends Seeder
 
             $this->addTranslations($theme, ['title', 'intro', 'journey_guide']);
 
-            $this->addImage($theme, base_path('tests/data/images/theme-shape-face.png'), 'shape_face');
             $this->addImage($theme, base_path('tests/data/images/theme-icon.png'), 'icon');
             $this->addImage($theme, base_path('tests/data/images/theme-cover.png'), 'cover');
             $this->addImage($theme, base_path('tests/data/images/theme-cover-home.png'), 'cover_home');

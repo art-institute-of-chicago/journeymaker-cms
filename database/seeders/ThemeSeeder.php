@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Theme;
+use A17\Twill\Models\User;
+use App\Repositories\ThemeRepository;
 use Database\Seeders\Behaviors\HasTwillSeeding;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use SapientPro\ImageComparator\ImageComparator;
@@ -36,26 +38,34 @@ class ThemeSeeder extends Seeder
 
     public function run(): void
     {
+        // Log in as admin to attribute activity to them
+        Auth::guard('twill_users')->login(User::find(1));
+
         $this->themes
             ->each(function ($rawTheme) {
-                $theme = Theme::factory()->create([
-                    'title' => $rawTheme['title'],
-                    'intro' => $rawTheme['intro'],
-                    'journey_guide' => $rawTheme['journey_guide'],
+
+                $themeData = collect([
+                    'en' => [
+                        'title' => $rawTheme['title'],
+                        'intro' => $rawTheme['intro'],
+                        'journey_guide' => $rawTheme['journey_guide'],
+                    ],
+                ])->merge($rawTheme['translations'])->map(
+                    fn ($translation, $locale) => [
+                        'title' => [$locale => $translation['title']],
+                        'intro' => [$locale => $translation['intro']],
+                        'journey_guide' => [$locale => $translation['journey_guide']],
+                    ]
+                )->reduce(function (array $carry, array $translation) {
+                    return array_merge_recursive($carry, $translation);
+                }, []);
+
+                $theme = app()->make(ThemeRepository::class)->create([
+                    ...$themeData,
                     'published' => true,
                 ]);
 
-                collect($rawTheme['translations'])->each(
-                    fn ($translation, $locale) => $this->addTranslation(
-                        $theme,
-                        [
-                            'title' => $translation['title'],
-                            'intro' => $translation['intro'],
-                            'journey_guide' => $translation['journey_guide'],
-                        ],
-                        $locale
-                    )
-                );
+                activity()->performedOn($theme)->causedBy(User::find(1))->log('created');
 
                 $theme->translations()->update(['active' => true]);
 

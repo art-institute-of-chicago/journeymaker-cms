@@ -84,7 +84,8 @@ class ArtworkController extends ModuleController
                             ->label('Override Image')
                             ->note('This will replace the image above'),
                         Input::make()
-                            ->name('artist'),
+                            ->name('artist')
+                            ->translatable(),
                         Input::make()
                             ->type('textarea')
                             ->name('location_directions')
@@ -138,6 +139,9 @@ class ArtworkController extends ModuleController
                 ->field('is_on_view')
                 ->sortable()
             )
+            ->add(Text::make()
+                ->field('gallery_name')
+                ->customRender(fn ($artwork) => $artwork->gallery_name . '' ?? ''))
             ->add(Text::make()
                 ->field('Themes')
                 ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')

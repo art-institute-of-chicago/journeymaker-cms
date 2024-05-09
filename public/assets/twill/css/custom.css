@@ -292,6 +292,10 @@ ol,
   margin-bottom: 0.5rem;
 }
 
+.custom :is(.mb-3) {
+  margin-bottom: 0.75rem;
+}
+
 .custom :is(.mb-4) {
   margin-bottom: 1rem;
 }
@@ -324,18 +328,6 @@ ol,
   margin-top: 2rem;
 }
 
-.custom :is(.mb-10) {
-  margin-bottom: 2.5rem;
-}
-
-.custom :is(.mb-5) {
-  margin-bottom: 1.25rem;
-}
-
-.custom :is(.mb-3) {
-  margin-bottom: 0.75rem;
-}
-
 .custom :is(.block) {
   display: block;
 }
@@ -364,12 +356,20 @@ ol,
   display: grid;
 }
 
+.custom :is(.hidden) {
+  display: none;
+}
+
 .custom :is(.h-12) {
   height: 3rem;
 }
 
 .custom :is(.h-16) {
   height: 4rem;
+}
+
+.custom :is(.h-6) {
+  height: 1.5rem;
 }
 
 .custom :is(.h-8) {
@@ -390,6 +390,10 @@ ol,
 
 .custom :is(.w-16) {
   width: 4rem;
+}
+
+.custom :is(.w-6) {
+  width: 1.5rem;
 }
 
 .custom :is(.w-8) {
@@ -589,6 +593,16 @@ ol,
   padding-bottom: 0.5rem;
 }
 
+.custom :is(.py-3) {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.custom :is(.py-3\.5) {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
 .custom :is(.py-4) {
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -723,12 +737,6 @@ ol,
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-.custom :is(.shadow-md) {
-  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-
 .custom :is(.blur) {
   --tw-blur: blur(8px);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
@@ -738,6 +746,12 @@ ol,
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.custom :is(.transition-all) {
+  transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }

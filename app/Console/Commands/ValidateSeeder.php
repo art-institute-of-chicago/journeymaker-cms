@@ -46,7 +46,8 @@ class ValidateSeeder extends Command
                             'Artwork',
                             $artwork,
                             $translation,
-                            $locale
+                            $locale,
+                            ['theme' => $theme, 'prompt' => $prompt, 'artwork' => $artwork]
                         ))
                     )
                 );
@@ -58,7 +59,8 @@ class ValidateSeeder extends Command
         string $type,
         array $object,
         array $translation,
-        string $locale
+        string $locale,
+        array $meta = []
     ): void {
         $url1 = Arr::get($object, $field);
         $url2 = Arr::get($translation, $field);
@@ -66,13 +68,23 @@ class ValidateSeeder extends Command
         if ($url1 !== $url2) {
             $similarity = $this->getSimilarity($url1, $url2);
 
-            if ($similarity > 70) {
+            if ($similarity > 50) {
                 return;
             }
 
-            $this->error($type.' '.$object['id'].' Img:'.$url1);
-            $this->error(Str::upper($locale).' '.$type.' '.$translation['id'].' Img:'.$url2);
-            $this->error('Similarity: '.$similarity);
+            if ($type === 'Theme') {
+                $this->comment('Theme: '.$object['title']);
+            }
+
+            if ($type === 'Artwork') {
+                $this->comment('Theme: '.$meta['theme']['title']);
+                $this->comment('Prompt: '.$meta['prompt']['title']);
+                $this->comment('Artwork: '.$meta['artwork']['title']);
+            }
+
+            $this->comment('EN ID: '.$object['id'].' Img: '.$url1);
+            $this->comment(Str::upper($locale).' ID: '.$translation['id'].' Img: '.$url2);
+            $this->comment('Image Similarity: '.$similarity);
             $this->newLine(2);
         }
     }

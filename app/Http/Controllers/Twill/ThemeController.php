@@ -81,11 +81,6 @@ class ThemeController extends ModuleController
                 ]),
                 Fieldset::make()->title('Media')->id('media')->fields([
                     Medias::make()
-                        ->name('shape_face')
-                        ->label('Shape Face')
-                        ->fieldNote('Animated Theme icon as it will appear on the Theme selector shape.'),
-
-                    Medias::make()
                         ->name('icon')
                         ->label('Icon')
                         ->fieldNote('Simplified icon appears on subsequent pages as users build their Journey Guide.'),

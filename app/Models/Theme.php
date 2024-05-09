@@ -30,17 +30,6 @@ class Theme extends Model implements Sortable
     ];
 
     public $mediasParams = [
-        'shape_face' => [
-            'default' => [
-                [
-                    'name' => 'default',
-                    'minValues' => [
-                        'width' => 2888,
-                        'height' => 2789,
-                    ],
-                ],
-            ],
-        ],
         'icon' => [
             'default' => [
                 [

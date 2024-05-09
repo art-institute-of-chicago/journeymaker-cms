@@ -8,11 +8,15 @@ use A17\Twill\Repositories\Behaviors\HandleTranslations;
 use A17\Twill\Repositories\ModuleRepository;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use App\Models\Artwork;
+use App\Repositories\Traits\HandleDynamicArtworkFields;
 use Illuminate\Support\Str;
 
 class ArtworkRepository extends ModuleRepository
 {
-    use HandleMedias, HandleRevisions, HandleTranslations;
+    use HandleDynamicArtworkFields;
+    use HandleMedias;
+    use HandleRevisions;
+    use HandleTranslations;
 
     public function __construct(Artwork $model, public ApiQueryBuilder $api)
     {

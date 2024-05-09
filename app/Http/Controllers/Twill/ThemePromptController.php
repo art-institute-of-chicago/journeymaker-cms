@@ -113,8 +113,8 @@ class ThemePromptController extends ModuleController
                                 Input::make()
                                     ->type('textarea')
                                     ->name('viewing_description')
-                                    ->maxLength(125 + 10)
-                                    ->note('Limit is 125 characters + 10 for padding.')
+                                    ->maxLength(110 + 10)
+                                    ->note('Limit is 110 characters + 10 for padding.')
                                     ->label('Look Again (Journey Guide)')
                                     ->translatable(),
                                 Select::make()

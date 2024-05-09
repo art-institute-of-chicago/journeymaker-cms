@@ -13,7 +13,7 @@ class ThemeResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'intro' => $this->intro,
-            'shapeFace' => $this->getImage('shape_face'),
+            'shapeFace' => null,
             'icon' => $this->getImage('icon'),
             'guideCoverArt' => $this->getImage('cover'),
             'guideCoverArtHome' => $this->getImage('cover_home'),
