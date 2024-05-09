@@ -1,6 +1,6 @@
-@push('extra_css')
+@pushOnce('extra_css')
     <link href="/assets/twill/css/custom.css" rel="stylesheet" />
-@endpush
+@endPushOnce
 
 <div class="custom">
     <a17-query-artwork
