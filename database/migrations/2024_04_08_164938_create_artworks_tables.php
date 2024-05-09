@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('datahub_id')->unique();
             $table->boolean('is_on_view')->nullable();
             $table->string('image_id')->nullable();
+            $table->string('gallery_id')->nullable();
         });
 
         Schema::create('artwork_translations', function (Blueprint $table) {
