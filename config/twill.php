@@ -19,7 +19,7 @@ return [
                 'activity' => true,
                 'draft' => true,
                 'search' => true,
-                'search_fields' => ['title', 'artist', 'datahub_id'],
+                'search_fields' => ['title', 'artist'],
             ],
         ],
     ],
