@@ -31,7 +31,7 @@ trait HasTwillSeeding
         $media = $this->addMediaToLibrary($url);
 
         $model->medias()->attach($media->id, [
-            'metadatas' => '{}',
+            'metadatas' => '{"video": null, "altText": null, "caption": null}',
             'role' => $role,
             'crop' => $crop,
             'ratio' => $ratio,
