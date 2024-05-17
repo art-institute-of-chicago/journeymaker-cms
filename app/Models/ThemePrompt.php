@@ -8,6 +8,7 @@ use A17\Twill\Models\Behaviors\HasTranslation;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ThemePrompt extends Model implements Sortable
@@ -49,5 +50,15 @@ class ThemePrompt extends Model implements Sortable
         $query
             ->published()
             ->whereDoesntHave('translations', fn (Builder $query) => $query->where('active', false));
+    }
+
+    protected function onJourneyMaker(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->published
+                && $this->translations->reject(fn ($translation) => $translation->active)->isEmpty()
+                && $this->theme->published
+                && $this->theme->translations->reject(fn ($translation) => $translation->active)->isEmpty(),
+        );
     }
 }

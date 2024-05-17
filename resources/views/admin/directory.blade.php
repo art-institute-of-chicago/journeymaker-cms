@@ -6,10 +6,6 @@
 
 @section('customPageContent')
     <div class="custom">
-        <p class="text-sm">
-            ✅ / ❌ indicates the artwork is on or off view. For artwork to appear in JourneyMaker it must be on view, not in Regenstein Hall, have all translations, and be published.
-        </p>
-        <hr class="my-4 !border-2">
         @foreach($themes as $theme)
             <div class="mb-8" x-data="{open: false}">
                 <div class="flex items-center gap-4">
@@ -52,8 +48,9 @@
                                                         <br><small class="text-xs text-gray-400">{{ $artwork->artwork->artist }}</small>
                                                     </a>
                                                 </td>
-                                                <td class="px-3 py-4 text-sm" title="{{ $artwork->artwork->is_on_view? 'On View' : 'Off View' }}">
-                                                    {{ $artwork->artwork->is_on_view? '✅' : '❌' }}
+                                                <td class="px-3 py-4 text-sm" title="{{ $artwork->artwork->on_journey_maker? 'On JourneyMaker' : 'Not On JourneyMaker' }}">
+                                                    {{ $artwork->artwork->on_journey_maker? '✅' : '❌' }}
+                                                    {{ $artwork->artwork->off_journey_maker_reasons }}
                                                 </td>
                                             </tr>
                                         @endforeach
