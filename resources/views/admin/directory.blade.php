@@ -7,7 +7,7 @@
 @section('customPageContent')
     <div class="custom">
         <p class="text-sm">
-            ✅ / ❌ indicates the artwork is on or off view. For artwork to appear in JourneyMaker it must be on view, have all translations, and not be in Regenstein Hall.
+            ✅ / ❌ indicates the artwork is on or off view. For artwork to appear in JourneyMaker it must be on view, not in Regenstein Hall, have all translations, and be published.
         </p>
         <hr class="my-4 !border-2">
         @foreach($themes as $theme)
