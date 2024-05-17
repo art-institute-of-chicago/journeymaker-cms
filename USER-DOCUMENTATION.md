@@ -2,7 +2,7 @@
 
 # JourneyMaker CMS User Documentation
 
-JourneyMaker CMS leverages [Twill](https://twillcms.com/) to build the easy-to-use system to add and edit content.
+JourneyMaker CMS leverages [Twill](https://twillcms.com/) to build an easy-to-use system to add and edit content.
 
 ## Navigation bar
 
@@ -18,6 +18,7 @@ The navigation contains the following links from left to right:
 | Themes | From Themes, you’ll navigate to add or edit themes, prompts, and associate  artworks existing artworks to prompts. |
 | Artworks | Artwork is organized here and can be searched and queried to add new artwork into the CMS. |
 | Directory | Themes and prompts are organized here in a list view as another way to easily review information. This page is not used for content entry. |
+| API Log | A log of changes to JourneyMaker artwork that have been made in the API. |
 | Media Library | The images that are uploaded to the CMS live here, e.g. if you upload an image on a form page such as an alternate image for artwork–it will live here. |
 | User Profile (‘Admin’) | User profile information lives here. |
 | Search | Global search is opened by clicking on the magnifying glass. |
@@ -39,7 +40,7 @@ When entering new content (e.g. a new artwork ) – that content will need to be
 **Keep in mind**
 
 - Artwork entries must be published to appear in the JSON output which is used by the frontend.
-- If artwork is not on view that will automatically not be available for the frontend.
+- If an artwork is published, if it is not on view it will automatically not be available for the frontend.
 - All translations must be entered in the CMS to appear in the JSON output that the frontend uses. If translations are not present, that content will not appear.
 - If an object is located in Regenstein Hall it will not appear in the JSON output.
 
@@ -61,7 +62,7 @@ You can not only add or edit new themes from this page, but also navigate to add
   - Guide Covert Art: (1125 x 1500)
   - Guide Covert Art (Home Companion): (1125 x 1500)
   - Backgrounds Image: (Min of 1920 x 1080)
-- Keep in mind, some of the above fields have a corresponding Spanish and Chinese translation form that also needs to be filled out with the translated fields. The language toggle lives on the top right of the screen. You can also toggle between languages using the language label next to the form label. Eg Title [EN]
+- Keep in mind, some of the above fields have a corresponding Spanish and Chinese translation form that also needs to be filled out with the translated fields. The language toggle lives on the top right of the screen. You can also toggle between languages using the language label next to the form label. E.g., Title [EN]
 - Each field needs all three languages to be filled out in order to appear in the output JSON and be available to JourneyMaker.
 
 Once done with the content entry, save as a draft or change the publication status with the toggle.
@@ -83,10 +84,10 @@ Once done with the content entry, save as a draft or change the publication stat
 
 - Once you click on the ‘Add Artwork’ button – the artwork form will appear underneath the prompt. The Artwork form contains the following fields:
   - Artwork - Clicking on Add Artwork here, you can attach an artwork here after searching for it.
-  - Detail Narrative - Interface) (limit of 100 characters + 10 for padding for a total of 110).
-  - Look Again - Journey Guide) (limit of 125 characters + 10 for padding for a total of 135).
-  - Activity Template  - Journey Guide): Dropdown choice.
-  - Activity Instructions - Journey Guide) (limit of 128 characters + 10 for padding for a total of 138).
+  - Detail Narrative (Interface) - limit of 100 characters + 10 for padding for a total of 110.
+  - Look Again (Journey Guide) - limit of 125 characters + 10 for padding for a total of 135.
+  - Activity Template (Journey Guide) - Dropdown choice.
+  - Activity Instructions (Journey Guide) - limit of 128 characters + 10 for padding for a total of 138.
 - Additional artworks can be added to associate with that artwork and prompt by clicking on the blue ‘Add Artwork’ button at the bottom of the form.
 - As on all form pages:
   - The translation toggle sits on the top right of the page, so the prompt content can be added in English, Spanish and Chinese.
@@ -97,10 +98,10 @@ Once done with the content entry, save as a draft or change the publication stat
 
 - To edit an existing theme, navigate to the Themes page from the main navigation menu.
 - From the Themes landing page, you’ll see a table that lists the existing theme titles, prompts, and languages.
-- Click into any of the themes (e.g ‘Let’s Play’) to pull up the existing theme to change any of the content entry in the form.
+- Click into any of the themes (e.g., ‘Let’s Play’) to pull up the existing theme to change any of the content entry in the form.
 - Clicking into a theme form will also provide the Prompt navigation, allowing you to make edits to the Prompt form and the artwork it is associated with.
 - Click into the prompt that you would like to edit and the Prompt form will appear.
-- Within prompts, you can add or delete any artwork blocks and drag and drop the order of them as shown in the screenshot below.
+- Within prompts, you can add or delete any artwork blocks and drag and drop the order of them.
 
 ## Artworks
 To add new artwork to the CMS, you will navigate to the Artworks page and pull that artwork into the CMS by running a query. The artwork available in the CMS is also organized here and can be searched.
@@ -139,9 +140,9 @@ Images uploaded to the CMS are organized here such as alternative images to artw
 
 ## User Profile
 
-Currently, Twill is configured so that only admin users exist within the CMS.
+Admins have the ability to add new users to the CMS and manage existing ones. Click "CMS Users" to get started.
 
-**Admins have:**
+**Admins also have:**
 
 - Access privileges to update and publish any piece of content within the CMS.
 - Ability to update their email and preferred language under the ‘Profile’ tab by clicking the down arrow on their username.
