@@ -284,6 +284,11 @@ ol,
   margin-bottom: 0.25rem;
 }
 
+.custom :is(.my-4) {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .custom :is(.mb-1) {
   margin-bottom: 0.25rem;
 }
@@ -360,6 +365,10 @@ ol,
   display: none;
 }
 
+.custom :is(.h-1) {
+  height: 0.25rem;
+}
+
 .custom :is(.h-12) {
   height: 3rem;
 }
@@ -422,6 +431,14 @@ ol,
 
 .custom :is(.cursor-pointer) {
   cursor: pointer;
+}
+
+.custom :is(.list-inside) {
+  list-style-position: inside;
+}
+
+.custom :is(.list-disc) {
+  list-style-type: disc;
 }
 
 .custom :is(.grid-cols-2) {
@@ -504,6 +521,10 @@ ol,
 
 .custom :is(.rounded-md) {
   border-radius: 0.375rem;
+}
+
+.custom :is(.\!border-2) {
+  border-width: 2px !important;
 }
 
 .custom :is(.border) {
