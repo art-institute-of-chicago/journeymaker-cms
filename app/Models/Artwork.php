@@ -11,6 +11,7 @@ use A17\Twill\Services\MediaLibrary\ImageService;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -162,6 +163,33 @@ class Artwork extends Model
     public function scopeOffView(Builder $query): void
     {
         $query->where('is_on_view', false);
+    }
+
+    protected function onJourneyMaker(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->is_on_view
+                && $this->gallery_id != 2147475902
+                && $this->published
+                && $this->translations->reject(fn ($translation) => $translation->active)->isEmpty()
+                && $this->themePrompts->reject(fn ($prompt) => $prompt->on_journey_maker)->isEmpty(),
+        );
+    }
+
+    protected function offJourneyMakerReasons(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => collect([
+                'Off View' => ! $this->is_on_view,
+                'Unpublished' => ! $this->published,
+                'Missing Translations' => $this->translations->reject(fn ($translation) => $translation->active)->isNotEmpty(),
+                'In Regenstein Hall' => $this->gallery_id == 2147475902,
+                'Not Included in Visible Prompt' => $this->themePrompts->reject(fn ($prompt) => $prompt->on_journey_maker)->isNotEmpty(),
+            ])
+            ->filter(fn ($reason) => $reason)
+            ->keys()
+            ->join(', '),
+        );
     }
 
     public function defaultCmsImage($params = [])
