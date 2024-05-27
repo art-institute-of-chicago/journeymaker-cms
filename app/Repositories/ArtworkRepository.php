@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
+use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Repositories\Behaviors\HandleMedias;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
 use A17\Twill\Repositories\Behaviors\HandleTranslations;
 use A17\Twill\Repositories\ModuleRepository;
 use App\Libraries\Api\Builders\ApiQueryBuilder;
 use App\Models\Artwork;
+use App\Models\ThemePromptArtwork;
 use App\Repositories\Traits\HandleDynamicArtworkFields;
 use Illuminate\Support\Str;
 
@@ -52,6 +54,16 @@ class ArtworkRepository extends ModuleRepository
         ];
 
         return parent::prepareFieldsBeforeCreate([...$fields, ...$apiFields, ...$translatedFields]);
+    }
+
+    public function afterSave(TwillModelContract $model, array $fields): void
+    {
+        // Update hidden artwork title field used in repeater
+        ThemePromptArtwork::where('artwork_id', $model->id)->get()->each->update([
+            'title' => $fields['en']['title'],
+        ]);
+
+        parent::afterSave($model, $fields);
     }
 
     public function getCountVisible(): int
