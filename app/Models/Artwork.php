@@ -269,6 +269,10 @@ class Artwork extends Model
             array_pad([], count(Artwork::ARTWORK_API_FIELDS), null)
         );
 
+        if (! $this->datahub_id) {
+            return $nullArtwork;
+        }
+
         return $this->getApiData(
             self::ARTWORK_API_FIELDS,
             "/api/v1/artworks/{$this->datahub_id}",
