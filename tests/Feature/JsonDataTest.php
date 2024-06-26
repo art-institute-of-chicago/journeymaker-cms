@@ -7,6 +7,7 @@ use App\Models\Artwork;
 use App\Models\Theme;
 use App\Models\ThemePrompt;
 use Database\Seeders\TestSeeder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -326,5 +327,41 @@ class JsonDataTest extends TestCase
 
         $this->get('/json/data.json')
             ->assertJsonCount(6, 'themes.0.prompts.0.artworks');
+    }
+
+    #[Test]
+    public function prompt_artworks_use_api_title_by_default(): void
+    {
+        $artwork = Artwork::find(1);
+        $artwork->update(['title' => 'Test Title']);
+
+        $this->get('/json/data.json')
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->where('themes.0.prompts.0.artworks.0.title', 'A13: New England Bedroom, 1750-1850')
+                ->etc()
+            );
+
+        $artwork->update(['use_api_title' => false]);
+        Cache::forget('data.json');
+
+        $this->get('/json/data.json')
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->where('themes.0.prompts.0.artworks.0.title', $artwork->title)
+                ->etc()
+            );
+    }
+
+    #[Test]
+    public function prompt_artworks_use_cms_title_for_translations(): void
+    {
+        App::setLocale('es');
+
+        Artwork::find(1)->update(['title' => 'Título de prueba']);
+
+        $this->get('/json/data-es.json')
+            ->assertJson(fn (AssertableJson $json) => $json
+                ->where('themes.0.prompts.0.artworks.0.title', 'Título de prueba')
+                ->etc()
+            );
     }
 }

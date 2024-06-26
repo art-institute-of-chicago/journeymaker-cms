@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Twill;
 use A17\Twill\Http\Controllers\Admin\ModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Forms\BladePartial;
+use A17\Twill\Services\Forms\Fields\Checkbox;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Fields\Medias;
 use A17\Twill\Services\Forms\Fieldset;
@@ -72,8 +73,12 @@ class ArtworkController extends ModuleController
                     ->fields([
                         Input::make()
                             ->name('title')
+                            ->label('CMS Title')
                             ->maxLength(255)
                             ->translatable(),
+                        Checkbox::make()
+                            ->name('use_api_title')
+                            ->label('Use API Title: '.$apiArtwork->title ?? ''),
                         BladePartial::make()
                             ->view('forms.image')
                             ->withAdditionalParams([
@@ -96,6 +101,7 @@ class ArtworkController extends ModuleController
                         BladePartial::make()
                             ->view('forms.object-info')
                             ->withAdditionalParams([
+                                'title' => $apiArtwork->title ?? '',
                                 'isOnView' => $model->is_on_view ?? false,
                                 'datahubId' => $model->datahub_id ?? '',
                                 'mainReferenceNumber' => $apiArtwork->main_reference_number ?? '',
@@ -141,7 +147,7 @@ class ArtworkController extends ModuleController
             )
             ->add(Text::make()
                 ->field('gallery_name')
-                ->customRender(fn ($artwork) => $artwork->gallery_name . '' ?? ''))
+                ->customRender(fn ($artwork) => $artwork->gallery_name.'' ?? ''))
             ->add(Text::make()
                 ->field('Themes')
                 ->customRender(fn ($artwork) => $artwork->themePrompts()->with('theme')->get()->pluck('theme')
