@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use stdClass;
 
@@ -29,6 +30,7 @@ class Artwork extends Model
     public const ARTWORK_API_FIELDS = [
         'id',
         'main_reference_number',
+        'title',
         'thumbnail',
         'artist_title',
         'artist_display',
@@ -53,6 +55,7 @@ class Artwork extends Model
         'published',
         'datahub_id',
         'title',
+        'use_api_title',
         'artist',
         'location_directions',
         'is_on_view',
@@ -61,6 +64,7 @@ class Artwork extends Model
     ];
 
     protected $casts = [
+        'use_api_title' => 'boolean',
         'is_on_view' => 'boolean',
     ];
 
@@ -186,9 +190,9 @@ class Artwork extends Model
                 'In Regenstein Hall' => $this->gallery_id == 2147475902,
                 'Not Included in Visible Prompt' => $this->themePrompts->reject(fn ($prompt) => $prompt->on_journey_maker)->isNotEmpty(),
             ])
-            ->filter(fn ($reason) => $reason)
-            ->keys()
-            ->join(', '),
+                ->filter(fn ($reason) => $reason)
+                ->keys()
+                ->join(', '),
         );
     }
 
@@ -349,6 +353,11 @@ class Artwork extends Model
             $key = $key == 'gallery_name' ? 'title' : $key;
 
             return $this->getGalleryApiData($this->gallery_id)->$key;
+        }
+
+        // Return API title if enabled and locale is English
+        if ($key === 'title' && $this->use_api_title && App::getLocale() === 'en'){
+            return $this->getArtworkApiData()->title;
         }
 
         return parent::__get($key);

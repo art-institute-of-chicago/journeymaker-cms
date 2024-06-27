@@ -28,11 +28,14 @@ class ArtworkRepository extends ModuleRepository
     public function prepareFieldsBeforeCreate(array $fields): array
     {
         $apiFields = $this->api
-            ->get(Artwork::ARTWORK_API_FIELDS, '/api/v1/artworks/'.$fields['datahub_id'])
-            ->map(fn ($artwork) => (array) $artwork)
-            ->first();
+            ->get(endpoint: '/api/v1/artworks/'.$fields['datahub_id'])
+            ->map(fn ($artwork) => collect((array) $artwork))
+            ->first()
+            ->only(Artwork::ARTWORK_API_FIELDS)
+            ->except('title')
+            ->toArray();
 
-        if ($apiFields['is_on_view'] === true) {
+        if ($apiFields['is_on_view'] === true && $apiFields['gallery_id']) {
             $galleryFields = $this->api
                 ->get(endpoint: '/api/v1/galleries/'.$apiFields['gallery_id'])
                 ->map(fn ($gallery) => (array) $gallery)

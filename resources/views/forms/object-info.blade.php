@@ -5,6 +5,10 @@
 @php
     $items = [
         [
+            'label' => 'API Title',
+            'value' => $title
+        ],
+        [
             'label' => 'Is On View',
             'value' => $isOnView ? '✅' : '❌'
         ],
