@@ -44,16 +44,14 @@ class ArtworkRepository extends ModuleRepository
             $apiFields['floor'] = $galleryFields['floor'] ?? null;
         }
 
-        $artist = Str::of($apiFields['artist_title'] ?: $apiFields['artist_display'])
-            ->before("\n")->trim()->__toString();
+        if (! data_get($fields, "artist.en")) {
+            $artist = Str::of($apiFields['artist_title'] ?: $apiFields['artist_display'])
+                ->before("\n")->trim()->__toString();
 
-        $translatedFields = [
-            'artist' => [
-                'en' => $artist,
-            ],
-        ];
+            data_set($fields, "artist.en", $artist);
+        }
 
-        return parent::prepareFieldsBeforeCreate([...$fields, ...$apiFields, ...$translatedFields]);
+        return parent::prepareFieldsBeforeCreate([...$fields, ...$apiFields]);
     }
 
     public function afterSave(TwillModelContract $model, array $fields): void

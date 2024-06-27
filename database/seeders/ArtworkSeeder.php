@@ -45,7 +45,7 @@ class ArtworkSeeder extends Seeder
                 'en' => [
                     'title' => $rawArtwork['title'],
                     'artist' => $rawArtwork['artist'],
-                    'location_directions' => $rawArtwork['locationDirections'] ?? null,
+                    'locationDirections' => $rawArtwork['locationDirections'] ?? null,
                 ],
             ])->merge($rawArtwork['translations'])->map(
                 fn ($translation, $locale) => [
@@ -70,9 +70,9 @@ class ArtworkSeeder extends Seeder
 
             $themePromptArtworkData = collect([
                 'en' => [
-                    'detail_narrative' => $rawArtwork['detailNarrative'] ?? null,
-                    'viewing_description' => $rawArtwork['viewingDescription'] ?? null,
-                    'activity_instructions' => $rawArtwork['activityInstructions'] ?? null,
+                    'detailNarrative' => $rawArtwork['detailNarrative'] ?? null,
+                    'viewingDescription' => $rawArtwork['viewingDescription'] ?? null,
+                    'activityInstructions' => $rawArtwork['activityInstructions'] ?? null,
                 ],
             ])->merge($rawArtwork['translations'])->map(
                 fn ($translation, $locale) => [
