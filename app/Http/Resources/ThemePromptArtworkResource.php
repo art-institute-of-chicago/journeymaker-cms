@@ -116,7 +116,7 @@ class ThemePromptArtworkResource extends JsonResource
 
     private function getApiImageUrl(string $id, string|int $width): string
     {
-        return "https://www.artic.edu/iiif/2/{$id}/full/{$width},/0/default.jpg";
+        return config('journeymaker.image_base_uri') . "/iiif/2/{$id}/full/{$width},/0/default.jpg";
     }
 
     private function getDimensions(int $width, int $height, int $newWidth): array
