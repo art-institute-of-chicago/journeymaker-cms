@@ -8,6 +8,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ThemePromptArtworkResource extends JsonResource
 {
+    public const ALLOWED_IMAGE_DIMS = [200,400,600,843,1200,1686];
+
     public const IMAGE_SIZES = [
         'img' => 1686,
         'small' => 1686,
@@ -107,41 +109,48 @@ class ThemePromptArtworkResource extends JsonResource
             );
 
             return [
-                'url' => $this->getApiImageUrl($artwork->image_id, $dimensions['width']),
+                'url' => $this->getApiImageUrl(
+                    $artwork->image_id,
+                    $dimensions['width'],
+                    $dimensions['height']
+                ),
                 'width' => $dimensions['width'],
                 'height' => $dimensions['height'],
             ];
         })->toArray();
     }
 
-    private function getApiImageUrl(string $id, string|int $width): string
+    private function getApiImageUrl(string $id, string|int $width, string|int $height): string
     {
-        return "https://www.artic.edu/iiif/2/{$id}/full/{$width},/0/default.jpg";
+        return config('journeymaker.image_base_uri') . "/iiif/2/{$id}/full/{$width},{$height}/0/default.jpg";
     }
 
-    private function getDimensions(int $width, int $height, int $newWidth): array
+    private function getDimensions(int $width, int $height, int $newSize): array
     {
         if ($width === 0 || $height === 0) {
             return ['width' => 0, 'height' => 0];
         }
 
-        // Do not upscale images
-        if ($width <= $newWidth) {
-            return ['width' => $width, 'height' => $height];
+        // Size the longest side, without upscaling past the requested size
+        if ($width >= $height) {
+            return ['width' => $this->getAllowedDimension(min($width, $newSize)), 'height' => ''];
         }
 
-        $aspectRatio = $width / $height;
+        return ['width' => '', 'height' => $this->getAllowedDimension(min($height, $newSize))];
+    }
 
-        $width = $newWidth;
-        $height = round($newWidth / $aspectRatio);
-
-        // If the height is still greater than the max height
-        // Set the height to the max height
-        if ($height > static::IMAGE_SIZES['img']) {
-            $height = static::IMAGE_SIZES['img'];
-            $width = round(static::IMAGE_SIZES['img'] * $aspectRatio);
+    /**
+     * Returns the smallest allowed dimension that is not less than the given size,
+     * or the largest allowed dimension if the size exceeds them all.
+     */
+    private function getAllowedDimension(int $size): int
+    {
+        foreach (static::ALLOWED_IMAGE_DIMS as $allowed) {
+            if ($allowed >= $size) {
+                return $allowed;
+            }
         }
 
-        return ['width' => $width, 'height' => $height];
+        return max(static::ALLOWED_IMAGE_DIMS);
     }
 }
